@@ -1,4 +1,4 @@
-package com.festa.identity.domain;
+package com.festa.shared.security;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -7,12 +7,12 @@ import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.HexFormat;
 
-/** Token do link mágico: 32 bytes aleatórios em base64url; o banco guarda só o SHA-256 (SECURITY.md). */
-public final class MagicLinkToken {
+/** Token opaco (link mágico, convite): 32 bytes aleatórios em base64url; o banco guarda só o SHA-256 (SECURITY.md). */
+public final class SecureToken {
 
 	private static final SecureRandom RANDOM = new SecureRandom();
 
-	private MagicLinkToken() {
+	private SecureToken() {
 	}
 
 	public static String generate() {

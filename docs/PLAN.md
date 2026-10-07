@@ -36,7 +36,7 @@ Regra: só começar um marco quando o anterior estiver pronto (exceto onde indic
 - [ ] Logo da organização — depende do upload para o R2 (M2)
 - [x] Papéis fixos por organização: OWNER, ADMIN, MANAGER, PROMOTER, CHECKIN_OPERATOR
 - [x] Guarda de autorização + filtro por `organization_id` + **teste de isolamento entre organizações**
-- [ ] Convidar membro por e-mail com papel
+- [x] Convidar membro por e-mail com papel
 - [ ] Web: telas de login, cadastro, criar organização, shell do painel (menu lateral desktop / barra inferior mobile)
 
 ### M2 · Eventos

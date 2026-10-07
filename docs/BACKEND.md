@@ -63,6 +63,7 @@ GET  /public/orders/{id}/status
 POST /public/orders/{id}/payment          # PIX ou cartão
 GET  /public/tickets/{token}
 POST /public/magic-links                  # "meus ingressos"
+POST /public/invitations/preview          # dados do convite para a tela de aceite (token no corpo)
 GET  /public/me/tickets                   # sessão via link mágico
 ```
 
@@ -77,6 +78,7 @@ GET  /auth/google/callback · POST /auth/magic-link/consume · GET /auth/me
 ```
 GET|POST /orgs                               · GET /orgs/{orgId}       # GET /orgs = organizações do usuário logado
 GET|POST /orgs/{orgId}/members               · POST /orgs/{orgId}/payment-account/connect
+POST /invitations/accept                     # aceitar convite (logado com o e-mail convidado)
 GET|POST /orgs/{orgId}/events                · GET|PATCH /orgs/{orgId}/events/{id}
 POST /orgs/{orgId}/events/{id}/publish       · POST /orgs/{orgId}/events/{id}/media/upload-url
 GET|POST /orgs/{orgId}/events/{id}/ticket-types

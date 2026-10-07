@@ -11,7 +11,16 @@
 
 ## Autorização
 
-- Papéis por organização (`organization_members.role`). Matriz em `docs/PLAN.md` / briefing.
+- Papéis por organização (`organization_members.role`). Matriz definida até agora (completar a cada módulo):
+
+  | Ação | OWNER | ADMIN | MANAGER | PROMOTER | CHECKIN_OPERATOR |
+  |---|---|---|---|---|---|
+  | Ver a organização | ✓ | ✓ | ✓ | ✓ | ✓ |
+  | Ver equipe e convites pendentes | ✓ | ✓ | ✓ | — | — |
+  | Convidar ADMIN | ✓ | — | — | — | — |
+  | Convidar MANAGER, PROMOTER, CHECKIN_OPERATOR | ✓ | ✓ | — | — | — |
+
+  Ninguém é convidado como OWNER (um dono por organização). Convite vale 7 dias, uma vez, só para o e-mail convidado.
 - Toda rota do painel passa por uma checagem central: `TenantGuard.requireRole(orgId, userId, roles...)` (módulo `organization.api`).
 - **Organization ID nunca vem do corpo da requisição.** Carregue o recurso, compare `resource.organizationId` com as organizações do usuário. Recurso de outra organização → `404` (não `403`, para não revelar existência).
 - PROMOTER vê só seus links e vendas. CHECKIN_OPERATOR vê só o necessário para validar (nome, tipo, status).

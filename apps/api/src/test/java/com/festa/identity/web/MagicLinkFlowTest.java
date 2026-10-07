@@ -2,7 +2,7 @@ package com.festa.identity.web;
 
 import com.festa.TestBrowser;
 import com.festa.TestcontainersConfiguration;
-import com.festa.identity.domain.MagicLinkToken;
+import com.festa.shared.security.SecureToken;
 import com.festa.notification.RecordingEmailSender;
 import com.festa.notification.api.EmailMessage;
 import org.junit.jupiter.api.Test;
@@ -52,7 +52,7 @@ class MagicLinkFlowTest {
 		String token = tokenFrom(sent.getFirst());
 		String storedHash = jdbc.sql("SELECT token_hash FROM magic_links WHERE email = ?").param(email)
 			.query(String.class).single();
-		assertThat(storedHash).isEqualTo(MagicLinkToken.hash(token)).isNotEqualTo(token);
+		assertThat(storedHash).isEqualTo(SecureToken.hash(token)).isNotEqualTo(token);
 	}
 
 	@Test
@@ -111,10 +111,10 @@ class MagicLinkFlowTest {
 	@Test
 	void expiredLinkIsRejected() throws Exception {
 		String email = uniqueEmail();
-		String token = MagicLinkToken.generate();
+		String token = SecureToken.generate();
 		Instant past = Instant.now().minusSeconds(3600);
 		jdbc.sql("INSERT INTO magic_links (id, email, token_hash, expires_at, created_at) VALUES (?, ?, ?, ?, ?)")
-			.params(UUID.randomUUID(), email, MagicLinkToken.hash(token), Timestamp.from(past.plusSeconds(900)),
+			.params(UUID.randomUUID(), email, SecureToken.hash(token), Timestamp.from(past.plusSeconds(900)),
 				Timestamp.from(past))
 			.update();
 
@@ -126,7 +126,7 @@ class MagicLinkFlowTest {
 
 	@Test
 	void unknownTokenIsRejected() throws Exception {
-		new TestBrowser(mvc).post("/api/v1/auth/magic-link/consume", consume(MagicLinkToken.generate()))
+		new TestBrowser(mvc).post("/api/v1/auth/magic-link/consume", consume(SecureToken.generate()))
 			.andExpect(status().isUnauthorized());
 	}
 

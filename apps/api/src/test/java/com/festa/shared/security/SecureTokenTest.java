@@ -1,4 +1,4 @@
-package com.festa.identity.domain;
+package com.festa.shared.security;
 
 import org.junit.jupiter.api.Test;
 
@@ -7,11 +7,11 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class MagicLinkTokenTest {
+class SecureTokenTest {
 
 	@Test
 	void generatesUrlSafe32ByteTokens() {
-		String token = MagicLinkToken.generate();
+		String token = SecureToken.generate();
 
 		assertThat(token).hasSize(43).matches("[A-Za-z0-9_-]+");
 	}
@@ -20,7 +20,7 @@ class MagicLinkTokenTest {
 	void generatesUniqueTokens() {
 		Set<String> tokens = new HashSet<>();
 		for (int i = 0; i < 1_000; i++) {
-			tokens.add(MagicLinkToken.generate());
+			tokens.add(SecureToken.generate());
 		}
 
 		assertThat(tokens).hasSize(1_000);
@@ -28,11 +28,11 @@ class MagicLinkTokenTest {
 
 	@Test
 	void hashIsDeterministicSha256HexAndDiffersFromToken() {
-		String token = MagicLinkToken.generate();
+		String token = SecureToken.generate();
 
-		String hash = MagicLinkToken.hash(token);
+		String hash = SecureToken.hash(token);
 
-		assertThat(hash).hasSize(64).matches("[0-9a-f]+").isEqualTo(MagicLinkToken.hash(token)).isNotEqualTo(token);
+		assertThat(hash).hasSize(64).matches("[0-9a-f]+").isEqualTo(SecureToken.hash(token)).isNotEqualTo(token);
 	}
 
 }

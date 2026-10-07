@@ -1,6 +1,6 @@
 package com.festa.identity.app;
 
-import com.festa.identity.domain.MagicLinkToken;
+import com.festa.shared.security.SecureToken;
 import com.festa.identity.domain.User;
 import com.festa.identity.infra.MagicLinkRepository;
 import com.festa.identity.infra.UserRepository;
@@ -59,8 +59,8 @@ public class MagicLinkService {
 			log.info("Limite de links mágicos atingido; pedido ignorado");
 			return;
 		}
-		String token = MagicLinkToken.generate();
-		links.insert(UuidV7.generate(), normalizedEmail, MagicLinkToken.hash(token), now.plus(VALIDITY), now);
+		String token = SecureToken.generate();
+		links.insert(UuidV7.generate(), normalizedEmail, SecureToken.hash(token), now.plus(VALIDITY), now);
 		emailSender.send(new EmailMessage(normalizedEmail, "Seu link de acesso ao FESTA", """
 				Olá!
 
@@ -77,7 +77,7 @@ public class MagicLinkService {
 	@Transactional
 	public User consume(String token) {
 		Instant now = clock.instant();
-		String email = links.consume(MagicLinkToken.hash(token), now)
+		String email = links.consume(SecureToken.hash(token), now)
 			.orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "invalid-magic-link",
 				"Link inválido ou expirado", "Este link já foi usado ou expirou. Peça um novo link de acesso."));
 		User user = users.findByEmail(email)
