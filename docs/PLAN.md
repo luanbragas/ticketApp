@@ -15,7 +15,7 @@ Regra: só começar um marco quando o anterior estiver pronto (exceto onde indic
 - [x] `infra/docker-compose.yml` com Postgres 16 e Mailpit
 - [x] `apps/api`: Spring Boot + Flyway + Actuator + Testcontainers + estrutura de módulos (ver BACKEND.md)
 - [x] `apps/web`: Next.js + TS + Tailwind + shadcn/ui + ESLint/Prettier
-- [ ] CI (GitHub Actions): lint, typecheck, testes da web e da api
+- [x] CI (GitHub Actions): lint, typecheck, testes da web e da api
 - [ ] Sentry na web e na api
 - [ ] Ambiente de staging (web + api + Postgres gerenciado) com deploy automático da `main`
 - [ ] Conta Mercado Pago de testes + app criado no painel de desenvolvedor
