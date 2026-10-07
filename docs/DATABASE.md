@@ -17,9 +17,9 @@
 
 ### identity
 ```sql
-users (id, name, email UNIQUE, password_hash NULL, email_verified_at, created_at, updated_at)
+users (id, name NULL, email UNIQUE, password_hash NULL, email_verified_at, created_at, updated_at)  -- name/senha nulos: conta criada por link mágico (ADR-004)
 user_identities (id, user_id FK, provider, provider_user_id, UNIQUE(provider, provider_user_id))
-magic_links (id, email, token_hash UNIQUE, expires_at, used_at)
+magic_links (id, email, token_hash UNIQUE, expires_at, used_at, created_at, updated_at)  -- token_hash = SHA-256 do token
 ```
 
 ### organization

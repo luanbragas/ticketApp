@@ -1,5 +1,6 @@
 package com.festa.identity.web;
 
+import com.festa.TestBrowser;
 import com.festa.TestcontainersConfiguration;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,11 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,11 +34,11 @@ class AuthFlowTest {
 	@Autowired
 	JdbcClient jdbc;
 
-	Browser browser;
+	TestBrowser browser;
 
 	@BeforeEach
 	void newBrowser() {
-		browser = new Browser();
+		browser = new TestBrowser(mvc);
 	}
 
 	@Test
@@ -86,7 +83,7 @@ class AuthFlowTest {
 			.andExpect(status().isCreated())
 			.andExpect(jsonPath("$.email").value(email));
 
-		new Browser().post("/api/v1/auth/login", login(email.toUpperCase(), "senha-forte-123"))
+		new TestBrowser(mvc).post("/api/v1/auth/login", login(email.toUpperCase(), "senha-forte-123"))
 			.andExpect(status().isOk());
 	}
 
@@ -95,7 +92,7 @@ class AuthFlowTest {
 		String email = uniqueEmail();
 		browser.post("/api/v1/auth/signup", signup("Ana", email, "senha-forte-123")).andExpect(status().isCreated());
 
-		new Browser().post("/api/v1/auth/signup", signup("Outra Ana", email, "outra-senha-456"))
+		new TestBrowser(mvc).post("/api/v1/auth/signup", signup("Outra Ana", email, "outra-senha-456"))
 			.andExpect(status().isConflict())
 			.andExpect(jsonPath("$.type").value("https://festa.com/errors/email-already-registered"));
 	}
@@ -121,7 +118,7 @@ class AuthFlowTest {
 	@Test
 	void loginWithCorrectPasswordStartsSession() throws Exception {
 		String email = uniqueEmail();
-		new Browser().post("/api/v1/auth/signup", signup("Ana", email, "senha-forte-123"))
+		new TestBrowser(mvc).post("/api/v1/auth/signup", signup("Ana", email, "senha-forte-123"))
 			.andExpect(status().isCreated());
 
 		browser.post("/api/v1/auth/login", login(email, "senha-forte-123"))
@@ -133,7 +130,7 @@ class AuthFlowTest {
 	@Test
 	void loginWithWrongPasswordOrUnknownEmailReturnsSameError() throws Exception {
 		String email = uniqueEmail();
-		new Browser().post("/api/v1/auth/signup", signup("Ana", email, "senha-forte-123"))
+		new TestBrowser(mvc).post("/api/v1/auth/signup", signup("Ana", email, "senha-forte-123"))
 			.andExpect(status().isCreated());
 
 		browser.post("/api/v1/auth/login", login(email, "senha-errada-000"))
@@ -216,52 +213,6 @@ class AuthFlowTest {
 
 	private static String login(String email, String password) {
 		return "{\"email\":\"%s\",\"password\":\"%s\"}".formatted(email, password);
-	}
-
-	/** Guarda cookies entre requisições e envia o token CSRF no header, como a web fará. */
-	class Browser {
-
-		private final Map<String, Cookie> cookies = new LinkedHashMap<>();
-		private boolean csrfFetched;
-
-		ResultActions get(String url) throws Exception {
-			return perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get(url));
-		}
-
-		/** Busca o token CSRF só uma vez, como a web ao abrir; depois depende do cookie que a API devolve. */
-		ResultActions post(String url, String json) throws Exception {
-			if (!csrfFetched) {
-				get("/api/v1/auth/csrf").andExpect(status().isNoContent());
-				csrfFetched = true;
-			}
-			Cookie csrf = cookies.get("XSRF-TOKEN");
-			assertThat(csrf).as("cookie XSRF-TOKEN presente antes de " + url).isNotNull();
-			return perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post(url)
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(json)
-				.header("X-XSRF-TOKEN", csrf.getValue()));
-		}
-
-		Cookie cookie(String name) {
-			return cookies.get(name);
-		}
-
-		private ResultActions perform(MockHttpServletRequestBuilder request) throws Exception {
-			if (!cookies.isEmpty()) {
-				request.cookie(cookies.values().toArray(Cookie[]::new));
-			}
-			ResultActions actions = mvc.perform(request);
-			for (Cookie cookie : actions.andReturn().getResponse().getCookies()) {
-				if (cookie.getMaxAge() == 0 || cookie.getValue() == null || cookie.getValue().isEmpty()) {
-					cookies.remove(cookie.getName());
-				}
-				else {
-					cookies.put(cookie.getName(), cookie);
-				}
-			}
-			return actions;
-		}
-
 	}
 
 }

@@ -64,7 +64,8 @@ public class SecurityConfig {
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers("/actuator/health", "/actuator/health/**", "/actuator/info", "/error").permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/v1/auth/csrf").permitAll()
-				.requestMatchers(HttpMethod.POST, "/api/v1/auth/signup", "/api/v1/auth/login").permitAll()
+				.requestMatchers(HttpMethod.POST, "/api/v1/auth/signup", "/api/v1/auth/login",
+					"/api/v1/auth/magic-link/consume").permitAll()
 				.requestMatchers("/api/v1/public/**", "/api/v1/webhooks/**").permitAll()
 				.anyRequest().authenticated())
 			.exceptionHandling(exceptions -> exceptions

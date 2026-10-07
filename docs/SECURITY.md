@@ -6,7 +6,8 @@
 - Login com Google via OIDC. Link mágico: token aleatório de 32 bytes, guardado só o hash, expira em 15 min, uso único.
 - Sessão no servidor (Spring Session JDBC) em cookie `HttpOnly; Secure; SameSite=Lax` no domínio pai. CSRF ativo para métodos de escrita. Ver ADR-001.
 - Sessão do operador de check-in pode durar a noite do evento; demais sessões expiram por inatividade.
-- Comprador não precisa de conta: acesso aos ingressos por link mágico.
+- Comprador não precisa de cadastro: acesso aos ingressos por link mágico, que cria a conta no primeiro acesso (ADR-004).
+- Link mágico que confirma e-mail de conta não verificada descarta a senha existente e encerra as sessões dela (conta pré-criada por terceiro).
 
 ## Autorização
 

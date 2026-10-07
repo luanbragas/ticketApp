@@ -24,14 +24,42 @@ public class User extends BaseEntity {
 	}
 
 	private User(String name, String email, String passwordHash) {
-		this.name = requireText(name, "name").trim();
+		this.name = name == null ? null : requireText(name, "name").trim();
 		this.email = normalizeEmail(email);
 		this.passwordHash = passwordHash;
 	}
 
 	/** Cadastro por e-mail + senha. A senha chega já como hash Argon2id. */
 	public static User registerWithPassword(String name, String email, String passwordHash) {
-		return new User(name, email, requireText(passwordHash, "passwordHash"));
+		return new User(requireText(name, "name"), email, requireText(passwordHash, "passwordHash"));
+	}
+
+	/**
+	 * Conta criada no primeiro acesso por link mágico (ADR-004): sem nome e sem senha,
+	 * com e-mail já verificado porque o clique no link prova a posse da caixa.
+	 */
+	public static User registerFromVerifiedEmail(String email, Instant verifiedAt) {
+		User user = new User(null, email, null);
+		user.emailVerifiedAt = Objects.requireNonNull(verifiedAt, "verifiedAt");
+		return user;
+	}
+
+	/**
+	 * Registra que o dono da caixa de e-mail provou a posse (ex.: clicou no link mágico).
+	 * Se a conta ainda não era verificada, a senha existente foi definida por alguém que nunca
+	 * provou ser dono do e-mail e é descartada (proteção contra conta pré-criada por terceiro).
+	 *
+	 * @return true se credenciais anteriores foram invalidadas e as sessões abertas devem ser encerradas
+	 */
+	public boolean confirmEmailOwnership(Instant verifiedAt) {
+		Objects.requireNonNull(verifiedAt, "verifiedAt");
+		if (emailVerifiedAt != null) {
+			return false;
+		}
+		emailVerifiedAt = verifiedAt;
+		boolean hadPassword = passwordHash != null;
+		passwordHash = null;
+		return hadPassword;
 	}
 
 	/** E-mail é guardado sem espaços e em minúsculas (a migration V001 exige). */

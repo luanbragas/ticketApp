@@ -31,7 +31,7 @@ Regra: só começar um marco quando o anterior estiver pronto (exceto onde indic
 - [x] Tabelas `users`, `user_identities`, `organizations`, `organization_members` (migration)
 - [x] Cadastro e login por e-mail + senha (Argon2id)
 - [ ] Login com Google (OIDC) — aguardando Client ID do Google Cloud
-- [ ] Link mágico por e-mail (usado também pelo comprador em "Meus ingressos")
+- [x] Link mágico por e-mail (usado também pelo comprador em "Meus ingressos")
 - [ ] Criar organização (nome, slug, logo)
 - [ ] Papéis fixos por organização: OWNER, ADMIN, MANAGER, PROMOTER, CHECKIN_OPERATOR
 - [ ] Guarda de autorização + filtro por `organization_id` + **teste de isolamento entre organizações**
