@@ -16,11 +16,13 @@ apps/web/src/
 │   │   ├── pedido/[id]/              # pagamento PIX / status
 │   │   ├── t/[token]/page.tsx        # ingresso
 │   │   └── meus-ingressos/
-│   ├── (auth)/entrar, cadastro, link-magico
+│   ├── (auth)/entrar, cadastro, link-magico, convite
 │   ├── painel/
 │   │   ├── layout.tsx                # shell: menu lateral (desktop) / barra inferior (mobile)
 │   │   ├── page.tsx                  # dashboard
 │   │   ├── eventos/ (lista, novo = wizard, [id]/ingressos, participantes, promoters)
+│   │   ├── equipe/                   # membros e convites
+│   │   ├── organizacoes/nova/
 │   │   ├── financeiro/
 │   │   └── configuracoes/
 │   └── checkin/[eventId]/            # PWA de check-in
@@ -34,6 +36,16 @@ apps/web/src/
 │   └── auth.ts
 └── hooks/
 ```
+
+## Sessão e dados (ADR-001)
+
+- `src/proxy.ts` (o antigo middleware) faz só a checagem otimista: sem cookie `festa_session`, `/painel` redireciona para `/entrar?next=...`.
+- `src/lib/auth.ts` é a DAL do servidor: confirma a sessão na API repassando o cookie (`getCurrentUser`, `requireUser`, `getMyOrganizations`). A organização escolhida fica no cookie `festa_org`.
+- No navegador, `src/lib/api/client.ts` chama a API direto (`credentials: "include"`), manda o CSRF no header `X-XSRF-TOKEN` e tenta de novo uma vez se o token girou.
+- Ao trocar de conta (login, cadastro, link mágico, logout), chamar `useSessionChanged()` para limpar o cache do TanStack Query.
+- **Cache Components está ligado**: leitura de sessão, `cookies()` ou `searchParams` sempre dentro de `<Suspense>` (ou de um `loading.tsx`).
+- Tokens de link mágico e convite chegam no fragmento da URL (`#token=`) e são removidos da barra logo após a leitura.
+- `?next=` passa por `safeNext()` (só caminhos internos).
 
 ## Padrões
 
