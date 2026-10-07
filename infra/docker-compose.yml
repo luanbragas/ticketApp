@@ -5,7 +5,7 @@ services:
       POSTGRES_DB: festa
       POSTGRES_USER: festa
       POSTGRES_PASSWORD: festa
-    ports: ["5432:5432"]
+    ports: ["55432:5432"]  # porta alta: a máquina de dev já tem Postgres nativo em 5432 e 5433
     volumes: [pgdata:/var/lib/postgresql/data]
   mailpit:
     image: axllent/mailpit
