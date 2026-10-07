@@ -4,7 +4,7 @@
 
 - Senhas com **Argon2id** (ou bcrypt custo ≥ 12). Nunca logar senha nem token.
 - Login com Google via OIDC. Link mágico: token aleatório de 32 bytes, guardado só o hash, expira em 15 min, uso único.
-- Padrão (até ADR-001): sessão Spring em cookie `HttpOnly; Secure; SameSite=Lax` no domínio pai. CSRF ativo para métodos de escrita.
+- Sessão no servidor (Spring Session JDBC) em cookie `HttpOnly; Secure; SameSite=Lax` no domínio pai. CSRF ativo para métodos de escrita. Ver ADR-001.
 - Sessão do operador de check-in pode durar a noite do evento; demais sessões expiram por inatividade.
 - Comprador não precisa de conta: acesso aos ingressos por link mágico.
 

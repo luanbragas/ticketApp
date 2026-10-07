@@ -19,8 +19,8 @@ Regra: só começar um marco quando o anterior estiver pronto (exceto onde indic
 - [ ] Sentry na web e na api
 - [ ] Ambiente de staging (web + api + Postgres gerenciado) com deploy automático da `main`
 - [ ] Conta Mercado Pago de testes + app criado no painel de desenvolvedor
-- [ ] **ADR-001** autenticação (sessão em cookie vs JWT)
-- [ ] **ADR-002** acesso a dados (JPA vs jOOQ)
+- [x] **ADR-001** autenticação (sessão em cookie vs JWT)
+- [x] **ADR-002** acesso a dados (JPA vs jOOQ)
 - [ ] **ADR-003** confirmar split do Mercado Pago (marketplace/OAuth, taxas, prazos, chargeback)
 
 ## Fase 1 — MVP
