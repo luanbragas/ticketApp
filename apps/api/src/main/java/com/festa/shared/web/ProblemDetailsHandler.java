@@ -2,6 +2,7 @@ package com.festa.shared.web;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.net.URI;
 import java.util.List;
@@ -85,6 +87,23 @@ public class ProblemDetailsHandler extends ResponseEntityExceptionHandler {
 			HttpHeaders headers, HttpStatusCode status, WebRequest request) {
 		return ResponseEntity.badRequest().body(problem(HttpStatus.BAD_REQUEST, "malformed-request",
 			"Requisição inválida", "O corpo da requisição está malformado ou tem campos desconhecidos."));
+	}
+
+	/** Id malformado na URL (ex.: UUID inválido) é tratado como recurso inexistente. */
+	@Override
+	protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers,
+			HttpStatusCode status, WebRequest request) {
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(notFound());
+	}
+
+	@Override
+	protected ResponseEntity<Object> handleNoResourceFoundException(NoResourceFoundException ex, HttpHeaders headers,
+			HttpStatusCode status, WebRequest request) {
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(notFound());
+	}
+
+	private static ProblemDetail notFound() {
+		return problem(HttpStatus.NOT_FOUND, "not-found", "Não encontrado", "O recurso solicitado não existe.");
 	}
 
 	private static ResponseEntity<ProblemDetail> of(ProblemDetail problem) {

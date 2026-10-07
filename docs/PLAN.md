@@ -32,9 +32,10 @@ Regra: só começar um marco quando o anterior estiver pronto (exceto onde indic
 - [x] Cadastro e login por e-mail + senha (Argon2id)
 - [ ] Login com Google (OIDC) — aguardando Client ID do Google Cloud
 - [x] Link mágico por e-mail (usado também pelo comprador em "Meus ingressos")
-- [ ] Criar organização (nome, slug, logo)
-- [ ] Papéis fixos por organização: OWNER, ADMIN, MANAGER, PROMOTER, CHECKIN_OPERATOR
-- [ ] Guarda de autorização + filtro por `organization_id` + **teste de isolamento entre organizações**
+- [x] Criar organização (nome, slug)
+- [ ] Logo da organização — depende do upload para o R2 (M2)
+- [x] Papéis fixos por organização: OWNER, ADMIN, MANAGER, PROMOTER, CHECKIN_OPERATOR
+- [x] Guarda de autorização + filtro por `organization_id` + **teste de isolamento entre organizações**
 - [ ] Convidar membro por e-mail com papel
 - [ ] Web: telas de login, cadastro, criar organização, shell do painel (menu lateral desktop / barra inferior mobile)
 

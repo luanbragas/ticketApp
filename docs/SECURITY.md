@@ -12,7 +12,7 @@
 ## Autorização
 
 - Papéis por organização (`organization_members.role`). Matriz em `docs/PLAN.md` / briefing.
-- Toda rota do painel passa por uma checagem central: `requireRole(orgId, roles...)`.
+- Toda rota do painel passa por uma checagem central: `TenantGuard.requireRole(orgId, userId, roles...)` (módulo `organization.api`).
 - **Organization ID nunca vem do corpo da requisição.** Carregue o recurso, compare `resource.organizationId` com as organizações do usuário. Recurso de outra organização → `404` (não `403`, para não revelar existência).
 - PROMOTER vê só seus links e vendas. CHECKIN_OPERATOR vê só o necessário para validar (nome, tipo, status).
 - Teste obrigatório: usuário da organização A tentando ler/alterar recurso da B em cada endpoint do painel.

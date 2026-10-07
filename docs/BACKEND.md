@@ -75,7 +75,7 @@ GET  /auth/google/callback · POST /auth/magic-link/consume · GET /auth/me
 
 ### Painel
 ```
-POST /orgs                                   · GET /orgs/{orgId}
+GET|POST /orgs                               · GET /orgs/{orgId}       # GET /orgs = organizações do usuário logado
 GET|POST /orgs/{orgId}/members               · POST /orgs/{orgId}/payment-account/connect
 GET|POST /orgs/{orgId}/events                · GET|PATCH /orgs/{orgId}/events/{id}
 POST /orgs/{orgId}/events/{id}/publish       · POST /orgs/{orgId}/events/{id}/media/upload-url
