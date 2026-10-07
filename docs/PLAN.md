@@ -12,8 +12,8 @@ Regra: só começar um marco quando o anterior estiver pronto (exceto onde indic
 **Pronto quando:** `docker compose up` + api + web sobem localmente, CI verde, deploy de "hello world" em staging.
 
 - [ ] Criar monorepo (`apps/web`, `apps/api`, `infra`, `docs`)
-- [ ] `infra/docker-compose.yml` com Postgres 16 e Mailpit
-- [ ] `apps/api`: Spring Boot + Flyway + Actuator + Testcontainers + estrutura de módulos (ver BACKEND.md)
+- [x] `infra/docker-compose.yml` com Postgres 16 e Mailpit
+- [x] `apps/api`: Spring Boot + Flyway + Actuator + Testcontainers + estrutura de módulos (ver BACKEND.md)
 - [ ] `apps/web`: Next.js + TS + Tailwind + shadcn/ui + ESLint/Prettier
 - [ ] CI (GitHub Actions): lint, typecheck, testes da web e da api
 - [ ] Sentry na web e na api

@@ -1,0 +1,4 @@
+# Perfil local: usa o Postgres do infra/docker-compose.yml (credenciais padrão de dev).
+logging:
+  level:
+    com.festa: DEBUG
