@@ -68,6 +68,7 @@ GET  /public/me/tickets                   # sessão via link mágico
 
 ### Autenticação
 ```
+GET  /auth/csrf                            # gera o cookie XSRF-TOKEN (a web chama ao abrir)
 POST /auth/signup · POST /auth/login · POST /auth/logout
 GET  /auth/google/callback · POST /auth/magic-link/consume · GET /auth/me
 ```

@@ -16,6 +16,7 @@
 	<properties>
 		<java.version>21</java.version>
 		<archunit.version>1.5.1</archunit.version>
+		<bouncycastle.version>1.86</bouncycastle.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -33,6 +34,16 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-session-jdbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk18on</artifactId>
+			<version>${bouncycastle.version}</version>
+			<!-- Exigido pelo Argon2PasswordEncoder (ver SECURITY.md) -->
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -70,6 +81,11 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-session-jdbc-test</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

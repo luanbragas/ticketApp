@@ -4,7 +4,7 @@ spring:
   profiles:
     default: local
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/festa}
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:55432/festa}
     username: ${DATABASE_USERNAME:festa}
     password: ${DATABASE_PASSWORD:festa}
   jpa:
@@ -15,9 +15,24 @@ spring:
       hibernate.jdbc.time_zone: UTC
   flyway:
     locations: classpath:db/migration
-  mvc:
-    problemdetails:
-      enabled: true
+  jackson:
+    deserialization:
+      # SECURITY.md: rejeitar campos desconhecidos.
+      fail-on-unknown-properties: true
+  session:
+    # ADR-001: sessão no Postgres, expira por inatividade. Tabelas criadas pela migration V002.
+    timeout: ${SESSION_TIMEOUT:7d}
+    jdbc:
+      initialize-schema: never
+
+festa:
+  web:
+    # Origens da web autorizadas no CORS (com credenciais).
+    allowed-origins: ${WEB_ALLOWED_ORIGINS:http://localhost:3000}
+  security:
+    # Domínio pai dos cookies em staging/prod (ex.: .festa.com). Vazio = host da API.
+    cookie-domain: ${COOKIE_DOMAIN:}
+    secure-cookies: ${SECURE_COOKIES:true}
 
 server:
   port: ${PORT:8080}

@@ -29,7 +29,8 @@ Regra: só começar um marco quando o anterior estiver pronto (exceto onde indic
 **Pronto quando:** produtor cria conta, faz login, cria organização e convida um membro.
 
 - [x] Tabelas `users`, `user_identities`, `organizations`, `organization_members` (migration)
-- [ ] Cadastro e login por e-mail + senha (Argon2id) e login com Google
+- [x] Cadastro e login por e-mail + senha (Argon2id)
+- [ ] Login com Google (OIDC) — aguardando Client ID do Google Cloud
 - [ ] Link mágico por e-mail (usado também pelo comprador em "Meus ingressos")
 - [ ] Criar organização (nome, slug, logo)
 - [ ] Papéis fixos por organização: OWNER, ADMIN, MANAGER, PROMOTER, CHECKIN_OPERATOR
