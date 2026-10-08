@@ -1,6 +1,6 @@
 package com.festa.event.app;
 
-import com.festa.event.infra.EventLookup;
+import com.festa.event.infra.EventRepository;
 import com.festa.organization.api.Role;
 import com.festa.organization.api.TenantGuard;
 import com.festa.shared.id.UuidV7;
@@ -42,11 +42,11 @@ public class MediaUploadService {
 	}
 
 	private final TenantGuard tenantGuard;
-	private final EventLookup events;
+	private final EventRepository events;
 	private final MediaStorage storage;
 	private final Clock clock;
 
-	MediaUploadService(TenantGuard tenantGuard, EventLookup events, MediaStorage storage, Clock clock) {
+	MediaUploadService(TenantGuard tenantGuard, EventRepository events, MediaStorage storage, Clock clock) {
 		this.tenantGuard = tenantGuard;
 		this.events = events;
 		this.storage = storage;
@@ -57,7 +57,7 @@ public class MediaUploadService {
 	public UploadUrl createUploadUrl(UUID organizationId, UUID eventId, UUID userId, Kind kind, String contentType,
 			long size) {
 		tenantGuard.requireRole(organizationId, userId, Role.OWNER, Role.ADMIN, Role.MANAGER);
-		if (!events.existsInOrganization(eventId, organizationId)) {
+		if (!events.existsByIdAndOrganizationId(eventId, organizationId)) {
 			throw new ApiException(HttpStatus.NOT_FOUND, "not-found", "Não encontrado", "Evento não encontrado.");
 		}
 		String type = contentType == null ? "" : contentType.toLowerCase(Locale.ROOT);

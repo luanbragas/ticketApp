@@ -41,7 +41,9 @@ public class ProblemDetailsHandler extends ResponseEntityExceptionHandler {
 
 	@ExceptionHandler(ApiException.class)
 	ResponseEntity<ProblemDetail> handleApi(ApiException ex) {
-		return of(problem(ex.getStatus(), ex.getCode(), ex.getTitle(), ex.getMessage()));
+		ProblemDetail problem = problem(ex.getStatus(), ex.getCode(), ex.getTitle(), ex.getMessage());
+		ex.getProperties().forEach(problem::setProperty);
+		return of(problem);
 	}
 
 	@ExceptionHandler(AuthenticationException.class)

@@ -19,6 +19,9 @@
   | Ver equipe e convites pendentes | ✓ | ✓ | ✓ | — | — |
   | Convidar ADMIN | ✓ | — | — | — | — |
   | Convidar MANAGER, PROMOTER, CHECKIN_OPERATOR | ✓ | ✓ | — | — | — |
+  | Ver eventos | ✓ | ✓ | ✓ | ✓ | ✓ |
+  | Criar, editar, publicar e encerrar evento; enviar flyer | ✓ | ✓ | ✓ | — | — |
+  | Cancelar evento | ✓ | ✓ | — | — | — |
 
   Ninguém é convidado como OWNER (um dono por organização). Convite vale 7 dias, uma vez, só para o e-mail convidado.
 - Toda rota do painel passa por uma checagem central: `TenantGuard.requireRole(orgId, userId, roles...)` (módulo `organization.api`).
