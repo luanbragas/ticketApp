@@ -45,10 +45,11 @@ Regra: só começar um marco quando o anterior estiver pronto (exceto onde indic
 - [x] Tabelas `events`, `event_media`, `event_lineup`
 - [x] Upload de flyer para R2 via URL pré-assinada (validar tipo e tamanho) — salvar a mídia no evento entra no CRUD
 - [x] CRUD de evento com estados DRAFT → PUBLISHED → ENDED / CANCELLED — publicar exige data, local e flyer; exigir ingressos (M3) e conta Mercado Pago (M5) quando existirem; encerramento automático fica para um job
-- [ ] Wizard web: Informações → Aparência → Ingressos → Configurações → Revisar e publicar
+- [x] Wizard web: Informações → Aparência (flyer + cor do flyer) → Revisar e publicar
+- [ ] Wizard: passos Ingressos (depende do M3) e Configurações (cota de meia, limite por CPF)
 - [ ] Página pública `/e/{slug}` com SSR, metadados Open Graph e botão "Comprar" fixo
 - [ ] Lista "Meus eventos" com filtros
-- [ ] Classificação etária (18+ obrigatório quando open bar)
+- [x] Classificação etária (18+ obrigatório quando open bar) — banco, API e wizard
 
 ### M3 · Ingressos e lotes
 **Pronto quando:** evento com 2 tipos e 3 lotes vira de lote sozinho por quantidade e por data.

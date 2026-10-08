@@ -7,7 +7,6 @@ import {
 import type { Metadata } from "next"
 import Link from "next/link"
 
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -92,22 +91,32 @@ export default async function PanelHome() {
               </Card>
             </Link>
           )}
-          <Card className="h-full border-dashed">
-            <CardHeader>
-              <CalendarPlusIcon
-                className="mb-1 size-5 text-muted-foreground"
-                aria-hidden
-              />
-              <CardTitle className="flex items-center justify-between gap-2">
-                Crie seu primeiro evento
-                <Badge variant="secondary">Em breve</Badge>
-              </CardTitle>
-              <CardDescription>
-                Página do evento, lotes e venda por PIX e cartão chegam nas
-                próximas etapas.
-              </CardDescription>
-            </CardHeader>
-          </Card>
+          {canManageTeam && (
+            <Link
+              href="/painel/eventos/novo"
+              className="group rounded-xl focus-visible:outline-none"
+            >
+              <Card className="h-full transition-colors group-hover:border-primary/50 group-focus-visible:ring-2 group-focus-visible:ring-ring">
+                <CardHeader>
+                  <CalendarPlusIcon
+                    className="mb-1 size-5 text-primary"
+                    aria-hidden
+                  />
+                  <CardTitle className="flex items-center justify-between gap-2">
+                    Crie seu primeiro evento
+                    <ArrowRightIcon
+                      className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5"
+                      aria-hidden
+                    />
+                  </CardTitle>
+                  <CardDescription>
+                    Informações, flyer e publicação. Lotes e venda por PIX
+                    chegam nas próximas etapas.
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
+          )}
         </div>
       </section>
     </div>
