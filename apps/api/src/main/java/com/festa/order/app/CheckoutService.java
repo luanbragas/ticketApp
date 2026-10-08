@@ -103,7 +103,7 @@ public class CheckoutService {
 	}
 
 	/** Pedido com os itens e o nome dos lotes, para a resposta. {@code created} = falso quando repetido. */
-	public record Placed(Order order, List<OrderItem> items, Map<UUID, Offer> offers, boolean created) {
+	public record Placed(EventRef event, Order order, List<OrderItem> items, Map<UUID, Offer> offers, boolean created) {
 	}
 
 	/** Resumo sem reservar: valida a seleção e calcula subtotal, taxa e total. */
@@ -219,7 +219,7 @@ public class CheckoutService {
 		}
 		items.saveAll(saved);
 		orders.flush();
-		return new Placed(order, saved, offers, true);
+		return new Placed(event, order, saved, offers, true);
 	}
 
 	private Quote quoteFor(EventRef event, Map<UUID, Integer> selection) {
@@ -283,7 +283,8 @@ public class CheckoutService {
 				orderItems.stream().map(OrderItem::getTicketBatchId).distinct().toList())
 			.stream()
 			.collect(Collectors.toMap(Offer::batchId, Function.identity()));
-		return new Placed(order, orderItems, offers, created);
+		EventRef event = events.find(order.getOrganizationId(), order.getEventId()).orElseThrow();
+		return new Placed(event, order, orderItems, offers, created);
 	}
 
 	private static String validCpf(String value, String field) {

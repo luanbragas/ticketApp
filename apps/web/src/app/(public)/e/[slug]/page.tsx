@@ -11,7 +11,7 @@ import { hourRange, longDay, mapsUrl, shortDay } from "@/lib/event-format"
 import { getPublicEvent } from "@/lib/public-events"
 
 import { Countdown, ShareButton } from "./event-client"
-import { BuyBar, TicketList } from "./tickets-client"
+import { BuyBar, ShopProvider, TicketList } from "./tickets-client"
 
 export async function generateMetadata({
   params,
@@ -101,109 +101,111 @@ function EventView({ event }: { event: PublicEvent }) {
           />
         )}
 
-        <main
-          className={
-            layout === "story"
-              ? "relative -mt-16 px-5 md:mt-0 md:px-0"
-              : "relative mt-5 px-5 md:mt-0 md:px-0"
-          }
-        >
-          {ended ? (
-            <span className="inline-block bg-secondary px-3 py-1 text-xs font-extrabold tracking-wide uppercase">
-              Essa festa já aconteceu
-            </span>
-          ) : (
-            <Countdown startsAt={event.startsAt} />
-          )}
-          <h1
-            className={`mt-3 font-display leading-[0.86] font-black uppercase ${
-              event.name.length > 14
-                ? "text-5xl md:text-7xl"
-                : "text-6xl md:text-8xl"
-            }`}
+        <ShopProvider slug={event.slug}>
+          <main
+            className={
+              layout === "story"
+                ? "relative -mt-16 px-5 md:mt-0 md:px-0"
+                : "relative mt-5 px-5 md:mt-0 md:px-0"
+            }
           >
-            {event.name}
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {event.organizer.name} apresenta
-            {event.minAge >= 18 ? " · 18+" : ""}
-            {event.hasOpenBar ? " · open bar" : ""}
-          </p>
+            {ended ? (
+              <span className="inline-block bg-secondary px-3 py-1 text-xs font-extrabold tracking-wide uppercase">
+                Essa festa já aconteceu
+              </span>
+            ) : (
+              <Countdown startsAt={event.startsAt} />
+            )}
+            <h1
+              className={`mt-3 font-display leading-[0.86] font-black uppercase ${
+                event.name.length > 14
+                  ? "text-5xl md:text-7xl"
+                  : "text-6xl md:text-8xl"
+              }`}
+            >
+              {event.name}
+            </h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {event.organizer.name} apresenta
+              {event.minAge >= 18 ? " · 18+" : ""}
+              {event.hasOpenBar ? " · open bar" : ""}
+            </p>
 
-          <dl className="-mx-5 mt-5 grid grid-cols-3 border-y md:mx-0">
-            <Fact label="Data" value={shortDay(event.startsAt)} first />
-            <Fact
-              label="Horário"
-              value={hourRange(event.startsAt, event.endsAt)}
-            />
-            <Fact label="Local" value={event.venueName} />
-          </dl>
+            <dl className="-mx-5 mt-5 grid grid-cols-3 border-y md:mx-0">
+              <Fact label="Data" value={shortDay(event.startsAt)} first />
+              <Fact
+                label="Horário"
+                value={hourRange(event.startsAt, event.endsAt)}
+              />
+              <Fact label="Local" value={event.venueName} />
+            </dl>
 
-          {!ended && <TicketList slug={event.slug} />}
+            {!ended && <TicketList />}
 
-          {event.lineup.length > 0 && (
-            <section aria-labelledby="noite" className="mt-6">
-              <h2
-                id="noite"
-                className="font-display text-2xl font-black uppercase"
-              >
-                A noite
-              </h2>
-              <ol className="mt-1">
-                {event.lineup.map((act) => (
-                  <li
-                    key={act.name}
-                    className="grid grid-cols-[4rem_minmax(0,1fr)] items-baseline gap-3 border-b border-secondary py-2.5"
-                  >
-                    <span className="font-display text-2xl font-extrabold text-(--accent)">
-                      {act.startsAt ? hourRange(act.startsAt, null) : "—"}
-                    </span>
-                    <span className="font-bold">{act.name}</span>
-                  </li>
-                ))}
-              </ol>
-            </section>
-          )}
+            {event.lineup.length > 0 && (
+              <section aria-labelledby="noite" className="mt-6">
+                <h2
+                  id="noite"
+                  className="font-display text-2xl font-black uppercase"
+                >
+                  A noite
+                </h2>
+                <ol className="mt-1">
+                  {event.lineup.map((act) => (
+                    <li
+                      key={act.name}
+                      className="grid grid-cols-[4rem_minmax(0,1fr)] items-baseline gap-3 border-b border-secondary py-2.5"
+                    >
+                      <span className="font-display text-2xl font-extrabold text-(--accent)">
+                        {act.startsAt ? hourRange(act.startsAt, null) : "—"}
+                      </span>
+                      <span className="font-bold">{act.name}</span>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            )}
 
-          {event.description && (
-            <section aria-labelledby="sobre" className="mt-6">
-              <h2
-                id="sobre"
-                className="font-display text-2xl font-black uppercase"
-              >
-                Sobre
-              </h2>
-              <p className="mt-2 leading-relaxed whitespace-pre-line text-muted-foreground">
-                {event.description}
-              </p>
-            </section>
-          )}
+            {event.description && (
+              <section aria-labelledby="sobre" className="mt-6">
+                <h2
+                  id="sobre"
+                  className="font-display text-2xl font-black uppercase"
+                >
+                  Sobre
+                </h2>
+                <p className="mt-2 leading-relaxed whitespace-pre-line text-muted-foreground">
+                  {event.description}
+                </p>
+              </section>
+            )}
 
-          <a
-            href={mapsUrl([event.venueName, event.address, event.city])}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-6 flex min-h-16 items-center gap-3 border-y py-3 hover:bg-muted"
-          >
-            <MapPinIcon
-              className="size-5 shrink-0 text-(--accent)"
-              aria-hidden
-            />
-            <span className="min-w-0 flex-1">
-              <span className="block font-bold">{event.venueName}</span>
-              {where && (
-                <span className="block text-sm text-muted-foreground">
-                  {where}
-                </span>
-              )}
-            </span>
-            <span className="text-sm font-bold">Como chegar</span>
-          </a>
+            <a
+              href={mapsUrl([event.venueName, event.address, event.city])}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-6 flex min-h-16 items-center gap-3 border-y py-3 hover:bg-muted"
+            >
+              <MapPinIcon
+                className="size-5 shrink-0 text-(--accent)"
+                aria-hidden
+              />
+              <span className="min-w-0 flex-1">
+                <span className="block font-bold">{event.venueName}</span>
+                {where && (
+                  <span className="block text-sm text-muted-foreground">
+                    {where}
+                  </span>
+                )}
+              </span>
+              <span className="text-sm font-bold">Como chegar</span>
+            </a>
 
-          <div className="fixed inset-x-0 bottom-0 z-20 border-t bg-background px-3 pt-2.5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] md:static md:mt-8 md:border-0 md:p-0">
-            <BuyBar slug={event.slug} ended={ended} />
-          </div>
-        </main>
+            <div className="fixed inset-x-0 bottom-0 z-20 border-t bg-background px-3 pt-2.5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] md:static md:mt-8 md:border-0 md:p-0">
+              <BuyBar ended={ended} />
+            </div>
+          </main>
+        </ShopProvider>
       </div>
     </div>
   )

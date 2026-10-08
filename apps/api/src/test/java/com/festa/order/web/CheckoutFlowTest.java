@@ -69,6 +69,7 @@ class CheckoutFlowTest {
 		String json = place(shop, key, cpf, ticket(shop.pista(), cpf, null) + "," + ticket(shop.meia(), TestCpf.random(), "STUDENT"))
 			.andExpect(status().isCreated())
 			.andExpect(jsonPath("$.status").value("PENDING_PAYMENT"))
+			.andExpect(jsonPath("$.event.slug").value(shop.slug()))
 			.andExpect(jsonPath("$.subtotalCents").value(4500))
 			.andExpect(jsonPath("$.feeCents").value(450))
 			.andExpect(jsonPath("$.totalCents").value(4950))

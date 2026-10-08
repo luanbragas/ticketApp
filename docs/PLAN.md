@@ -65,8 +65,8 @@ Regra: só começar um marco quando o anterior estiver pronto (exceto onde indic
 **Pronto quando:** 500 compras concorrentes num lote de 100 resultam em exatamente 100 reservas.
 
 - [x] Tabelas `orders`, `order_items`
-- [ ] Seleção de ingressos (web) com subtotal, taxa e total calculados **no backend**
-- [ ] Checkout em uma coluna: dados do comprador, titular de cada ingresso, documento de meia, declaração 18+, aceite de termos
+- [x] Seleção de ingressos (web) com subtotal, taxa e total calculados **no backend**
+- [x] Checkout em uma coluna: dados do comprador, titular de cada ingresso, documento de meia, declaração 18+, aceite de termos — o link para o texto dos termos entra com o M8
 - [x] Criação de pedido `PENDING_PAYMENT` + reserva atômica (ver ARCHITECTURE.md §Estoque) — ADR-007
 - [x] Limite por CPF por evento (CPF do comprador)
 - [x] Job que expira pedidos após 10 min e devolve estoque

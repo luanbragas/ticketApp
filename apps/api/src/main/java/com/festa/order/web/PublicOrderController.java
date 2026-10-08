@@ -105,7 +105,10 @@ class PublicOrderController {
 	record BuyerResponse(String name, String email, String cpf) {
 	}
 
-	record OrderResponse(UUID id, OrderStatus status, Instant expiresAt, BuyerResponse buyer,
+	record EventResponse(String slug, String name, Instant startsAt, int minAge) {
+	}
+
+	record OrderResponse(UUID id, OrderStatus status, Instant expiresAt, EventResponse event, BuyerResponse buyer,
 			List<ItemResponse> items, long subtotalCents, long feeCents, long totalCents) {
 	}
 
@@ -148,6 +151,8 @@ class PublicOrderController {
 	private OrderResponse response(Placed placed) {
 		Order order = placed.order();
 		return new OrderResponse(order.getId(), order.getStatus(), order.getExpiresAt(),
+				new EventResponse(placed.event().slug(), placed.event().name(), placed.event().startsAt(),
+						placed.event().minAge()),
 				new BuyerResponse(order.getBuyerName(), order.getBuyerEmail(),
 						Cpf.mask(cipher.decrypt(order.getBuyerCpfEncrypted()))),
 				placed.items().stream().map(item -> item(item, placed.offers().get(item.getTicketBatchId()))).toList(),
