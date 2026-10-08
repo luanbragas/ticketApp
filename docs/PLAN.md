@@ -42,7 +42,7 @@ Regra: só começar um marco quando o anterior estiver pronto (exceto onde indic
 ### M2 · Eventos
 **Pronto quando:** produtor publica um evento e a página pública abre bonita no celular e gera preview no WhatsApp.
 
-- [ ] Tabelas `events`, `event_media`, `event_lineup`
+- [x] Tabelas `events`, `event_media`, `event_lineup`
 - [ ] Upload de flyer para R2 via URL pré-assinada (validar tipo e tamanho)
 - [ ] CRUD de evento com estados DRAFT → PUBLISHED → ENDED / CANCELLED
 - [ ] Wizard web: Informações → Aparência → Ingressos → Configurações → Revisar e publicar
