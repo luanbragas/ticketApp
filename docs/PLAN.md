@@ -47,7 +47,7 @@ Regra: só começar um marco quando o anterior estiver pronto (exceto onde indic
 - [x] CRUD de evento com estados DRAFT → PUBLISHED → ENDED / CANCELLED — publicar exige data, local e flyer; exigir ingressos (M3) e conta Mercado Pago (M5) quando existirem; encerramento automático fica para um job
 - [x] Wizard web: Informações → Aparência (flyer + cor do flyer) → Revisar e publicar
 - [ ] Wizard: passos Ingressos (depende do M3) e Configurações (cota de meia, limite por CPF)
-- [ ] Página pública `/e/{slug}` com SSR, metadados Open Graph e botão "Comprar" fixo
+- [x] Página pública `/e/{slug}` com SSR, metadados Open Graph e botão "Comprar" fixo — o botão leva aos ingressos quando o M3 existir
 - [ ] Lista "Meus eventos" com filtros
 - [x] Classificação etária (18+ obrigatório quando open bar) — banco, API e wizard
 

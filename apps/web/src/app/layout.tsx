@@ -13,6 +13,8 @@ const display = Big_Shoulders({
   variable: "--font-display",
   subsets: ["latin"],
   weight: ["800", "900"],
+  // O Next não tem métricas de fallback para esta fonte; sem isso ele avisa a cada página.
+  adjustFontFallback: false,
 })
 
 export const metadata: Metadata = {

@@ -9,6 +9,8 @@ import com.festa.event.domain.LineupItem;
 import com.festa.event.infra.EventMediaRepository;
 import com.festa.event.infra.EventRepository;
 import com.festa.event.infra.LineupRepository;
+import com.festa.organization.api.OrganizationDirectory;
+import com.festa.organization.api.OrganizationDirectory.OrganizationSummary;
 import com.festa.organization.api.Role;
 import com.festa.organization.api.TenantGuard;
 import com.festa.shared.text.Slugs;
@@ -48,15 +50,17 @@ public class EventService {
 	private final EventMediaRepository media;
 	private final LineupRepository lineup;
 	private final TenantGuard tenantGuard;
+	private final OrganizationDirectory organizations;
 	private final MediaStorage storage;
 	private final Clock clock;
 
 	EventService(EventRepository events, EventMediaRepository media, LineupRepository lineup, TenantGuard tenantGuard,
-			MediaStorage storage, Clock clock) {
+			OrganizationDirectory organizations, MediaStorage storage, Clock clock) {
 		this.events = events;
 		this.media = media;
 		this.lineup = lineup;
 		this.tenantGuard = tenantGuard;
+		this.organizations = organizations;
 		this.storage = storage;
 		this.clock = clock;
 	}
@@ -69,6 +73,10 @@ public class EventService {
 
 	/** Evento com flyer e programação, como o painel mostra. */
 	public record EventView(Event event, Flyer flyer, List<Act> lineup) {
+	}
+
+	/** Evento como o público vê, com a organização que produz. */
+	public record PublicEventView(EventView view, OrganizationSummary organization) {
 	}
 
 	/** Linha da lista de eventos. */
@@ -98,6 +106,20 @@ public class EventService {
 			.stream()
 			.collect(Collectors.toMap(EventMedia::getEventId, EventService::flyerOf, (a, b) -> a));
 		return found.stream().map(event -> new EventSummary(event, flyers.get(event.getId()))).toList();
+	}
+
+	/**
+	 * Página pública: só evento publicado ou já encerrado. Rascunho e cancelado respondem 404, sem
+	 * revelar que existem.
+	 */
+	@Transactional(readOnly = true)
+	public PublicEventView findPublic(String slug) {
+		Event event = events.findBySlug(slug)
+			.filter(e -> e.getStatus() == EventStatus.PUBLISHED || e.getStatus() == EventStatus.ENDED)
+			.orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "not-found", "Não encontrado",
+				"Evento não encontrado."));
+		OrganizationSummary organization = organizations.find(event.getOrganizationId()).orElseThrow();
+		return new PublicEventView(view(event), organization);
 	}
 
 	@Transactional(readOnly = true)

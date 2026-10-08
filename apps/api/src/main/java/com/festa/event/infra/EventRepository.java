@@ -18,6 +18,8 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
 
 	boolean existsBySlug(String slug);
 
+	Optional<Event> findBySlug(String slug);
+
 	/** Próximos primeiro; sem data (rascunho) no fim, por criação. */
 	@Query("""
 			SELECT e FROM Event e WHERE e.organizationId = :organizationId

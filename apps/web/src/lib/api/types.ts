@@ -111,3 +111,27 @@ export type UploadUrl = {
   publicUrl: string
   expiresAt: string
 }
+
+/** Evento como o público vê (GET /public/events/{slug}). Sem ids internos. */
+export type PublicEvent = {
+  slug: string
+  name: string
+  description: string | null
+  startsAt: string
+  endsAt: string
+  venueName: string
+  address: string | null
+  city: string | null
+  minAge: number
+  hasOpenBar: boolean
+  accentColor: string | null
+  status: "PUBLISHED" | "ENDED"
+  flyer: Flyer | null
+  lineup: { name: string; startsAt: string | null }[]
+  organizer: {
+    name: string
+    slug: string
+    logoUrl: string | null
+    instagram: string | null
+  }
+}
