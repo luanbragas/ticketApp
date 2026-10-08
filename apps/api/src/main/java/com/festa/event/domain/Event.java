@@ -110,7 +110,9 @@ public class Event extends BaseEntity {
 			halfPriceQuotaPercent = changes.halfPriceQuotaPercent().shortValue();
 		}
 		if (changes.maxTicketsPerCpf() != null) {
-			maxTicketsPerCpf = changes.maxTicketsPerCpf().shortValue();
+			// 0 = sem limite (null já quer dizer "não mexe").
+			int limit = changes.maxTicketsPerCpf();
+			maxTicketsPerCpf = limit == 0 ? null : (short) limit;
 		}
 		if (changes.accentColor() != null) {
 			String color = changes.accentColor().isBlank() ? null : changes.accentColor();

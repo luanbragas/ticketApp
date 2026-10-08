@@ -135,3 +135,73 @@ export type PublicEvent = {
     instagram: string | null
   }
 }
+
+/** Lote: só anda para a frente (ADR-006). */
+export type BatchStatus = "SCHEDULED" | "ON_SALE" | "SOLD_OUT" | "CLOSED"
+
+export const BATCH_STATUS_LABELS: Record<BatchStatus, string> = {
+  SCHEDULED: "Na fila",
+  ON_SALE: "À venda",
+  SOLD_OUT: "Esgotado",
+  CLOSED: "Encerrado",
+}
+
+export type TicketBatch = {
+  id: string
+  name: string
+  priceCents: number
+  capacity: number
+  sold: number
+  reserved: number
+  remaining: number
+  /** Não abre antes de (ISO-8601, UTC). */
+  salesStartAt: string | null
+  /** Vira (fecha) em (ISO-8601, UTC). */
+  salesEndAt: string | null
+  maxPerOrder: number | null
+  visible: boolean
+  status: BatchStatus
+}
+
+export type TicketType = {
+  id: string
+  name: string
+  description: string | null
+  halfPrice: boolean
+  batches: TicketBatch[]
+}
+
+/** Cota de meia: mínimo legal de ingressos de meia sobre o total oferecido. */
+export type HalfPriceQuota = {
+  percent: number
+  total: number
+  halfPrice: number
+  minimum: number
+  met: boolean
+}
+
+/** GET /orgs/{org}/events/{id}/ticket-types; toda escrita devolve o mesmo formato. */
+export type TicketCatalog = {
+  types: TicketType[]
+  halfPriceQuota: HalfPriceQuota
+}
+
+/** GET /public/events/{slug}/availability. Sem números de venda. */
+export type PublicAvailability = {
+  eventStatus: EventStatus
+  types: {
+    name: string
+    description: string | null
+    halfPrice: boolean
+    batches: {
+      id: string
+      name: string
+      priceCents: number
+      status: BatchStatus
+      availability: "AVAILABLE" | "LAST_UNITS" | "UNAVAILABLE"
+      salesStartAt: string | null
+      salesEndAt: string | null
+      maxPerOrder: number
+    }[]
+  }[]
+}

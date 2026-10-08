@@ -46,7 +46,7 @@ Regra: só começar um marco quando o anterior estiver pronto (exceto onde indic
 - [x] Upload de flyer para R2 via URL pré-assinada (validar tipo e tamanho) — salvar a mídia no evento entra no CRUD
 - [x] CRUD de evento com estados DRAFT → PUBLISHED → ENDED / CANCELLED — publicar exige data, local, flyer e ingressos; exigir conta Mercado Pago (M5) quando existir; encerramento automático fica para um job
 - [x] Wizard web: Informações → Aparência (flyer + cor do flyer) → Revisar e publicar
-- [ ] Wizard: passos Ingressos (depende do M3) e Configurações (cota de meia, limite por CPF)
+- [x] Wizard: passo Ingressos, com as configurações de venda (cota de meia, limite por CPF) no mesmo passo
 - [x] Página pública `/e/{slug}` com SSR, metadados Open Graph e botão "Comprar" fixo — o botão leva aos ingressos quando o M3 existir
 - [x] Lista "Meus eventos" com filtros (Todos, Publicados, Rascunhos, Encerrados) no endereço; rascunho abre no passo que falta
 - [x] Classificação etária (18+ obrigatório quando open bar) — banco, API e wizard
@@ -55,7 +55,7 @@ Regra: só começar um marco quando o anterior estiver pronto (exceto onde indic
 **Pronto quando:** evento com 2 tipos e 3 lotes vira de lote sozinho por quantidade e por data.
 
 - [x] Tabelas `ticket_types`, `ticket_batches`
-- [x] CRUD de tipos e lotes (preço em centavos, capacidade, janela de venda, limite por pedido, visibilidade) — API; tela no wizard
+- [x] CRUD de tipos e lotes (preço em centavos, capacidade, janela de venda, limite por pedido, visibilidade) — API e passo Ingressos do wizard; página pública lista lotes e preço "a partir de"
 - [x] Regra de virada: esgotou **ou** chegou a data (o que vier primeiro); lote encerrado não reabre — ADR-006; job a cada minuto
 - [x] Cota de meia-entrada por evento (padrão 40%) e lotes de meia — mínimo legal, avisado no painel sem bloquear (ADR-006)
 - [x] Endpoint público de disponibilidade por evento

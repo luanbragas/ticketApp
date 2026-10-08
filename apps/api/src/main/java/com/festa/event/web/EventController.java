@@ -68,7 +68,8 @@ class EventController {
 			@Min(value = 0, message = "Idade inválida.") @Max(value = 21, message = "Idade inválida.") Integer minAge,
 			Boolean hasOpenBar,
 			@Min(value = 0, message = "Use de 0 a 100.") @Max(value = 100, message = "Use de 0 a 100.") Integer halfPriceQuotaPercent,
-			@Min(value = 1, message = "Mínimo de 1.") @Max(value = 20, message = "Máximo de 20.") Integer maxTicketsPerCpf,
+			/** 0 tira o limite. */
+			@Min(value = 0, message = "Use de 1 a 20, ou 0 para sem limite.") @Max(value = 20, message = "Máximo de 20.") Integer maxTicketsPerCpf,
 			@Pattern(regexp = "^$|^#[0-9a-f]{6}$", message = "Use o formato #rrggbb.") String accentColor,
 			@Size(max = 30, message = "No máximo 30 atrações.") List<@Valid @NotNull ActRequest> lineup) {
 	}

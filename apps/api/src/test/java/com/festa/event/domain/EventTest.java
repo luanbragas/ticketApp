@@ -26,6 +26,19 @@ class EventTest {
 	}
 
 	@Test
+	void zeroRemovesThePerCpfLimit() {
+		Event event = draft();
+		event.update(new Event.Changes(null, null, null, null, null, null, null, null, null, null, null, 4, null));
+		assertThat(event.getMaxTicketsPerCpf()).isEqualTo(4);
+
+		event.update(new Event.Changes(null, null, null, null, null, null, null, null, null, null, null, null, null));
+		assertThat(event.getMaxTicketsPerCpf()).isEqualTo(4);
+
+		event.update(new Event.Changes(null, null, null, null, null, null, null, null, null, null, null, 0, null));
+		assertThat(event.getMaxTicketsPerCpf()).isNull();
+	}
+
+	@Test
 	void publishesWhenComplete() {
 		Event event = ready();
 
