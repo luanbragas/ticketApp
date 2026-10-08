@@ -155,13 +155,18 @@ export function ReviewStep({
           </p>
           <p className="text-sm text-muted-foreground">
             A página fica em{" "}
-            <span className="font-bold break-all text-foreground">
+            <a
+              href={`/e/${data.slug}`}
+              target="_blank"
+              rel="noopener"
+              className="font-bold break-all text-foreground underline underline-offset-4"
+            >
               {data.pageUrl.replace(/^https?:\/\//, "")}
-            </span>
-            . A página pública chega na próxima tarefa do plano.
+            </a>
+            . Compartilhe o link para a galera.
           </p>
           <Button asChild variant="outline" className="h-11 w-fit">
-            <Link href="/painel">Voltar ao painel</Link>
+            <Link href="/painel/eventos">Ver meus eventos</Link>
           </Button>
         </div>
       ) : (

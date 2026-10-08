@@ -48,7 +48,7 @@ Regra: só começar um marco quando o anterior estiver pronto (exceto onde indic
 - [x] Wizard web: Informações → Aparência (flyer + cor do flyer) → Revisar e publicar
 - [ ] Wizard: passos Ingressos (depende do M3) e Configurações (cota de meia, limite por CPF)
 - [x] Página pública `/e/{slug}` com SSR, metadados Open Graph e botão "Comprar" fixo — o botão leva aos ingressos quando o M3 existir
-- [ ] Lista "Meus eventos" com filtros
+- [x] Lista "Meus eventos" com filtros (Todos, Publicados, Rascunhos, Encerrados) no endereço; rascunho abre no passo que falta
 - [x] Classificação etária (18+ obrigatório quando open bar) — banco, API e wizard
 
 ### M3 · Ingressos e lotes
