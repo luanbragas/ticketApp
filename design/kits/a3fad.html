@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kit A3FAD · UFRGS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&amp;family=Manrope:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+  :root {
+    --yellow: #ffc20e;
+    --honey: #f29e0c;
+    --ink: #0d0d0d;
+    --cream: #fff4cc;
+    --page-bg: #0d0d0d;
+    --page-ink: #ffffff;
+    --focus: var(--yellow);
+    --font-body: "Manrope", system-ui, sans-serif;
+    --hex: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+  }
+
+  .display { font-family: "Archivo", sans-serif; font-weight: 900; font-stretch: 112%; text-transform: uppercase; letter-spacing: -0.02em; }
+  .tight { font-stretch: 75%; }
+
+  .comb-bg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+  /* Foto em P&B com amarelo por cima: a colagem "xerox" da A3FAD. */
+  .duo { position: relative; overflow: hidden; background: var(--yellow); }
+  .duo img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.9) brightness(1.05); mix-blend-mode: multiply; }
+
+  @keyframes blurecho { 0%, 100% { transform: translateX(0) } 50% { transform: translateX(18px) } }
+  @keyframes fill { from { transform: scaleY(0) } to { transform: scaleY(1) } }
+  @keyframes fly { to { offset-distance: 100% } }
+  @keyframes buzz { 0%,100% { transform: scaleY(1) } 50% { transform: scaleY(0.4) } }
+  @keyframes pop { from { opacity: 0; transform: scale(0.6) } to { opacity: 1; transform: none } }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(255,194,14,0.7) } 60% { box-shadow: 0 0 0 12px rgba(255,194,14,0) } }
+
+  .bee { position: absolute; width: 34px; height: 26px; offset-rotate: auto; animation: fly var(--dur, 9s) linear infinite; z-index: 4; }
+  .bee .wing { transform-origin: bottom; animation: buzz 0.12s linear infinite; }
+
+  /* Texto "BAILE" repetido com borrão de movimento. */
+  .echo span { display: block; }
+  .echo span:nth-child(2) { filter: blur(2px); opacity: 0.85; animation: blurecho 2.6s var(--ease-soft) infinite; }
+  .echo span:nth-child(3) { filter: blur(5px); opacity: 0.6; animation: blurecho 2.6s var(--ease-soft) 0.15s infinite; }
+
+  /* Favos do lote: cada favo enche de mel com atraso (--i). */
+  .comb { display: flex; flex-wrap: wrap; gap: 4px 6px; width: 100%; }
+  .cell { position: relative; width: 34px; height: 30px; clip-path: var(--hex); background: rgba(13,13,13,0.18); overflow: hidden; }
+  .cell:nth-child(16n + 9), .cell:nth-child(16n + 10), .cell:nth-child(16n + 11), .cell:nth-child(16n + 12), .cell:nth-child(16n + 13), .cell:nth-child(16n + 14), .cell:nth-child(16n + 15), .cell:nth-child(16n + 16) { translate: 20px 0; }
+  .cell.full::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, var(--honey), #c97a00); transform-origin: bottom; animation: fill 0.7s var(--ease-out) calc(var(--i) * 70ms + 600ms) both; }
+
+  /* ---------- Arte ---------- */
+  .art { background: var(--yellow); color: var(--ink); }
+  .art .stack { position: absolute; left: 34px; top: 40px; margin: 0; font-size: 150px; line-height: 0.82; }
+  .art .collage { position: absolute; right: 30px; top: 210px; width: 420px; height: 380px; clip-path: var(--hex); }
+  .art .collage img { object-position: 50% 20%; }
+  .art .photo2 { position: absolute; left: 40px; top: 540px; width: 250px; height: 210px; clip-path: var(--hex); }
+  .art .logo { position: absolute; left: 300px; top: 560px; width: 200px; clip-path: var(--hex); --r: -6deg; }
+  .art .band { position: absolute; left: -20px; right: -20px; top: 790px; height: 76px; background: var(--ink); color: var(--yellow); display: flex; align-items: center; gap: 30px; padding-left: 50px; transform: rotate(-4deg); font-size: 40px; white-space: nowrap; }
+  .art .kit { position: absolute; left: 0; right: 0; bottom: 0; height: 120px; padding: 18px 28px; background: var(--ink); color: #fff; display: grid; grid-template-columns: 1.3fr 1fr; gap: 18px; font-size: 13px; line-height: 1.5; }
+  .art .kit h2 { margin: 0 0 4px; font-size: 24px; color: var(--yellow); }
+  .swatches { display: flex; gap: 8px; margin-top: 8px; }
+  .swatches span { width: 34px; height: 30px; clip-path: var(--hex); }
+
+  /* ---------- Evento ---------- */
+  .ev { background: var(--yellow); color: var(--ink); }
+  .ev .top { display: flex; align-items: center; justify-content: space-between; padding: 18px 18px 0; position: relative; z-index: 2; }
+  .ev .top img { width: 52px; clip-path: var(--hex); }
+  .ev .top .date { font-size: 30px; }
+  .ev .hero { position: relative; margin: 8px auto 0; width: 330px; max-width: 86%; aspect-ratio: 1.15; clip-path: var(--hex); animation: pop 0.8s var(--ease-out) both; }
+  .ev .stack { margin: 14px 18px 0; font-size: 70px; line-height: 0.8; position: relative; }
+  .ev .stack small { display: block; margin-top: 8px; font-size: 26px; font-stretch: 100%; }
+  .ev .info { margin: 14px 18px 0; display: grid; gap: 4px; font-weight: 700; font-size: 16px; }
+  .ev .lote { margin: 18px 18px 140px; padding: 14px; background: var(--ink); color: var(--yellow); }
+  .ev .lote p { margin: 0 0 10px; font-weight: 700; font-size: 14px; color: #fff; }
+  .ev .lote .comb .cell { background: rgba(255,194,14,0.18); }
+  .dock.hive { background: linear-gradient(180deg, rgba(255,194,14,0) 0%, var(--yellow) 35%); }
+  .cta { height: 58px; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 22px; background: var(--ink); color: var(--yellow); text-decoration: none; font-size: 18px; white-space: nowrap; clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 14px 100%, 0 50%); transition: transform var(--t-feedback) var(--ease-out); }
+  .cta:active { transform: scale(0.97); }
+  .cta.is-empty { background: #6b5a1c; color: #e8d9a0; pointer-events: none; }
+
+  /* ---------- Checkout ---------- */
+  .co { background: var(--ink); color: #fff; }
+  .co .head { padding: 26px 20px 4px; position: relative; }
+  .co h1 { margin: 0; font-size: 46px; line-height: 0.85; color: var(--yellow); }
+  .co .head p { margin: 8px 0 0; color: #d9d2b8; font-weight: 600; }
+  .tiers { display: grid; gap: 10px; padding: 14px 18px 0; position: relative; }
+  .tier { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 12px; border: 2px solid #3a3313; background: linear-gradient(0deg, var(--yellow), var(--yellow)) no-repeat left / 0% 100%, #171510; transition: background-size var(--t-move) var(--ease-out), color var(--t-move); }
+  .tier .hx { width: 40px; height: 36px; clip-path: var(--hex); background: var(--yellow); }
+  .tier.is-on { background-size: 100% 100%; color: var(--ink); border-color: var(--yellow); }
+  .tier.is-on .hx { background: var(--ink); }
+  .tier strong { display: block; font-size: 22px; line-height: 1; }
+  .tier span { font-size: 14px; font-weight: 600; opacity: 0.85; }
+  .stepper { display: flex; align-items: center; gap: 6px; }
+  .stepper button { width: 42px; height: 38px; border: 0; clip-path: var(--hex); background: #3a3313; color: #fff; font-size: 20px; font-weight: 800; cursor: pointer; }
+  .tier.is-on .stepper button { background: var(--ink); color: var(--yellow); }
+  .stepper button:disabled { opacity: 0.35; cursor: default; }
+  .stepper output { width: 20px; text-align: center; font: 900 20px "Archivo", sans-serif; }
+  .pay { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 16px 18px 0; }
+  .pay button { height: 54px; border: 2px solid var(--yellow); background: transparent; color: var(--yellow); font: 800 16px "Manrope", sans-serif; cursor: pointer; }
+  .pay button[aria-pressed="true"] { background: var(--yellow); color: var(--ink); }
+  .co .dock { background: var(--ink); display: grid; gap: 10px; }
+  .co .sum { display: flex; justify-content: space-between; align-items: baseline; }
+  .co .sum strong { font-size: 30px; color: var(--yellow); }
+
+  /* ---------- Ingresso ---------- */
+  .tk { background: var(--ink); color: var(--ink); }
+  .tk .bar { display: flex; justify-content: space-between; padding: 20px 22px 0; color: #fff; font-weight: 700; position: relative; z-index: 2; }
+  .pass { position: relative; margin: 18px 24px 0; background: var(--yellow); }
+  .pass .stripes { height: 70px; background: repeating-linear-gradient(-45deg, var(--ink) 0 18px, var(--yellow) 18px 36px); display: flex; align-items: center; justify-content: center; }
+  .pass .stripes img { width: 92px; clip-path: var(--hex); }
+  .pass .body { padding: 16px 18px 18px; }
+  .pass h2 { margin: 0; font-size: 40px; line-height: 0.85; }
+  .pass .meta { display: flex; justify-content: space-between; margin-top: 10px; font-weight: 700; font-size: 14px; }
+  .pass .qr { margin: 14px auto 0; width: 210px; background: #fff; padding: 8px; }
+  .pass .ok { position: absolute; right: -10px; top: 50px; width: 74px; height: 66px; clip-path: var(--hex); background: var(--ink); color: var(--yellow); display: flex; align-items: center; justify-content: center; font: 900 13px "Archivo", sans-serif; animation: pulse 2s ease-out infinite; }
+  .tk .note { margin: 16px 28px 0; text-align: center; color: #d9d2b8; font-size: 13px; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <pattern id="comb" width="56" height="97" patternUnits="userSpaceOnUse" patternTransform="scale(0.6)">
+      <path d="M28 0 56 16v32L28 64 0 48V16ZM28 64v33M0 48l-28 16M56 48l28 16" fill="none" stroke="rgba(13,13,13,0.13)" stroke-width="4"/>
+    </pattern>
+    <pattern id="comb-dark" width="56" height="97" patternUnits="userSpaceOnUse" patternTransform="scale(0.6)">
+      <path d="M28 0 56 16v32L28 64 0 48V16ZM28 64v33M0 48l-28 16M56 48l28 16" fill="none" stroke="rgba(255,194,14,0.08)" stroke-width="4"/>
+    </pattern>
+    <symbol id="bee" viewBox="0 0 34 26">
+      <ellipse class="wing" cx="13" cy="7" rx="6" ry="7" fill="rgba(255,255,255,0.85)"/>
+      <ellipse class="wing" cx="20" cy="7" rx="6" ry="7" fill="rgba(255,255,255,0.7)"/>
+      <ellipse cx="17" cy="17" rx="13" ry="8" fill="#ffc20e" stroke="#0d0d0d" stroke-width="2"/>
+      <path d="M12 10v14M18 9v16M24 11v12" stroke="#0d0d0d" stroke-width="3"/>
+      <circle cx="30" cy="16" r="3" fill="#0d0d0d"/>
+    </symbol>
+  </defs>
+</svg>
+
+<main class="showcase">
+  <header class="showcase-head">
+    <h1 class="display" style="margin:0;font-size:28px;color:var(--yellow)">Kit A3FAD · UFRGS</h1>
+    <a href="index.html">← todos os kits</a>
+  </header>
+
+  <div class="board">
+    <!-- Arte -->
+    <section aria-label="Arte visual do kit A3FAD">
+      <p class="frame-label">Arte visual</p>
+      <div class="art">
+        <svg class="comb-bg" aria-hidden="true"><rect width="100%" height="100%" fill="url(#comb)"/></svg>
+        <h2 class="stack display echo tight"><span>Baile</span><span>Baile</span><span>Baile</span></h2>
+        <div class="collage duo" data-depth style="--d:-10"><img src="assets/a3fad-gestao.jpg" alt="Colagem de rostos da gestão da A3FAD"></div>
+        <div class="photo2 duo" data-depth style="--d:12"><img src="assets/pista-vermelha.jpg" alt=""></div>
+        <img class="logo" data-depth style="--d:-6" src="assets/a3fad-logo.png" alt="Mascote da A3FAD: a abelha rainha">
+        <div class="band display tight" aria-hidden="true"><span>da colmeia</span><span>12.12</span><span>da colmeia</span><span>12.12</span></div>
+        <svg class="bee" style="offset-path:path('M-40 300 C 200 100, 420 520, 820 240');--dur:10s"><use href="#bee"/></svg>
+        <svg class="bee" style="offset-path:path('M820 700 C 520 520, 300 900, -40 620');--dur:12s"><use href="#bee"/></svg>
+        <footer class="kit">
+          <div><h2 class="display">Kit A3FAD</h2>Favos, faixas de abelha e colagem xerox em P&amp;B com amarelo. O lote vira favos que enchem de mel conforme vende.</div>
+          <div><strong>Archivo</strong> em largura 75–112 · <strong>Manrope</strong> texto<div class="swatches"><span style="background:#ffc20e"></span><span style="background:#f29e0c"></span><span style="background:#0d0d0d;outline:1px solid #555"></span><span style="background:#fff4cc"></span></div></div>
+        </footer>
+      </div>
+    </section>
+
+    <!-- Evento -->
+    <section aria-label="Página do evento">
+      <p class="frame-label">1 · Página do evento</p>
+      <div class="phone ev">
+        <svg class="comb-bg" aria-hidden="true"><rect width="100%" height="100%" fill="url(#comb)"/></svg>
+        <div class="phone-scroll">
+          <div class="top"><img src="assets/a3fad-logo.png" alt="A3FAD"><span class="date display">12.12</span></div>
+          <div class="hero duo" data-depth style="--d:-6"><img src="assets/pista-vermelha.jpg" alt="Pista com DJ"></div>
+          <h1 class="stack display echo tight"><span>Baile</span><span>Baile</span><span>Baile</span><small class="display">da colmeia</small></h1>
+          <div class="info"><span>Sábado · 23h às 5h</span><span>Porto Alegre · local revelado aos compradores</span><span>ARQ + DSG · UFRGS · 18+</span></div>
+          <div class="lote">
+            <p>2º lote · 18 de 24 favos cheios. Encheu, vira o lote.</p>
+            <div class="comb" aria-hidden="true">
+              <span class="cell full" style="--i:0"></span><span class="cell full" style="--i:1"></span><span class="cell full" style="--i:2"></span><span class="cell full" style="--i:3"></span><span class="cell full" style="--i:4"></span><span class="cell full" style="--i:5"></span><span class="cell full" style="--i:6"></span><span class="cell full" style="--i:7"></span>
+              <span class="cell full" style="--i:8"></span><span class="cell full" style="--i:9"></span><span class="cell full" style="--i:10"></span><span class="cell full" style="--i:11"></span><span class="cell full" style="--i:12"></span><span class="cell full" style="--i:13"></span><span class="cell full" style="--i:14"></span><span class="cell full" style="--i:15"></span>
+              <span class="cell full" style="--i:16"></span><span class="cell full" style="--i:17"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span>
+            </div>
+          </div>
+        </div>
+        <svg class="bee" style="offset-path:path('M-40 120 C 120 40, 260 260, 430 90');--dur:8s"><use href="#bee"/></svg>
+        <div class="dock hive"><a class="cta display" href="#checkout-a3">Entrar na colmeia <span style="font:700 15px Manrope">desde R$ 27,50</span></a></div>
+      </div>
+    </section>
+
+    <!-- Checkout -->
+    <section aria-label="Checkout" id="checkout-a3">
+      <p class="frame-label">2 · Checkout</p>
+      <form class="phone co" data-checkout onsubmit="return false">
+        <svg class="comb-bg" aria-hidden="true"><rect width="100%" height="100%" fill="url(#comb-dark)"/></svg>
+        <div class="phone-scroll">
+          <div class="head"><h1 class="display tight">Quantos<br>zangões?</h1><p>Preço final, já com a taxa.</p></div>
+          <div class="tiers">
+            <div class="tier" data-tier data-price="2500" data-qty="0"><span class="hx" aria-hidden="true"></span><div><strong class="display tight">Sócio FAD</strong><span>R$ 27,50 · carteirinha na porta</span></div><div class="stepper"><button type="button" data-minus aria-label="Remover sócio">−</button><output data-qty-out>0</output><button type="button" data-plus aria-label="Adicionar sócio">+</button></div></div>
+            <div class="tier" data-tier data-price="4000" data-qty="2"><span class="hx" aria-hidden="true"></span><div><strong class="display tight">Pista</strong><span>2º lote · R$ 44,00</span></div><div class="stepper"><button type="button" data-minus aria-label="Remover pista">−</button><output data-qty-out>0</output><button type="button" data-plus aria-label="Adicionar pista">+</button></div></div>
+            <div class="tier" data-tier data-price="2000" data-qty="0"><span class="hx" aria-hidden="true"></span><div><strong class="display tight">Meia</strong><span>R$ 22,00 · estudante</span></div><div class="stepper"><button type="button" data-minus aria-label="Remover meia">−</button><output data-qty-out>0</output><button type="button" data-plus aria-label="Adicionar meia">+</button></div></div>
+          </div>
+          <div class="pay" data-choice role="group" aria-label="Forma de pagamento"><button type="button" aria-pressed="true">PIX</button><button type="button" aria-pressed="false">Cartão</button></div>
+        </div>
+        <div class="dock"><div class="sum"><span data-count></span><strong class="display" data-total></strong></div><a class="cta display" data-pay href="#ingresso-a3" style="background:var(--yellow);color:var(--ink)">Pagar com PIX <span style="font:700 15px Manrope">sem cadastro</span></a></div>
+      </form>
+    </section>
+
+    <!-- Ingresso -->
+    <section aria-label="Ingresso" id="ingresso-a3">
+      <p class="frame-label">3 · Ingresso</p>
+      <div class="phone tk">
+        <svg class="comb-bg" aria-hidden="true"><rect width="100%" height="100%" fill="url(#comb-dark)"/></svg>
+        <div class="bar"><span>Teus ingressos</span><span>1 de 2</span></div>
+        <article class="pass" aria-label="Ingresso de Ana Souza para o Baile da Colmeia">
+          <div class="stripes"><img src="assets/a3fad-logo.png" alt=""></div>
+          <span class="ok" aria-hidden="true">VÁLIDO</span>
+          <div class="body">
+            <h2 class="display tight">Baile da<br>Colmeia</h2>
+            <div class="meta"><span>Ana Souza · Pista</span><span>12.12 · 23h</span></div>
+            <img class="qr" src="assets/qr.svg" alt="QR Code do ingresso">
+          </div>
+        </article>
+        <p class="note">Mostra o QR na entrada. A abelha confere.</p>
+        <svg class="bee" style="offset-path:path('M430 640 C 300 520, 120 760, -40 600');--dur:9s"><use href="#bee"/></svg>
+        <div class="dock" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <a class="cta display" href="#" style="justify-content:center;background:#fff;color:var(--ink);font-size:16px">Agenda</a>
+          <a class="cta display" href="#" style="justify-content:center;background:var(--yellow);color:var(--ink);font-size:16px">Como chegar</a>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+<script src="shared.js"></script>
+</body>
+</html>

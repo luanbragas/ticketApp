@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kit Cucko · Porto Alegre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Krona+One&amp;family=Saira+Condensed:ital,wght@0,600;0,800;1,700;1,800&amp;family=Saira:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+  :root {
+    --red: #ff1e1e;
+    --blood: #b30f12;
+    --ink: #0b0b0b;
+    --paper: #f2f0eb;
+    --grey: #8a8781;
+    --page-bg: #0b0b0b;
+    --page-ink: #f2f0eb;
+    --focus: var(--red);
+    --font-body: "Saira", system-ui, sans-serif;
+    --star: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  }
+
+  .head-font { font-family: "Krona One", sans-serif; text-transform: uppercase; letter-spacing: -0.02em; }
+  .note { font-family: "Saira Condensed", sans-serif; font-style: italic; font-weight: 800; text-transform: uppercase; color: var(--blood); line-height: 0.95; }
+
+  /* Papel quadriculado */
+  .graph {
+    background-color: var(--paper);
+    background-image:
+      linear-gradient(rgba(11,11,11,0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(11,11,11,0.08) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+
+  /* Fotocópia: P&B com vermelho, e um tremor de cópia em passos. */
+  .xerox { filter: grayscale(1) contrast(1.6) brightness(1.05); }
+  .halftone { background-image: radial-gradient(var(--red) 1.6px, transparent 1.8px); background-size: 7px 7px; }
+
+  @keyframes jitter { 0%,100% { transform: translate(0,0) } 25% { transform: translate(1px,-1px) } 50% { transform: translate(-1px,1px) } 75% { transform: translate(1px,1px) } }
+  @keyframes rec { 0%,49% { opacity: 1 } 50%,100% { opacity: 0 } }
+  @keyframes spin { to { transform: rotate(360deg) } }
+  @keyframes scan { from { background-position: 0 0 } to { background-position: 0 6px } }
+  @keyframes glitch { 0%, 92%, 100% { opacity: 0; clip-path: inset(0 0 0 0); transform: none } 93% { opacity: 0.85; clip-path: inset(20% 0 55% 0); transform: translateX(-6px) } 95% { opacity: 0.85; clip-path: inset(62% 0 10% 0); transform: translateX(5px) } 97% { opacity: 0.85; clip-path: inset(40% 0 30% 0); transform: translateX(-3px) } }
+
+  .star { clip-path: var(--star); background: var(--red); }
+
+  /* Visor de câmera */
+  .viewfinder { position: absolute; inset: 0; pointer-events: none; color: #fff; font: 600 13px "Saira Condensed", sans-serif; letter-spacing: 0.06em; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
+  .viewfinder .c, .viewfinder .bat { filter: drop-shadow(0 1px 2px rgba(0,0,0,0.7)); }
+  .viewfinder::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.18) 0 1px, transparent 1px 3px); animation: scan 0.4s linear infinite; }
+  .viewfinder .c { position: absolute; width: 26px; height: 26px; border: 3px solid #fff; }
+  .viewfinder .tl { top: 14px; left: 14px; border-right: 0; border-bottom: 0; }
+  .viewfinder .tr { top: 14px; right: 14px; border-left: 0; border-bottom: 0; }
+  .viewfinder .bl { bottom: 14px; left: 14px; border-right: 0; border-top: 0; }
+  .viewfinder .br { bottom: 14px; right: 14px; border-left: 0; border-top: 0; }
+  .viewfinder .rec { position: absolute; top: 20px; left: 48px; display: flex; align-items: center; gap: 6px; font-size: 16px; }
+  .viewfinder .rec i { width: 11px; height: 11px; border-radius: 999px; background: var(--red); animation: rec 1s steps(1) infinite; }
+  .viewfinder .tc { position: absolute; bottom: 22px; left: 48px; font-variant-numeric: tabular-nums; font-size: 15px; }
+  .viewfinder .bat { position: absolute; top: 22px; right: 48px; width: 30px; height: 14px; border: 2px solid #fff; }
+  .viewfinder .bat::after { content: ""; position: absolute; inset: 2px 8px 2px 2px; background: #fff; }
+
+  /* ---------- Arte ---------- */
+  .art { color: var(--ink); }
+  .art .big-star { position: absolute; left: 120px; top: 60px; width: 560px; height: 560px; animation: spin 40s linear infinite; }
+  .art .poster { position: absolute; left: 60px; top: 90px; width: 330px; --r: -5deg; box-shadow: 0 20px 30px -14px rgba(0,0,0,0.6); }
+  .art .prow { position: absolute; right: 50px; top: 470px; width: 250px; --r: 7deg; box-shadow: 0 20px 30px -14px rgba(0,0,0,0.6); }
+  .art .cam { position: absolute; right: 50px; top: 80px; width: 300px; height: 360px; overflow: hidden; background: var(--ink); --r: 4deg; box-shadow: 0 20px 30px -14px rgba(0,0,0,0.6); }
+  .art .cam img { width: 100%; height: 100%; object-fit: cover; animation: jitter 0.3s steps(2) infinite; }
+  .art .cam .tint { position: absolute; inset: 0; background: var(--red); mix-blend-mode: multiply; opacity: 0.55; }
+  .art .logo { position: absolute; left: 70px; top: 610px; width: 150px; --r: -8deg; }
+  .art .notes { position: absolute; left: 250px; top: 650px; font-size: 34px; --r: -4deg; }
+  .art .notes small { display: block; font-size: 18px; color: var(--ink); }
+  .art .dots { position: absolute; left: 0; bottom: 230px; width: 380px; height: 120px; opacity: 0.8; }
+  .art .kit { position: absolute; left: 0; right: 0; bottom: 0; height: 170px; padding: 22px 28px; background: var(--ink); color: var(--paper); display: grid; grid-template-columns: 1.3fr 1fr; gap: 20px; font-size: 13px; line-height: 1.5; }
+  .art .kit h2 { margin: 0 0 6px; font-size: 22px; color: var(--red); }
+  .swatches { display: flex; gap: 8px; margin-top: 8px; }
+  .swatches span { width: 36px; height: 36px; }
+
+  /* ---------- Evento ---------- */
+  .ev { color: var(--ink); }
+  .ev .bar { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 0; }
+  .ev .bar img { width: 46px; height: 46px; }
+  .ev .bar .when { font-size: 30px; line-height: 0.9; text-align: right; }
+  .ev .flyer { position: relative; margin: 12px 16px 0; height: 400px; overflow: hidden; background: var(--ink); }
+  .ev .flyer img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 45%; animation: jitter 0.35s steps(2) infinite; }
+  .ev .flyer .glitch { position: absolute; inset: 0; background: url("assets/cucko-old.jpg") 50% 45% / cover; mix-blend-mode: screen; filter: hue-rotate(-20deg) saturate(3); opacity: 0; animation: glitch 4s steps(1) infinite; }
+  .ev .mini-star { position: absolute; right: 26px; top: 450px; width: 70px; height: 70px; animation: spin 12s linear infinite; z-index: 2; }
+  .ev h1 { margin: 18px 16px 0; font-size: 44px; line-height: 0.95; }
+  .ev .era { margin: 4px 16px 0; display: inline-block; padding: 2px 8px; background: var(--ink); color: var(--paper); font: 800 18px "Saira Condensed", sans-serif; letter-spacing: 0.08em; }
+  .ev .lines { margin: 16px 16px 0; display: grid; gap: 12px; }
+  .ev .lines .note { font-size: 24px; }
+  .ev .lines small { display: block; color: var(--ink); font-size: 14px; font-style: normal; font-weight: 600; text-transform: none; }
+  .ev .addr { margin: 16px 16px 170px; font-weight: 600; font-size: 15px; }
+
+  /* Barra de player (do story deles) usada como barra de compra: o progresso é o lote. */
+  .player { background: var(--ink); color: var(--paper); padding: 12px 16px 24px; display: grid; gap: 10px; }
+  .player .line { display: flex; align-items: center; gap: 10px; font: 600 12px "Saira Condensed", sans-serif; letter-spacing: 0.06em; }
+  .player .track { position: relative; flex: 1; height: 4px; background: #3a3a3a; }
+  .player .track b { position: absolute; left: 0; top: 0; bottom: 0; width: 72%; background: var(--red); }
+  .player .track b::after { content: ""; position: absolute; right: -6px; top: -4px; width: 12px; height: 12px; border-radius: 999px; background: var(--red); }
+  .cta { height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 18px; background: var(--red); color: var(--ink); text-decoration: none; font: 800 italic 20px "Saira Condensed", sans-serif; text-transform: uppercase; white-space: nowrap; transition: transform var(--t-feedback) var(--ease-out); }
+  .cta:active { transform: scale(0.97); }
+  .cta svg { flex-shrink: 0; }
+  .cta.is-empty { background: #4a4a4a; color: #aaa; pointer-events: none; }
+
+  /* ---------- Checkout ---------- */
+  .co { color: var(--ink); }
+  .co .head { padding: 24px 18px 4px; }
+  .co h1 { margin: 0; font-size: 32px; line-height: 1; }
+  .co .head p { margin: 6px 0 0; font-size: 24px; }
+  .tiers { display: grid; gap: 14px; padding: 14px 18px 0; }
+  .tier { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 14px 14px 14px 16px; background: #ffffff; box-shadow: 0 8px 14px -10px rgba(0,0,0,0.6); transform: rotate(var(--r, -1deg)); transition: background var(--t-move) var(--ease-out); }
+  .tier:nth-child(2) { --r: 1deg; }
+  .tier::before { content: ""; position: absolute; left: 50%; top: -9px; width: 70px; height: 18px; margin-left: -35px; background: rgba(255, 30, 30, 0.75); transform: rotate(-3deg); }
+  .tier.is-on { background: var(--ink); color: var(--paper); }
+  .tier.is-on span { color: #cfcac2; }
+  .tier strong { display: block; font: 800 italic 26px "Saira Condensed", sans-serif; text-transform: uppercase; line-height: 1; }
+  .tier span { font-size: 14px; font-weight: 600; color: #4c4a46; }
+  .stepper { display: flex; align-items: center; gap: 6px; }
+  .stepper button { width: 42px; height: 42px; border: 2px solid currentColor; background: transparent; color: inherit; font-size: 22px; font-weight: 700; cursor: pointer; }
+  .stepper button[data-plus] { background: var(--red); border-color: var(--red); color: var(--ink); }
+  .stepper button:disabled { opacity: 0.3; cursor: default; }
+  .stepper output { width: 22px; text-align: center; font: 22px "Krona One", sans-serif; }
+  .pay { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 18px 18px 0; }
+  .pay button { height: 54px; border: 2px solid var(--ink); background: transparent; color: var(--ink); font: 800 italic 20px "Saira Condensed", sans-serif; text-transform: uppercase; cursor: pointer; }
+  .pay button[aria-pressed="true"] { background: var(--ink); color: var(--red); }
+  .co .player .sum { display: flex; justify-content: space-between; align-items: baseline; }
+  .co .player .sum strong { font: 22px "Krona One", sans-serif; color: var(--red); }
+
+  /* ---------- Ingresso ---------- */
+  .tk { background: var(--ink); color: var(--paper); }
+  .tk .top { display: flex; justify-content: space-between; padding: 20px 20px 0; font: 700 15px "Saira Condensed", sans-serif; letter-spacing: 0.06em; text-transform: uppercase; }
+  .still { position: relative; margin: 16px 20px 0; padding: 14px 14px 18px; background: var(--paper); color: var(--ink); transform: rotate(-1.5deg); }
+  .still .shot { position: relative; height: 330px; background: #ffffff; display: flex; align-items: center; justify-content: center; }
+  .still .shot img { width: 230px; height: 230px; }
+  .still .shot .viewfinder { color: var(--ink); }
+  .still .shot .viewfinder::before { display: none; }
+  .still .shot .viewfinder .c { border-color: var(--ink); }
+  .still .shot .viewfinder .bat { border-color: var(--ink); }
+  .still .shot .viewfinder .bat::after { background: var(--ink); }
+  .still h2 { margin: 14px 0 0; font-size: 30px; line-height: 0.95; }
+  .still .meta { margin-top: 6px; display: flex; justify-content: space-between; font-weight: 600; font-size: 14px; }
+  .still .stamp { position: absolute; right: -18px; top: -20px; width: 92px; height: 92px; animation: spin 14s linear infinite; }
+  .still .stamp span { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font: 800 italic 15px "Saira Condensed", sans-serif; color: var(--ink); animation: spin 14s linear infinite reverse; }
+  .tk .hint { margin: 18px 28px 0; text-align: center; font-size: 13px; color: #bdb8ae; }
+</style>
+</head>
+<body>
+<main class="showcase">
+  <header class="showcase-head">
+    <h1 class="head-font" style="margin:0;font-size:22px;color:var(--red)">Kit Cucko · Porto Alegre</h1>
+    <a href="index.html">← todos os kits</a>
+  </header>
+
+  <div class="board">
+    <!-- Arte -->
+    <section aria-label="Arte visual do kit Cucko">
+      <p class="frame-label">Arte visual</p>
+      <div class="art graph">
+        <div class="big-star star" aria-hidden="true"></div>
+        <img class="poster" data-depth style="--d:10" src="assets/cucko-old.jpg" alt="Flyer da festa OLD, 2000 a 2010">
+        <div class="cam" data-depth style="--d:-12">
+          <img class="xerox" src="assets/pista-azul.jpg" alt="">
+          <span class="tint"></span>
+          <div class="viewfinder" aria-hidden="true"><span class="c tl"></span><span class="c tr"></span><span class="c bl"></span><span class="c br"></span><span class="rec"><i></i>REC</span><span class="bat"></span><span class="tc" data-timecode>00:00:00:00</span></div>
+        </div>
+        <img class="prow" data-depth style="--d:8" src="assets/cucko-prow.jpg" alt="Flyer da festa PROW">
+        <img class="logo" data-depth style="--d:-6" src="assets/cucko-logo.jpg" alt="Logo da Cucko">
+        <p class="notes note" data-depth style="--d:5">festa é old mas<br>antecipado é tudo<small>Cidade Baixa · POA</small></p>
+        <div class="dots halftone" aria-hidden="true"></div>
+        <footer class="kit">
+          <div><h2 class="head-font">Kit Cucko</h2>Papel quadriculado, fotocópia vermelha, estrela e visor de câmera. Cada festa da casa traz o próprio flyer; o kit garante que tudo pareça Cucko.</div>
+          <div><strong>Krona One</strong> títulos · <strong>Saira Condensed</strong> recados · <strong>Saira</strong> texto<div class="swatches"><span style="background:#ff1e1e"></span><span style="background:#b30f12"></span><span style="background:#0b0b0b;outline:1px solid #555"></span><span style="background:#f2f0eb"></span></div></div>
+        </footer>
+      </div>
+    </section>
+
+    <!-- Evento -->
+    <section aria-label="Página do evento">
+      <p class="frame-label">1 · Página do evento</p>
+      <div class="phone ev graph">
+        <div class="phone-scroll">
+          <div class="bar"><img src="assets/cucko-logo.jpg" alt="Cucko"><span class="when head-font">09.10<br><small class="note" style="font-size:20px">sexta</small></span></div>
+          <div class="flyer">
+            <img src="assets/cucko-old.jpg" alt="Flyer da OLD: colagem anos 2000 em vermelho e preto">
+            <span class="glitch" aria-hidden="true"></span>
+            <div class="viewfinder" aria-hidden="true"><span class="c tl"></span><span class="c tr"></span><span class="c bl"></span><span class="c br"></span><span class="rec"><i></i>REC</span><span class="bat"></span><span class="tc" data-timecode>00:00:00:00</span></div>
+          </div>
+          <div class="mini-star star" aria-hidden="true"></div>
+          <h1 class="head-font">OLD</h1>
+          <span class="era">2000 — 2010</span>
+          <div class="lines">
+            <p class="note" style="margin:0">Pistinha pop, pop BR e pop 2000<small>pista 1</small></p>
+            <p class="note" style="margin:0">Pistão funk, hits &amp; relíquias do funk<small>pista 2</small></p>
+            <p class="note" style="margin:0;color:var(--ink)">Combo de vodka 700 ml R$ 23<small>da 0h às 2h · dose de tequila R$ 18 das 3h às 4h</small></p>
+          </div>
+          <p class="addr">R. General Lima e Silva, 1037 · Cidade Baixa · Porto Alegre · 18+</p>
+        </div>
+        <div class="dock player" style="padding:12px 16px 24px">
+          <div class="line"><span>LOTE 2</span><span class="track"><b></b></span><span>72% VENDIDO</span></div>
+          <a class="cta" href="#checkout-ck"><span>Antecipado é tudo</span><span style="display:flex;align-items:center;gap:8px">R$ 33<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg></span></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Checkout -->
+    <section aria-label="Checkout" id="checkout-ck">
+      <p class="frame-label">2 · Checkout</p>
+      <form class="phone co graph" data-checkout onsubmit="return false">
+        <div class="phone-scroll">
+          <div class="head"><h1 class="head-font">Rec. seu<br>ingresso</h1><p class="note">sem cadastro, sem fila</p></div>
+          <div class="tiers">
+            <div class="tier" data-tier data-price="3000" data-qty="2"><div><strong>Pista · 2º lote</strong><span>R$ 33,00 com taxa</span></div><div class="stepper"><button type="button" data-minus aria-label="Remover pista">−</button><output data-qty-out>0</output><button type="button" data-plus aria-label="Adicionar pista">+</button></div></div>
+            <div class="tier" data-tier data-price="1500" data-qty="0"><div><strong>Meia</strong><span>R$ 16,50 · documento na porta</span></div><div class="stepper"><button type="button" data-minus aria-label="Remover meia">−</button><output data-qty-out>0</output><button type="button" data-plus aria-label="Adicionar meia">+</button></div></div>
+            <div class="tier" data-tier data-price="12000" data-qty="0"><div><strong>Camarote (até 4)</strong><span>R$ 132,00 · 1 combo incluso</span></div><div class="stepper"><button type="button" data-minus aria-label="Remover camarote">−</button><output data-qty-out>0</output><button type="button" data-plus aria-label="Adicionar camarote">+</button></div></div>
+          </div>
+          <div class="pay" data-choice role="group" aria-label="Forma de pagamento"><button type="button" aria-pressed="true">PIX</button><button type="button" aria-pressed="false">Cartão</button></div>
+        </div>
+        <div class="dock player">
+          <div class="sum"><span data-count></span><strong data-total></strong></div>
+          <a class="cta" data-pay href="#ingresso-ck"><span>Pagar com PIX</span><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg></a>
+        </div>
+      </form>
+    </section>
+
+    <!-- Ingresso -->
+    <section aria-label="Ingresso" id="ingresso-ck">
+      <p class="frame-label">3 · Ingresso</p>
+      <div class="phone tk">
+        <div class="top"><span>Seus ingressos</span><span>1 de 2</span></div>
+        <article class="still" aria-label="Ingresso de Ana Souza para a OLD">
+          <div class="stamp star" aria-hidden="true"><span>válido</span></div>
+          <div class="shot">
+            <img src="assets/qr.svg" alt="QR Code do ingresso">
+            <div class="viewfinder" aria-hidden="true"><span class="c tl"></span><span class="c tr"></span><span class="c bl"></span><span class="c br"></span><span class="rec"><i></i>REC</span><span class="bat"></span><span class="tc" data-timecode>00:00:00:00</span></div>
+          </div>
+          <h2 class="head-font">OLD · 09.10</h2>
+          <div class="meta"><span>Ana Souza · Pista</span><span>Cucko · Cidade Baixa</span></div>
+        </article>
+        <p class="hint">O contador está rodando: é a sua tela ao vivo. Print congela.</p>
+        <div class="dock" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <a class="cta" href="#" style="justify-content:center;background:var(--paper)">Agenda</a>
+          <a class="cta" href="#" style="justify-content:center">Como chegar</a>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+<script src="shared.js"></script>
+</body>
+</html>
