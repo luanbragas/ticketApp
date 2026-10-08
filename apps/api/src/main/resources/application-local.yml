@@ -12,6 +12,10 @@ festa:
     access-key: festa
     secret-key: festa-dev-secret
     public-base-url: http://localhost:9090/festa-media
+  crypto:
+    # Chaves só de desenvolvimento (dados de teste). Produção usa PERSONAL_DATA_KEY e PERSONAL_DATA_HASH_KEY.
+    personal-data-key: RkLdd72iWmwD3IMDHUJPwwNxvOYBVlqX/dfWkgqVMxo=
+    personal-data-hash-key: 0lw6xGL2c0VF4Enz65ucYW6LIZXQFPhwpVBg2A7qSQo=
   security:
     # http://localhost não usa HTTPS.
     secure-cookies: false

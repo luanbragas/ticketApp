@@ -65,13 +65,17 @@ tickets (id, order_item_id FK, event_id, organization_id, ticket_batch_id,
 
 ### order
 ```sql
-orders (id, event_id FK, organization_id, buyer_user_id NULL,
-        buyer_name, buyer_email, buyer_phone, buyer_cpf_encrypted, buyer_cpf_hash,
-        promoter_id NULL, subtotal_cents, fee_cents, discount_cents, total_cents,
+orders (id, (event_id, organization_id) FK,
+        buyer_name, buyer_email, buyer_phone NULL, buyer_cpf_encrypted BYTEA, buyer_cpf_hash,
+        subtotal_cents, fee_cents, discount_cents, total_cents,   -- CHECK total = subtotal + fee - discount
         status CHECK IN ('PENDING_PAYMENT','PAID','EXPIRED','FAILED','REFUNDED','PARTIALLY_REFUNDED','CHARGEBACK'),
-        expires_at, paid_at, idempotency_key UNIQUE)
+        expires_at, paid_at, expired_at,
+        access_key_hash UNIQUE,                    -- SHA-256 do Idempotency-Key do navegador (ADR-007)
+        adult_declared, terms_version, terms_accepted_at)
+        -- promoter_id e buyer_user_id entram com os módulos promoter (M7) e conta do comprador
 order_items (id, order_id FK, ticket_batch_id FK, unit_price_cents, fee_cents,
-             holder_name, holder_cpf_encrypted, holder_cpf_hash, is_half_price)
+             holder_name, holder_cpf_encrypted, holder_cpf_hash, is_half_price,
+             half_price_reason CHECK IN ('STUDENT','PCD','YOUTH_LOW_INCOME','SENIOR'), position)
 ```
 
 ### payment
@@ -112,7 +116,7 @@ outbox_events (id, type, aggregate_id, payload JSONB, status CHECK IN ('PENDING'
 
 - `events(organization_id, starts_at)`, `events(status, starts_at)`
 - `ticket_batches(event_id)`, `ticket_batches(status)` parcial em `SCHEDULED`/`ON_SALE` (job de virada)
-- `orders(event_id, status)`, `orders(status, expires_at)` (job de expiração), `orders(buyer_cpf_hash, event_id)` (limite por CPF)
+- `orders(event_id, status)`, `orders(expires_at)` parcial em `PENDING_PAYMENT` (job de expiração), `orders(buyer_cpf_hash, event_id)` (limite por CPF)
 - `tickets(event_id, status)`, `tickets(holder_cpf_hash)`
 - `outbox_events(status, next_attempt_at)`
 

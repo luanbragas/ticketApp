@@ -21,6 +21,14 @@ public final class SecureToken {
 		return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
 	}
 
+	/** Compara hashes sem vazar, pelo tempo de resposta, quantos caracteres bateram. */
+	public static boolean constantTimeEquals(String a, String b) {
+		if (a == null || b == null) {
+			return false;
+		}
+		return MessageDigest.isEqual(a.getBytes(StandardCharsets.UTF_8), b.getBytes(StandardCharsets.UTF_8));
+	}
+
 	public static String hash(String token) {
 		try {
 			byte[] digest = MessageDigest.getInstance("SHA-256").digest(token.getBytes(StandardCharsets.UTF_8));

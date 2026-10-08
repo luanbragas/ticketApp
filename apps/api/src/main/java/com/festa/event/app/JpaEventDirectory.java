@@ -34,8 +34,8 @@ class JpaEventDirectory implements EventDirectory {
 	}
 
 	private static EventRef ref(Event e) {
-		return new EventRef(e.getId(), e.getOrganizationId(), e.getSlug(), e.getStatus(), e.getHalfPriceQuotaPercent(),
-			e.getMaxTicketsPerCpf(), e.getStartsAt(), e.getEndsAt());
+		return new EventRef(e.getId(), e.getOrganizationId(), e.getSlug(), e.getName(), e.getStatus(), e.getMinAge(),
+			e.getHalfPriceQuotaPercent(), e.getMaxTicketsPerCpf(), e.getStartsAt(), e.getEndsAt());
 	}
 
 }

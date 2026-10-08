@@ -60,7 +60,8 @@
 
 ## Dados pessoais
 
-- CPF criptografado (AES-GCM, chave em env/KMS) + `cpf_hash` (HMAC) para busca. Exibir mascarado: `***.456.789-**`.
+- CPF criptografado (AES-GCM, chave em env/KMS) + `cpf_hash` (HMAC) para busca. Exibir mascarado: `***.456.789-**`. Chaves: `PERSONAL_DATA_KEY` e `PERSONAL_DATA_HASH_KEY` (32 bytes, base64); as do `application-local.yml` são só de desenvolvimento.
+- Pedido público: só quem tem a chave gerada pelo navegador (`X-Order-Key`) lê o pedido; chave errada responde 404. O banco guarda só o hash.
 - Logs sem CPF, e-mail completo, telefone ou tokens.
 - Segredos só em variáveis de ambiente / secret manager. `.env` no `.gitignore`.
 
