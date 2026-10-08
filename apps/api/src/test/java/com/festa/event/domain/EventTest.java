@@ -1,5 +1,6 @@
 package com.festa.event.domain;
 
+import com.festa.event.api.EventStatus;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;

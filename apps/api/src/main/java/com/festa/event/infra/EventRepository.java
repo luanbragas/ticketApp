@@ -1,7 +1,7 @@
 package com.festa.event.infra;
 
 import com.festa.event.domain.Event;
-import com.festa.event.domain.EventStatus;
+import com.festa.event.api.EventStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

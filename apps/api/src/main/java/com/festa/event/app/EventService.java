@@ -1,10 +1,11 @@
 package com.festa.event.app;
 
+import com.festa.event.api.PublishPrerequisite;
 import com.festa.event.domain.Event;
 import com.festa.event.domain.EventMedia;
 import com.festa.event.domain.EventMedia.Kind;
 import com.festa.event.domain.EventRuleException;
-import com.festa.event.domain.EventStatus;
+import com.festa.event.api.EventStatus;
 import com.festa.event.domain.LineupItem;
 import com.festa.event.infra.EventMediaRepository;
 import com.festa.event.infra.EventRepository;
@@ -52,16 +53,19 @@ public class EventService {
 	private final TenantGuard tenantGuard;
 	private final OrganizationDirectory organizations;
 	private final MediaStorage storage;
+	private final List<PublishPrerequisite> prerequisites;
 	private final Clock clock;
 
 	EventService(EventRepository events, EventMediaRepository media, LineupRepository lineup, TenantGuard tenantGuard,
-			OrganizationDirectory organizations, MediaStorage storage, Clock clock) {
+			OrganizationDirectory organizations, MediaStorage storage, List<PublishPrerequisite> prerequisites,
+			Clock clock) {
 		this.events = events;
 		this.media = media;
 		this.lineup = lineup;
 		this.tenantGuard = tenantGuard;
 		this.organizations = organizations;
 		this.storage = storage;
+		this.prerequisites = prerequisites;
 		this.clock = clock;
 	}
 
@@ -171,7 +175,10 @@ public class EventService {
 		tenantGuard.requireRole(organizationId, userId, EDITORS);
 		Event event = load(organizationId, eventId);
 		boolean hasFlyer = media.findByEventIdAndKind(eventId, Kind.FLYER).isPresent();
-		apply(() -> event.publish(clock.instant(), hasFlyer));
+		List<String> missing = prerequisites.stream()
+			.flatMap(prerequisite -> prerequisite.missingFor(organizationId, eventId).stream())
+			.toList();
+		apply(() -> event.publish(clock.instant(), hasFlyer, missing));
 		return view(event);
 	}
 

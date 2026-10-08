@@ -1,5 +1,6 @@
 package com.festa.event.domain;
 
+import com.festa.event.api.EventStatus;
 import com.festa.shared.persistence.BaseEntity;
 import com.festa.shared.text.Slugs;
 import jakarta.persistence.Entity;
@@ -125,6 +126,14 @@ public class Event extends BaseEntity {
 
 	/** Rascunho → publicado. Exige data, local, início no futuro e flyer. */
 	public void publish(Instant now, boolean hasFlyer) {
+		publish(now, hasFlyer, List.of());
+	}
+
+	/**
+	 * Como {@link #publish(Instant, boolean)}, somando o que outros módulos dizem que falta
+	 * (ex.: {@code tickets}).
+	 */
+	public void publish(Instant now, boolean hasFlyer, List<String> missingElsewhere) {
 		if (status != EventStatus.DRAFT) {
 			throw EventRuleException.invalidTransition(status, "publicar");
 		}
@@ -141,6 +150,7 @@ public class Event extends BaseEntity {
 		if (!hasFlyer) {
 			missing.add("flyer");
 		}
+		missing.addAll(missingElsewhere);
 		if (!missing.isEmpty()) {
 			throw EventRuleException.notReady(missing);
 		}

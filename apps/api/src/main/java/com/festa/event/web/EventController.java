@@ -6,7 +6,7 @@ import com.festa.event.app.EventService.EventSummary;
 import com.festa.event.app.EventService.EventView;
 import com.festa.event.app.EventService.Flyer;
 import com.festa.event.domain.Event;
-import com.festa.event.domain.EventStatus;
+import com.festa.event.api.EventStatus;
 import com.festa.shared.security.AuthenticatedUser;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;

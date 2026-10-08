@@ -1,6 +1,7 @@
 package com.festa.event.web;
 
 import com.festa.TestBrowser;
+import com.festa.TestTickets;
 import com.festa.TestcontainersConfiguration;
 import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.Test;
@@ -104,6 +105,7 @@ class PublicEventFlowTest {
 		setup.browser.send(MockMvcRequestBuilders.put(setup.eventPath + "/media/flyer"),
 				"{\"key\":\"orgs/" + org + "/events/" + id + "/flyer/" + UUID.randomUUID() + ".jpg\",\"width\":918,\"height\":1600}")
 			.andExpect(status().isOk());
+		TestTickets.addPista(setup.browser, setup.eventPath);
 		setup.browser.post(setup.eventPath + "/publish", "{}").andExpect(status().isOk());
 		return setup;
 	}

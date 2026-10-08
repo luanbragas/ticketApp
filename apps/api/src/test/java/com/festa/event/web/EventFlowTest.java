@@ -1,6 +1,7 @@
 package com.festa.event.web;
 
 import com.festa.TestBrowser;
+import com.festa.TestTickets;
 import com.festa.TestcontainersConfiguration;
 import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.Test;
@@ -102,14 +103,14 @@ class EventFlowTest {
 	}
 
 	@Test
-	void publishRequiresDateVenueAndFlyer() throws Exception {
+	void publishRequiresDateVenueFlyerAndTickets() throws Exception {
 		Producer ana = producer();
 		String event = createEvent(ana);
 
 		ana.browser.post(event(ana, event) + "/publish", "{}")
 			.andExpect(status().isUnprocessableContent())
 			.andExpect(jsonPath("$.type").value("https://festa.com/errors/event-not-ready"))
-			.andExpect(jsonPath("$.missing", contains("startsAt", "endsAt", "venueName", "flyer")));
+			.andExpect(jsonPath("$.missing", contains("startsAt", "endsAt", "venueName", "flyer", "tickets")));
 	}
 
 	@Test
@@ -124,6 +125,7 @@ class EventFlowTest {
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.flyer.url").value(endsWith(key)))
 			.andExpect(jsonPath("$.flyer.height").value(1600));
+		TestTickets.addPista(ana.browser, event(ana, event));
 
 		ana.browser.post(event(ana, event) + "/publish", "{}")
 			.andExpect(status().isOk())
