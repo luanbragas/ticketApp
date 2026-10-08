@@ -4,6 +4,14 @@ logging:
     com.festa: DEBUG
 
 festa:
+  storage:
+    # S3Mock do infra/docker-compose.yml (não confere assinatura nem credenciais).
+    endpoint: ${STORAGE_ENDPOINT:http://localhost:9090}
+    region: us-east-1
+    bucket: festa-media
+    access-key: festa
+    secret-key: festa-dev-secret
+    public-base-url: http://localhost:9090/festa-media
   security:
     # http://localhost não usa HTTPS.
     secure-cookies: false

@@ -43,7 +43,7 @@ Regra: só começar um marco quando o anterior estiver pronto (exceto onde indic
 **Pronto quando:** produtor publica um evento e a página pública abre bonita no celular e gera preview no WhatsApp.
 
 - [x] Tabelas `events`, `event_media`, `event_lineup`
-- [ ] Upload de flyer para R2 via URL pré-assinada (validar tipo e tamanho)
+- [x] Upload de flyer para R2 via URL pré-assinada (validar tipo e tamanho) — salvar a mídia no evento entra no CRUD
 - [ ] CRUD de evento com estados DRAFT → PUBLISHED → ENDED / CANCELLED
 - [ ] Wizard web: Informações → Aparência → Ingressos → Configurações → Revisar e publicar
 - [ ] Página pública `/e/{slug}` com SSR, metadados Open Graph e botão "Comprar" fixo
