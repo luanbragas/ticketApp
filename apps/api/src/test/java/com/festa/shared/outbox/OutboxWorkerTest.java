@@ -75,7 +75,7 @@ class OutboxWorkerTest {
 		assertThat(handlers.booms.get()).isEqualTo(before);
 
 		for (int i = 1; i < OutboxWorker.MAX_ATTEMPTS; i++) {
-			jdbc.sql("UPDATE outbox_events SET next_attempt_at = now() WHERE aggregate_id = ?").param(aggregate).update();
+			jdbc.sql("UPDATE outbox_events SET next_attempt_at = now() - interval '1 minute' WHERE aggregate_id = ?").param(aggregate).update();
 			worker.drain(100);
 		}
 		assertThat(status(aggregate)).isEqualTo("FAILED");

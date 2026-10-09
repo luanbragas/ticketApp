@@ -18,6 +18,11 @@ export default function LoginPage({ searchParams }: PageProps<"/entrar">) {
 async function LoginWithNext({
   searchParams,
 }: Pick<PageProps<"/entrar">, "searchParams">) {
-  const { next } = await searchParams
-  return <LoginForm next={typeof next === "string" ? next : undefined} />
+  const { next, modo } = await searchParams
+  return (
+    <LoginForm
+      next={typeof next === "string" ? next : undefined}
+      startWithMagicLink={modo === "link"}
+    />
+  )
 }

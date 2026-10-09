@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.json.JsonMapper;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -29,8 +30,8 @@ import java.util.stream.Stream;
 class TicketEmailHandler implements OutboxHandler {
 
 	private static final ZoneId SAO_PAULO = ZoneId.of("America/Sao_Paulo");
-	private static final DateTimeFormatter WHEN = DateTimeFormatter
-		.ofPattern("EEEE, d 'de' MMMM 'às' HH'h'mm", Locale.forLanguageTag("pt-BR"))
+	private static final DateTimeFormatter DAY = DateTimeFormatter
+		.ofPattern("EEEE, d 'de' MMMM", Locale.forLanguageTag("pt-BR"))
 		.withZone(SAO_PAULO);
 
 	private final TicketQueries queries;
@@ -72,7 +73,7 @@ class TicketEmailHandler implements OutboxHandler {
 			.collect(Collectors.joining(" · "));
 		StringBuilder text = new StringBuilder()
 			.append("Pagamento confirmado. Te vemos na ").append(event.name()).append("!\n\n")
-			.append(capitalize(WHEN.format(event.startsAt()))).append('\n')
+			.append(capitalize(DAY.format(event.startsAt()))).append(" às ").append(hour(event.startsAt())).append('\n')
 			.append(where).append("\n\n")
 			.append(views.size() == 1 ? "Seu ingresso:\n" : "Seus ingressos:\n");
 		for (TicketView view : views) {
@@ -85,6 +86,12 @@ class TicketEmailHandler implements OutboxHandler {
 			.append("Não compartilhe estes links: quem tiver o QR entra no lugar do titular.\n\n")
 			.append("Todos os seus ingressos: ").append(webBaseUrl).append("/meus-ingressos\n")
 			.toString();
+	}
+
+	/** "23h" ou "23h30", como na página do evento. */
+	static String hour(Instant instant) {
+		var time = instant.atZone(SAO_PAULO).toLocalTime();
+		return time.getHour() + "h" + (time.getMinute() == 0 ? "" : String.format("%02d", time.getMinute()));
 	}
 
 	private static String capitalize(String text) {

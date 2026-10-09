@@ -78,7 +78,8 @@ class TicketIssuanceFlowTest {
 		assertThat(sent.getFirst().subject()).startsWith("Seus ingressos: Calourada");
 		List<String> tokens = tokensIn(sent.getFirst().text());
 		assertThat(tokens).hasSize(2);
-		assertThat(sent.getFirst().text()).contains("Ana Souza", "Bia Lima", "meia: leve o documento", "/meus-ingressos");
+		assertThat(sent.getFirst().text()).contains("Ana Souza", "Bia Lima", "meia: leve o documento", "/meus-ingressos")
+			.containsPattern(" às \\d{1,2}h(\\d{2})?\n");
 		// Nem o token nem o CPF ficam no banco em claro.
 		assertThat(jdbc.sql("SELECT count(*) FROM tickets WHERE token_hash = ?").param(tokens.getFirst())
 			.query(Integer.class).single()).isZero();
