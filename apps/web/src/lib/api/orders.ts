@@ -21,6 +21,8 @@ export type PlaceOrderBody = {
   }[]
   adultDeclared: boolean
   termsAccepted: boolean
+  /** Código do link de promoter guardado no cookie (ADR-009). */
+  promoterCode?: string | null
 }
 
 /**

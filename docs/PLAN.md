@@ -95,9 +95,9 @@ Regra: só começar um marco quando o anterior estiver pronto (exceto onde indic
 **Pronto quando:** venda feita pelo link de um promoter aparece atribuída a ele no painel.
 
 - [x] Tabelas `promoters`, `promoter_event_links` (+ `promoter_sales`, ADR-009)
-- [ ] Criar promoter, gerar link `/e/{slug}?p={codigo}`, copiar e compartilhar no WhatsApp
+- [x] Criar promoter, gerar link `/e/{slug}?p={codigo}`, copiar e compartilhar no WhatsApp
 - [x] Atribuição: cookie de 7 dias, último clique, gravado em `orders.promoter_id`
-- [ ] Lista de promoters com ingressos e receita; promoter vê só as próprias vendas
+- [x] Lista de promoters com ingressos e receita; promoter vê só as próprias vendas
 
 ### M8 · Operação do evento
 **Pronto quando:** check-in de 50 ingressos funciona com o celular em modo avião e sincroniza depois.

@@ -39,7 +39,11 @@ async function Events() {
           </Link>
         )}
       </div>
-      <EventsView organizationId={organization.id} canEdit={canEdit} />
+      <EventsView
+        organizationId={organization.id}
+        canEdit={canEdit}
+        isPromoter={organization.role === "PROMOTER"}
+      />
     </div>
   )
 }

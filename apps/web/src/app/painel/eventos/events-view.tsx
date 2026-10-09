@@ -27,9 +27,12 @@ const STATUS_STYLE: Record<EventStatus, string> = {
 export function EventsView({
   organizationId,
   canEdit,
+  isPromoter = false,
 }: {
   organizationId: string
   canEdit: boolean
+  /** Promoter abre o próprio link de divulgação em vez da página pública. */
+  isPromoter?: boolean
 }) {
   const router = useRouter()
   const pathname = usePathname()
@@ -114,7 +117,13 @@ export function EventsView({
           {events.data.items.map((event) => (
             <li key={event.id} className="border-b">
               <Link
-                href={canEdit ? eventHref(event) : `/e/${event.slug}`}
+                href={
+                  canEdit
+                    ? eventHref(event)
+                    : isPromoter
+                      ? `/painel/eventos/${event.id}/promoters`
+                      : `/e/${event.slug}`
+                }
                 className="flex items-center gap-4 py-3 hover:bg-muted"
               >
                 <span className="relative h-20 w-15 shrink-0 overflow-hidden bg-muted">
