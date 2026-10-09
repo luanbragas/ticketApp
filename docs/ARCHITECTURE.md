@@ -170,3 +170,12 @@ Formato: contexto → decisão → consequências. Registrar aqui em ordem.
     - **CPF** de comprador e titulares: AES-256-GCM (`PERSONAL_DATA_KEY`) + HMAC-SHA256 (`PERSONAL_DATA_HASH_KEY`) para busca. A API só devolve mascarado.
     - **Meia:** o titular declara o benefício (estudante, PCD, jovem de baixa renda, pessoa idosa); o documento é conferido na entrada. **18+:** o comprador declara pelos titulares quando o evento é para maiores.
   - **Consequências:** o M5 cobra o `total_cents` do pedido e, no webhook, faz `reserved -= n; sold += n` e roda a virada. O aceite dos termos fica no pedido (`terms_version`, `terms_accepted_at`) até o M8 criar `consent_records` e o texto jurídico. Rate limit e Turnstile no `POST /public/orders` ficam para o M8.
+
+- **ADR-008 — Emissão por outbox e token do QR remontável.** *Aceito em 2026-10-08.*
+  - **Contexto:** o ingresso só nasce depois do pagamento (CLAUDE.md regra 6), o e-mail não pode se perder nem duplicar ingresso, e o comprador precisa ver o QR de novo no e-mail e em "Meus ingressos" sem o banco guardar o token (SECURITY.md).
+  - **Decisão:**
+    - `OrderPayments.confirmPaid` (chamado só pelo webhook do M5) marca o pedido pago, transforma reserva em venda (`reserved -= n; sold += n`), roda a virada do lote e grava `OrderPaid` no `outbox_events`, tudo numa transação. O evento leva os dados dos titulares (CPF cifrado), para o ticketing não ler as tabelas de pedido.
+    - O worker (`shared/outbox`, a cada 2 s, `FOR UPDATE SKIP LOCKED`, uma transação por evento, espera crescente e `FAILED` depois de 10 tentativas) entrega `OrderPaid` ao emissor, que cria um ingresso por item (`order_item_id UNIQUE`, pula o que já existe) e publica `TicketsIssued`. O e-mail é outra entrega: se o provedor cair, só o e-mail é refeito.
+    - **Token do QR** = `base64url(HMAC-SHA256(TICKET_TOKEN_KEY, nonce))`, com nonce aleatório de 32 bytes por ingresso. O banco guarda o nonce e o SHA-256 do token; sem a chave, quem lê o banco não monta um QR. Com a chave, o sistema remonta o token para o e-mail e "Meus ingressos". Transferir ou cancelar troca o nonce.
+    - "Meus ingressos" lista pelo e-mail do comprador (`tickets.buyer_email`) e só para conta com e-mail verificado (link mágico, ADR-004).
+  - **Consequências:** trocar `TICKET_TOKEN_KEY` invalida todos os QRs emitidos. O e-mail pode, raramente, sair duas vezes (enviou e a transação caiu depois); perder o e-mail não acontece. Ingresso de titular que não é o comprador só aparece para o comprador até existir transferência.

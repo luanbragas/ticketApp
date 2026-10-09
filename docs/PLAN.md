@@ -85,10 +85,10 @@ Regra: só começar um marco quando o anterior estiver pronto (exceto onde indic
 ### M6 · Emissão de ingressos
 **Pronto quando:** após pagar, o comprador recebe e-mail com ingresso e acessa "Meus ingressos" pelo link mágico.
 
-- [ ] Tabela `tickets` + `outbox_events`
-- [ ] Evento `OrderPaid` → emitir 1 ingresso por item com token assinado (HMAC)
+- [x] Tabela `tickets` + `outbox_events`
+- [x] Evento `OrderPaid` → emitir 1 ingresso por item com token assinado (HMAC) — ADR-008; o webhook do M5 chama `OrderPayments.confirmPaid`
 - [ ] Página do ingresso `/t/{token}` com QR, titular, tipo, data, local, adicionar ao calendário
-- [ ] E-mail transacional com ingresso (worker do outbox)
+- [x] E-mail transacional com ingresso (worker do outbox)
 - [ ] "Meus ingressos" (próximos e histórico)
 
 ### M7 · Promoters (básico) — pode ser paralelo a M6

@@ -48,6 +48,8 @@ festa:
     # Gerar com: openssl rand -base64 32. Trocar a chave exige migrar o que já foi gravado.
     personal-data-key: ${PERSONAL_DATA_KEY}
     personal-data-hash-key: ${PERSONAL_DATA_HASH_KEY}
+    # Chave do token do QR (ADR-008). Trocar invalida todos os ingressos já emitidos.
+    ticket-token-key: ${TICKET_TOKEN_KEY}
   fees:
     # Taxa de serviço por ingresso, paga pelo comprador por cima do preço (ADR-007).
     # Em pontos-base: 1000 = 10%. Mínimo em centavos (0 = sem mínimo).

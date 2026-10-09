@@ -58,9 +58,11 @@ ticket_batches (id, (ticket_type_id, event_id, organization_id) FK, name, price_
                 UNIQUE(ticket_type_id, position),
                 CHECK (sold + reserved <= capacity))
 -- um lote ON_SALE por tipo: EXCLUDE ... WHERE status = 'ON_SALE' DEFERRABLE INITIALLY DEFERRED (ADR-006)
-tickets (id, order_item_id FK, event_id, organization_id, ticket_batch_id,
-         holder_name, holder_cpf_encrypted, holder_cpf_hash,
-         token_hash UNIQUE, status CHECK IN ('VALID','CHECKED_IN','TRANSFERRED','CANCELLED'))
+tickets (id, order_item_id FK UNIQUE, order_id FK, (event_id, organization_id) FK, ticket_batch_id FK,
+         buyer_email,                                   -- "Meus ingressos" (e-mail verificado, ADR-008)
+         holder_name, holder_cpf_encrypted, holder_cpf_hash, is_half_price,
+         token_nonce BYTEA, token_hash UNIQUE,          -- token = HMAC(chave, nonce); token nunca guardado
+         status CHECK IN ('VALID','CHECKED_IN','TRANSFERRED','CANCELLED'))
 ```
 
 ### order
@@ -109,7 +111,7 @@ terms_versions (id, kind CHECK IN ('TERMS','PRIVACY'), version, published_at, ur
 consent_records (id, user_id NULL, email, terms_version_id FK, purpose, granted, ip, user_agent, created_at)
 audit_logs (id, organization_id NULL, actor_user_id, action, entity, entity_id, data JSONB, created_at)
 outbox_events (id, type, aggregate_id, payload JSONB, status CHECK IN ('PENDING','DONE','FAILED'),
-               attempts INT DEFAULT 0, next_attempt_at, created_at)
+               attempts INT DEFAULT 0, next_attempt_at, last_error, processed_at, created_at)
 ```
 
 ## Índices essenciais
@@ -117,8 +119,8 @@ outbox_events (id, type, aggregate_id, payload JSONB, status CHECK IN ('PENDING'
 - `events(organization_id, starts_at)`, `events(status, starts_at)`
 - `ticket_batches(event_id)`, `ticket_batches(status)` parcial em `SCHEDULED`/`ON_SALE` (job de virada)
 - `orders(event_id, status)`, `orders(expires_at)` parcial em `PENDING_PAYMENT` (job de expiração), `orders(buyer_cpf_hash, event_id)` (limite por CPF)
-- `tickets(event_id, status)`, `tickets(holder_cpf_hash)`
-- `outbox_events(status, next_attempt_at)`
+- `tickets(event_id, status)`, `tickets(holder_cpf_hash)`, `tickets(buyer_email)`, `tickets(order_id)`
+- `outbox_events(next_attempt_at)` parcial em `PENDING`
 
 ## Backups
 

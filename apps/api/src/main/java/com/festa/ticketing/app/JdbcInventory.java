@@ -21,10 +21,12 @@ class JdbcInventory implements Inventory {
 
 	private final JdbcClient jdbc;
 	private final Clock clock;
+	private final TicketingService ticketing;
 
-	JdbcInventory(JdbcClient jdbc, Clock clock) {
+	JdbcInventory(JdbcClient jdbc, Clock clock, TicketingService ticketing) {
 		this.jdbc = jdbc;
 		this.clock = clock;
+		this.ticketing = ticketing;
 	}
 
 	@Override
@@ -101,6 +103,27 @@ class JdbcInventory implements Inventory {
 		if (updated != 1) {
 			throw new IllegalStateException("reserva do lote " + batchId + " menor que " + quantity);
 		}
+	}
+
+	@Override
+	@Transactional(propagation = Propagation.MANDATORY)
+	public void confirm(UUID eventId, UUID batchId, int quantity) {
+		int updated = jdbc.sql("""
+				UPDATE ticket_batches SET reserved = reserved - :qty, sold = sold + :qty, updated_at = now()
+				 WHERE id = :id AND event_id = :eventId AND reserved >= :qty
+				""")
+			.param("qty", quantity)
+			.param("id", batchId)
+			.param("eventId", eventId)
+			.update();
+		if (updated != 1) {
+			throw new IllegalStateException("reserva do lote " + batchId + " menor que " + quantity);
+		}
+		UUID organizationId = jdbc.sql("SELECT organization_id FROM ticket_batches WHERE id = :id")
+			.param("id", batchId)
+			.query(UUID.class)
+			.single();
+		ticketing.rolloverEvent(organizationId, eventId);
 	}
 
 }

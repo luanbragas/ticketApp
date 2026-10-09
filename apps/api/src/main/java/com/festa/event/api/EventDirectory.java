@@ -14,7 +14,8 @@ public interface EventDirectory {
 	Optional<EventRef> findPublic(String slug);
 
 	record EventRef(UUID id, UUID organizationId, String slug, String name, EventStatus status, int minAge,
-			int halfPriceQuotaPercent, Integer maxTicketsPerCpf, Instant startsAt, Instant endsAt) {
+			int halfPriceQuotaPercent, Integer maxTicketsPerCpf, Instant startsAt, Instant endsAt, String venueName,
+			String address, String city, String accentColor) {
 
 		/** Dados do evento (e o que pertence a ele, como ingressos) só mudam em rascunho ou publicado. */
 		public boolean editable() {
