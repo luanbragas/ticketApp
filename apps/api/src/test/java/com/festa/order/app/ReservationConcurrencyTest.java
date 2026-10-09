@@ -63,7 +63,7 @@ class ReservationConcurrencyTest {
 					try {
 						checkout.place(new PlaceOrder(shop.slug(), UUID.randomUUID().toString().replace("-", "") + "k",
 								new Buyer("Comprador", "c@festa.test", null, cpf),
-								List.of(new TicketRequest(batch, "Titular", cpf, null)), true, true));
+								List.of(new TicketRequest(batch, "Titular", cpf, null)), true, true, null));
 						return Outcome.RESERVED;
 					}
 					catch (OrderRuleException ex) {

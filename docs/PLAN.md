@@ -94,9 +94,9 @@ Regra: só começar um marco quando o anterior estiver pronto (exceto onde indic
 ### M7 · Promoters (básico) — pode ser paralelo a M6
 **Pronto quando:** venda feita pelo link de um promoter aparece atribuída a ele no painel.
 
-- [ ] Tabelas `promoters`, `promoter_event_links`
+- [x] Tabelas `promoters`, `promoter_event_links` (+ `promoter_sales`, ADR-009)
 - [ ] Criar promoter, gerar link `/e/{slug}?p={codigo}`, copiar e compartilhar no WhatsApp
-- [ ] Atribuição: cookie de 7 dias, último clique, gravado em `orders.promoter_id`
+- [x] Atribuição: cookie de 7 dias, último clique, gravado em `orders.promoter_id`
 - [ ] Lista de promoters com ingressos e receita; promoter vê só as próprias vendas
 
 ### M8 · Operação do evento

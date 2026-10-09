@@ -52,6 +52,8 @@ public class Order extends BaseEntity {
 
 	private String accessKeyHash;
 
+	private UUID promoterId;
+
 	private boolean adultDeclared;
 
 	private String termsVersion;
@@ -89,6 +91,11 @@ public class Order extends BaseEntity {
 		this.adultDeclared = adultDeclared;
 		this.termsVersion = Objects.requireNonNull(termsVersion, "termsVersion");
 		this.termsAcceptedAt = now;
+	}
+
+	/** Venda veio pelo link de um promoter (último clique em 7 dias, ADR-009). */
+	public void attributeTo(UUID promoterId) {
+		this.promoterId = promoterId;
 	}
 
 	/**
@@ -169,6 +176,10 @@ public class Order extends BaseEntity {
 
 	public String getBuyerCpfHash() {
 		return buyerCpfHash;
+	}
+
+	public UUID getPromoterId() {
+		return promoterId;
 	}
 
 	public String getAccessKeyHash() {

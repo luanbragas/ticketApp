@@ -89,7 +89,8 @@ PUT|DELETE /orgs/{orgId}/events/{id}/batches/{batchId} · POST /orgs/{orgId}/eve
                                              # toda escrita devolve o catálogo inteiro, já com a virada (ADR-006)
 GET  /orgs/{orgId}/events/{id}/dashboard
 GET  /orgs/{orgId}/events/{id}/attendees
-GET|POST /orgs/{orgId}/events/{id}/promoters
+GET  /orgs/{orgId}/promoters                   # promoters da organização (gerência)
+GET|POST /orgs/{orgId}/events/{id}/promoters  · PATCH /orgs/{orgId}/events/{id}/promoters/{linkId} (ativar/desativar)
 GET  /orgs/{orgId}/events/{id}/finance
 POST /orgs/{orgId}/orders/{id}/refund        # ADMIN+
 ```
