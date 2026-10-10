@@ -40,10 +40,12 @@ describe("event-list", () => {
     expect(
       eventHref({
         ...base,
-        status: "PUBLISHED",
         startsAt: "2026-11-15T02:00:00Z",
         flyerUrl: "x",
       }),
     ).toBe("/painel/eventos/e1/revisar")
+    expect(eventHref({ ...base, status: "PUBLISHED" })).toBe(
+      "/painel/eventos/e1",
+    )
   })
 })

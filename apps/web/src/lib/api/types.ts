@@ -318,3 +318,72 @@ export type Promoter = {
   phone: string | null
   userId: string | null
 }
+
+/** GET /orgs/{org}/events/{id}/dashboard (centavos; receita sem a taxa de serviço). */
+export type Dashboard = {
+  paidOrders: number
+  ticketsSold: number
+  revenueCents: number
+  feeCents: number
+  pendingOrders: number
+  capacity: number
+  sold: number
+  reserved: number
+  issued: number
+  checkedIn: number
+  byDay: { date: string; tickets: number; revenueCents: number }[]
+}
+
+/** O que a portaria vê do ingresso (sem CPF). */
+export type GatePass = {
+  ticketId: string
+  holderName: string
+  typeName: string
+  batchName: string
+  halfPrice: boolean
+  status: TicketStatus
+}
+
+export type Participant = {
+  ticket: GatePass
+  /** Só para a gerência; o operador da portaria recebe nulo. */
+  holderCpf: string | null
+  buyerEmail: string | null
+  checkinId: string | null
+  checkedInAt: string | null
+}
+
+export type Participants = {
+  items: Participant[]
+  issued: number
+  checkedIn: number
+  duplicates: number
+  hasMore: boolean
+}
+
+/** Lista para o modo offline: o aparelho confere o hash do QR sem internet (ADR-010). */
+export type CheckinManifest = {
+  eventId: string
+  eventName: string
+  startsAt: string
+  generatedAt: string
+  tickets: {
+    ticketId: string
+    tokenHash: string
+    holderName: string
+    typeName: string
+    halfPrice: boolean
+    status: TicketStatus
+  }[]
+}
+
+export type SyncOutcome = "ACCEPTED" | "DUPLICATE" | "INVALID"
+
+export type SyncResponse = {
+  results: {
+    tokenHash: string | null
+    ticketId: string | null
+    checkedInAt: string
+    outcome: SyncOutcome
+  }[]
+}

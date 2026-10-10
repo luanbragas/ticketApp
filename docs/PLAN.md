@@ -102,11 +102,11 @@ Regra: só começar um marco quando o anterior estiver pronto (exceto onde indic
 ### M8 · Operação do evento
 **Pronto quando:** check-in de 50 ingressos funciona com o celular em modo avião e sincroniza depois.
 
-- [ ] Dashboard: vendas, vendidos/capacidade, check-ins, gráfico por dia
-- [ ] Participantes: busca, filtros, status de check-in
+- [x] Dashboard: vendas, vendidos/capacidade, check-ins, gráfico por dia
+- [x] Participantes: busca, filtros, status de check-in
 - [x] Tabela `checkins`; check-in online com resultados válido / já utilizado / inválido — ADR-010
-- [ ] Busca manual por nome/CPF na portaria
-- [ ] PWA de check-in: baixar lista, validar offline (IndexedDB), fila de sincronização, conflitos
+- [x] Busca manual por nome/CPF na portaria (nome offline no aparelho; CPF na lista de participantes, online)
+- [x] PWA de check-in: baixar lista, validar offline (IndexedDB), fila de sincronização, conflitos — falta testar num celular de verdade em modo avião
 - [x] Desfazer check-in (ADMIN) com audit log
 
 ### M9 · Financeiro, compliance e lançamento

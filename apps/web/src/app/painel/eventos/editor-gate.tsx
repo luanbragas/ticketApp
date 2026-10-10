@@ -16,11 +16,15 @@ export async function editorOrganization(): Promise<{
   return { organization, canEdit: EDITORS.includes(organization.role) }
 }
 
-export function NoPermission() {
+export function NoPermission({
+  message = "Criar e editar eventos é para dono, administradores e gerentes.",
+}: {
+  message?: string
+}) {
   return (
     <div className="flex items-start gap-3 border p-5 text-sm text-muted-foreground">
       <LockIcon className="mt-0.5 size-4 shrink-0" aria-hidden />
-      Criar e editar eventos é para dono, administradores e gerentes.
+      {message}
     </div>
   )
 }
