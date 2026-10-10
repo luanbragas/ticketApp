@@ -82,7 +82,7 @@ Gravar em `audit_logs`: reembolso, cortesia, desfazer check-in, alteração de p
 
 ## Checklist antes do piloto
 
-- [ ] Teste de isolamento entre organizações em todos os endpoints do painel
+- [x] Teste de isolamento entre organizações em todos os endpoints do painel (`OrganizationIsolationSweepTest` percorre todas as rotas `/orgs/{orgId}/...` registradas; rota nova entra sozinha)
 - [ ] Webhook rejeita assinatura inválida e processa repetidos sem duplicar
 - [x] Rate limit ativo nos endpoints listados (cupom quando existir)
 - [x] Nenhum segredo no repositório (gitleaks no CI; exceção só para as chaves de dev do `application-local.yml`)

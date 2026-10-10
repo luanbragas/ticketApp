@@ -116,7 +116,7 @@ Regra: só começar um marco quando o anterior estiver pronto (exceto onde indic
 - [ ] Termos de uso e política de privacidade versionados + `consent_records`
 - [ ] Reembolso manual pelo admin (estorna no gateway, cancela ingresso)
 - [ ] Landing da plataforma
-- [ ] Revisão do checklist de SECURITY.md — feito: rate limit, headers, audit log (evento, lote, check-in), gitleaks, Dependabot; `pnpm audit` limpo; falta: isolamento em todos os endpoints, OWASP dependency-check, backup, webhook (M5)
+- [ ] Revisão do checklist de SECURITY.md — feito: rate limit, headers, audit log (evento, lote, check-in), gitleaks, Dependabot; `pnpm audit` limpo; isolamento varrido em todas as rotas; falta: OWASP dependency-check, backup, webhook (M5)
 - [ ] Teste de carga da página do evento e da abertura de lote
 - [ ] Deploy de produção, domínio, backups do Postgres testados
 - [ ] Validação jurídica (meia-entrada, reembolso, termos)
