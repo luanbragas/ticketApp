@@ -1,5 +1,6 @@
 package com.festa.event.app;
 
+import com.festa.compliance.api.AuditLog;
 import com.festa.event.api.PublishPrerequisite;
 import com.festa.event.domain.Event;
 import com.festa.event.domain.EventMedia;
@@ -54,11 +55,12 @@ public class EventService {
 	private final OrganizationDirectory organizations;
 	private final MediaStorage storage;
 	private final List<PublishPrerequisite> prerequisites;
+	private final AuditLog audit;
 	private final Clock clock;
 
 	EventService(EventRepository events, EventMediaRepository media, LineupRepository lineup, TenantGuard tenantGuard,
 			OrganizationDirectory organizations, MediaStorage storage, List<PublishPrerequisite> prerequisites,
-			Clock clock) {
+			AuditLog audit, Clock clock) {
 		this.events = events;
 		this.media = media;
 		this.lineup = lineup;
@@ -66,6 +68,7 @@ public class EventService {
 		this.organizations = organizations;
 		this.storage = storage;
 		this.prerequisites = prerequisites;
+		this.audit = audit;
 		this.clock = clock;
 	}
 
@@ -179,6 +182,7 @@ public class EventService {
 			.flatMap(prerequisite -> prerequisite.missingFor(organizationId, eventId).stream())
 			.toList();
 		apply(() -> event.publish(clock.instant(), hasFlyer, missing));
+		audit.record(organizationId, userId, "event.published", "event", eventId, Map.of("slug", event.getSlug()));
 		return view(event);
 	}
 
@@ -194,7 +198,9 @@ public class EventService {
 	public EventView cancel(UUID organizationId, UUID eventId, UUID userId) {
 		tenantGuard.requireRole(organizationId, userId, CANCELLERS);
 		Event event = load(organizationId, eventId);
+		EventStatus before = event.getStatus();
 		apply(event::cancel);
+		audit.record(organizationId, userId, "event.cancelled", "event", eventId, Map.of("from", before.name()));
 		return view(event);
 	}
 

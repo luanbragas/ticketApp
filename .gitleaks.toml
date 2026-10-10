@@ -1,0 +1,9 @@
+# Varredura de segredos no CI (SECURITY.md checklist). Regras padrão do gitleaks, mais as exceções abaixo.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Chaves só de desenvolvimento, com dados de teste (ver application-local.yml)"
+paths = [
+  '''apps/api/src/main/resources/application-local\.yml''',
+]

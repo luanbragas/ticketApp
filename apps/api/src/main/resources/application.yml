@@ -75,6 +75,9 @@ festa:
 server:
   port: ${PORT:8080}
   shutdown: graceful
+  # Atrás de proxy (staging/produção): "framework" para o IP real vir do X-Forwarded-For, senão o rate
+  # limit trata todo mundo como o IP do proxy. Sem proxy, fica "none" (o header poderia ser forjado).
+  forward-headers-strategy: ${FORWARD_HEADERS_STRATEGY:none}
 
 management:
   health:

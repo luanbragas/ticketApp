@@ -1,5 +1,6 @@
 package com.festa.ticketing.app;
 
+import com.festa.compliance.api.AuditLog;
 import com.festa.event.api.EventDirectory;
 import com.festa.event.api.EventDirectory.EventRef;
 import com.festa.event.api.EventStatus;
@@ -45,14 +46,16 @@ public class TicketingService implements PublishPrerequisite {
 	private final TicketBatchRepository batches;
 	private final TenantGuard tenantGuard;
 	private final EventDirectory eventDirectory;
+	private final AuditLog audit;
 	private final Clock clock;
 
 	TicketingService(TicketTypeRepository types, TicketBatchRepository batches, TenantGuard tenantGuard,
-			EventDirectory eventDirectory, Clock clock) {
+			EventDirectory eventDirectory, AuditLog audit, Clock clock) {
 		this.types = types;
 		this.batches = batches;
 		this.tenantGuard = tenantGuard;
 		this.eventDirectory = eventDirectory;
+		this.audit = audit;
 		this.clock = clock;
 	}
 
@@ -119,7 +122,15 @@ public class TicketingService implements PublishPrerequisite {
 		EventRef event = editableEvent(organizationId, eventId, userId);
 		List<TicketBatch> locked = batches.lockForEvent(eventId, organizationId);
 		TicketBatch batch = batchIn(locked, batchId);
+		long oldPrice = batch.getPriceCents();
+		int oldCapacity = batch.getCapacity();
 		rule(() -> batch.update(terms));
+		if (oldPrice != batch.getPriceCents() || oldCapacity != batch.getCapacity()) {
+			// SECURITY.md §Auditoria: preço e capacidade de lote mexem em dinheiro e estoque.
+			audit.record(organizationId, userId, "batch.terms-changed", "ticket_batch", batchId,
+					Map.of("eventId", eventId, "priceCents", List.of(oldPrice, batch.getPriceCents()),
+							"capacity", List.of(oldCapacity, batch.getCapacity())));
+		}
 		rollover(locked);
 		return catalogOf(event);
 	}

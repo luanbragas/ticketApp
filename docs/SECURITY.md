@@ -48,7 +48,7 @@
 
 ## Abuso e disponibilidade
 
-- Rate limit (Bucket4j em memória no MVP) em: login, link mágico, criação de pedido, validação de cupom, webhook.
+- Rate limit por IP (Bucket4j em memória no MVP, `RateLimitFilter`): login 10/min, cadastro 5/min, link mágico 5/min, consumir link 10/min, pedido 60/min, cotação 120/min, webhook 600/min; resposta 429 com `Retry-After`. Pedido e cotação são generosos porque muita gente compra pelo mesmo Wi-Fi do campus. Atrás de proxy, definir `FORWARD_HEADERS_STRATEGY=framework` (senão todos viram o IP do proxy). Validação de cupom entra junto com cupons.
 - Cloudflare Turnstile no checkout em aberturas de lote.
 - Upload: URL pré-assinada, só `image/jpeg|png|webp`, máximo 5 MB, nome gerado pelo servidor.
 
@@ -57,7 +57,7 @@
 - Validação com Bean Validation (api) e Zod (web). Rejeitar campos desconhecidos.
 - Só consultas parametrizadas. Nada de concatenar SQL.
 - CORS restrito aos domínios da web.
-- Headers: CSP, HSTS, X-Content-Type-Options, Referrer-Policy.
+- Headers: API com CSP `default-src 'none'`, `nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer` (HSTS do Spring em HTTPS). Web com `nosniff`, `Referrer-Policy`, `Permissions-Policy` (câmera só na mesma origem), HSTS em produção e CSP em duas partes: `frame-ancestors`, `base-uri`, `form-action` e `object-src` valendo; a política completa em `Report-Only` até ser conferida no navegador.
 - Erros em Problem Details sem stack trace nem detalhes internos.
 
 ## Dados pessoais
@@ -84,9 +84,9 @@ Gravar em `audit_logs`: reembolso, cortesia, desfazer check-in, alteração de p
 
 - [ ] Teste de isolamento entre organizações em todos os endpoints do painel
 - [ ] Webhook rejeita assinatura inválida e processa repetidos sem duplicar
-- [ ] Rate limit ativo nos endpoints listados
-- [ ] Nenhum segredo no repositório (rodar gitleaks no CI)
-- [ ] Dependências sem vulnerabilidade crítica (Dependabot / `pnpm audit` / OWASP dependency-check)
-- [ ] Headers de segurança conferidos
+- [x] Rate limit ativo nos endpoints listados (cupom quando existir)
+- [x] Nenhum segredo no repositório (gitleaks no CI; exceção só para as chaves de dev do `application-local.yml`)
+- [ ] Dependências sem vulnerabilidade crítica (Dependabot configurado; falta rodar `pnpm audit` e OWASP dependency-check antes do piloto)
+- [ ] Headers de segurança conferidos (configurados; falta tirar a CSP completa do `Report-Only` depois de ver no navegador)
 - [ ] CPF criptografado e mascarado ponta a ponta
 - [ ] Backup restaurado com sucesso
