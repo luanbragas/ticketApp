@@ -38,4 +38,13 @@ public interface Inventory {
 	 */
 	void confirm(UUID eventId, UUID batchId, int quantity);
 
+	/**
+	 * Estoque do evento para o dashboard. {@code offered}: capacidade dos lotes abertos ou na fila e, dos
+	 * encerrados, só o que saiu (o resto nunca esteve à venda).
+	 */
+	record Stock(int offered, int sold, int reserved) {
+	}
+
+	Stock stock(UUID eventId);
+
 }

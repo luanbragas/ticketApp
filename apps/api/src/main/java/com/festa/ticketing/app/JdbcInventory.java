@@ -126,4 +126,17 @@ class JdbcInventory implements Inventory {
 		ticketing.rolloverEvent(organizationId, eventId);
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public Stock stock(UUID eventId) {
+		return jdbc.sql("""
+				SELECT coalesce(sum(CASE WHEN status IN ('SOLD_OUT', 'CLOSED') THEN sold + reserved ELSE capacity END), 0) AS offered,
+				       coalesce(sum(sold), 0) AS sold, coalesce(sum(reserved), 0) AS reserved
+				  FROM ticket_batches WHERE event_id = :eventId
+				""")
+			.param("eventId", eventId)
+			.query((rs, i) -> new Stock(rs.getInt("offered"), rs.getInt("sold"), rs.getInt("reserved")))
+			.single();
+	}
+
 }

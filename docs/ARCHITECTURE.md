@@ -188,3 +188,14 @@ Formato: contexto → decisão → consequências. Registrar aqui em ordem.
     - **Vendas por promoter**: o evento `OrderPaid` leva `promoterId`, subtotal e quantidade; o módulo promoter grava `promoter_sales` (uma linha por pedido, idempotente). Receita = valor dos ingressos, sem a taxa de serviço. O outbox passou a aceitar vários consumidores por tipo, na mesma transação.
     - PROMOTER vê só o próprio link e as próprias vendas, sem telefone de ninguém nem CPF (SECURITY.md).
   - **Consequências:** atribuição pelo cookie pode ser trocada por quem compra (aceitável para marketing; não mexe em dinheiro). Comissão (fixa ou %) fica para "Comissões automáticas" (pós-MVP); estorno (M9) precisa descontar de `promoter_sales`.
+
+- **ADR-010 — Portaria: status no ticketing, histórico no checkin, vale a leitura mais antiga.** *Aceito em 2026-10-09.*
+  - **Contexto:** o M8 pede check-in online e offline (modo avião) com sincronização e conflitos, desfazer com audit log, participantes e dashboard, respeitando que um módulo não lê tabela de outro.
+  - **Decisão:**
+    - O status do ingresso continua do ticketing, exposto por `ticketing.api.Admission`. Entrar é um `UPDATE tickets SET status = 'CHECKED_IN' ... WHERE status = 'VALID'` atômico: dois leitores do mesmo QR nunca deixam entrar duas vezes.
+    - O módulo `checkin` guarda o histórico (`checkins`): quem leu, quando (hora do aparelho no offline), aparelho e origem. Só uma leitura ativa por ingresso (índice único parcial); as outras ficam como `duplicate` para o relatório de conflitos.
+    - **Offline:** o aparelho baixa a lista (`/checkin/manifest`: id, hash do token, nome, tipo, status), confere o hash do QR lido localmente e envia depois em lote (`/checkins/sync`). Conflito: vale a leitura mais antiga; a que perdeu vira duplicada. Reenviar o mesmo lote não muda nada. Hora de aparelho mais de 5 min no futuro vira a hora do servidor.
+    - **Desfazer** (dono e admin) marca a leitura como desfeita, volta o ingresso para `VALID` e grava `checkin.undone` em `audit_logs` (módulo compliance), na mesma transação.
+    - Operador da portaria vê só nome, tipo e status; a gerência vê também CPF mascarado e e-mail de quem comprou.
+    - **Dashboard** fica no módulo `order` (é onde está o dinheiro): pedidos pagos, receita sem taxa, taxa, pedidos aguardando pagamento, estoque oferecido/vendido/reservado (`Inventory.stock`), entradas (`Admission.counts`) e vendas por dia no fuso de São Paulo.
+  - **Consequências:** a lista offline expõe o hash do token e o nome dos titulares ao aparelho da portaria (necessário para validar sem internet); o aparelho deve apagar a lista depois do evento. Portarias nomeadas (`checkin_gates`) ficam para quando houver festa com mais de uma entrada.

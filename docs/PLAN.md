@@ -104,10 +104,10 @@ Regra: só começar um marco quando o anterior estiver pronto (exceto onde indic
 
 - [ ] Dashboard: vendas, vendidos/capacidade, check-ins, gráfico por dia
 - [ ] Participantes: busca, filtros, status de check-in
-- [ ] Tabela `checkins`; check-in online com resultados válido / já utilizado / inválido
+- [x] Tabela `checkins`; check-in online com resultados válido / já utilizado / inválido — ADR-010
 - [ ] Busca manual por nome/CPF na portaria
 - [ ] PWA de check-in: baixar lista, validar offline (IndexedDB), fila de sincronização, conflitos
-- [ ] Desfazer check-in (ADMIN) com audit log
+- [x] Desfazer check-in (ADMIN) com audit log
 
 ### M9 · Financeiro, compliance e lançamento
 **Pronto quando:** festa piloto realizada.
