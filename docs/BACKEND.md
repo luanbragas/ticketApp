@@ -78,6 +78,7 @@ GET  /auth/google/callback · POST /auth/magic-link/consume · GET /auth/me
 ### Painel
 ```
 GET|POST /orgs                               · GET /orgs/{orgId}       # GET /orgs = organizações do usuário logado
+PATCH /orgs/{orgId} (nome, Instagram, WhatsApp) · POST /orgs/{orgId}/logo/upload-url · PUT /orgs/{orgId}/logo   # dono e admin
 GET|POST /orgs/{orgId}/members               · POST /orgs/{orgId}/payment-account/connect
 POST /invitations/accept                     # aceitar convite (logado com o e-mail convidado)
 GET|POST /orgs/{orgId}/events                · GET|PATCH /orgs/{orgId}/events/{id}

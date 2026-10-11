@@ -33,7 +33,7 @@ Regra: só começar um marco quando o anterior estiver pronto (exceto onde indic
 - [ ] Login com Google (OIDC) — aguardando Client ID do Google Cloud
 - [x] Link mágico por e-mail (usado também pelo comprador em "Meus ingressos")
 - [x] Criar organização (nome, slug)
-- [ ] Logo da organização — depende do upload para o R2 (M2)
+- [x] Logo da organização (+ nome, Instagram e WhatsApp em /painel/organizacao); upload reaproveita `shared/storage`
 - [x] Papéis fixos por organização: OWNER, ADMIN, MANAGER, PROMOTER, CHECKIN_OPERATOR
 - [x] Guarda de autorização + filtro por `organization_id` + **teste de isolamento entre organizações**
 - [x] Convidar membro por e-mail com papel
@@ -115,7 +115,7 @@ Regra: só começar um marco quando o anterior estiver pronto (exceto onde indic
 - [ ] Financeiro básico: bruto, taxas, comissões calculadas, líquido, repassado / a receber
 - [ ] Termos de uso e política de privacidade versionados + `consent_records`
 - [ ] Reembolso manual pelo admin (estorna no gateway, cancela ingresso)
-- [ ] Landing da plataforma
+- [x] Landing da plataforma
 - [ ] Revisão do checklist de SECURITY.md — feito: rate limit, headers, audit log (evento, lote, check-in), gitleaks, Dependabot; `pnpm audit` limpo; isolamento varrido em todas as rotas; falta: OWASP dependency-check, backup, webhook (M5)
 - [ ] Teste de carga da página do evento e da abertura de lote
 - [ ] Deploy de produção, domínio, backups do Postgres testados

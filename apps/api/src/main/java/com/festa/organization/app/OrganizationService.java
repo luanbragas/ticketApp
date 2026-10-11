@@ -8,6 +8,7 @@ import com.festa.organization.domain.Slug;
 import com.festa.organization.infra.OrganizationMemberRepository;
 import com.festa.organization.infra.OrganizationRepository;
 import com.festa.shared.web.ApiException;
+import com.festa.shared.storage.ImageUploads;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -27,12 +28,14 @@ public class OrganizationService {
 	private final OrganizationRepository organizations;
 	private final OrganizationMemberRepository members;
 	private final TenantGuard tenantGuard;
+	private final ImageUploads uploads;
 
 	OrganizationService(OrganizationRepository organizations, OrganizationMemberRepository members,
-			TenantGuard tenantGuard) {
+			TenantGuard tenantGuard, ImageUploads uploads) {
 		this.organizations = organizations;
 		this.members = members;
 		this.tenantGuard = tenantGuard;
+		this.uploads = uploads;
 	}
 
 	public record Membership(Organization organization, Role role) {
@@ -81,6 +84,42 @@ public class OrganizationService {
 		return organizations.findById(organizationId)
 			.map(organization -> new Membership(organization, role))
 			.orElseThrow(() -> new IllegalStateException("membro de organização inexistente: " + organizationId));
+	}
+
+	/** Perfil público: só dono e admin (SECURITY.md). */
+	@Transactional
+	public Membership updateProfile(UUID organizationId, UUID userId, String name, String instagram, String whatsapp) {
+		Role role = tenantGuard.requireRole(organizationId, userId, Role.OWNER, Role.ADMIN);
+		Organization organization = organizations.findById(organizationId).orElseThrow();
+		try {
+			organization.updateProfile(name, instagram, whatsapp);
+		}
+		catch (IllegalArgumentException ex) {
+			throw new ApiException(HttpStatus.UNPROCESSABLE_CONTENT, "invalid-profile", "Dados inválidos",
+				ex.getMessage().startsWith("instagram") ? "Instagram inválido: use só o @ do perfil."
+						: ex.getMessage().startsWith("whatsapp") ? "WhatsApp inválido: use DDD e número."
+								: "Nome inválido.");
+		}
+		return new Membership(organization, role);
+	}
+
+	@Transactional(readOnly = true)
+	public ImageUploads.UploadUrl logoUploadUrl(UUID organizationId, UUID userId, String contentType, long size) {
+		tenantGuard.requireRole(organizationId, userId, Role.OWNER, Role.ADMIN);
+		return uploads.sign(logoFolder(organizationId), contentType, size);
+	}
+
+	/** Liga a logo já enviada; a chave precisa estar na pasta de logo desta organização. */
+	@Transactional
+	public Membership setLogo(UUID organizationId, UUID userId, String key) {
+		Role role = tenantGuard.requireRole(organizationId, userId, Role.OWNER, Role.ADMIN);
+		Organization organization = organizations.findById(organizationId).orElseThrow();
+		organization.changeLogo(key == null ? null : uploads.accept(logoFolder(organizationId), key).toString());
+		return new Membership(organization, role);
+	}
+
+	private static String logoFolder(UUID organizationId) {
+		return "orgs/%s/logo/".formatted(organizationId);
 	}
 
 	private String availableSlugFor(String name) {

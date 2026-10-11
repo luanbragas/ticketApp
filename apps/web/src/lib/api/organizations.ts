@@ -5,6 +5,7 @@ import type {
   Organization,
   Role,
   Team,
+  UploadUrl,
 } from "./types"
 
 export const createOrganization = (body: { name: string; slug?: string }) =>
@@ -28,4 +29,26 @@ export const acceptInvitation = (token: string) =>
   api<Organization>("/api/v1/invitations/accept", {
     method: "POST",
     body: { token },
+  })
+
+/** Campos ausentes ficam como estão; Instagram e WhatsApp vazios apagam. */
+export const updateOrganization = (
+  orgId: string,
+  body: { name?: string; instagram?: string; whatsapp?: string },
+) => api<Organization>(`/api/v1/orgs/${orgId}`, { method: "PATCH", body })
+
+export const requestLogoUploadUrl = (
+  orgId: string,
+  body: { contentType: string; size: number },
+) =>
+  api<UploadUrl>(`/api/v1/orgs/${orgId}/logo/upload-url`, {
+    method: "POST",
+    body,
+  })
+
+/** key nula tira a logo. */
+export const setOrganizationLogo = (orgId: string, key: string | null) =>
+  api<Organization>(`/api/v1/orgs/${orgId}/logo`, {
+    method: "PUT",
+    body: { key },
   })

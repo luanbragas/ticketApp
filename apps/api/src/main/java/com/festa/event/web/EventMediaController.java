@@ -2,7 +2,8 @@ package com.festa.event.web;
 
 import com.festa.event.app.MediaUploadService;
 import com.festa.event.app.MediaUploadService.Kind;
-import com.festa.event.app.MediaUploadService.UploadUrl;
+import com.festa.shared.storage.ImageUploads;
+import com.festa.shared.storage.ImageUploads.UploadUrl;
 import com.festa.shared.security.AuthenticatedUser;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -33,7 +34,7 @@ class EventMediaController {
 			@NotNull(message = "Informe o formato da imagem.")
 			@Pattern(regexp = "image/(jpeg|png|webp)", message = "Envie a imagem em JPG, PNG ou WebP.") String contentType,
 			@Min(value = 1, message = "Arquivo vazio.")
-			@Max(value = MediaUploadService.MAX_BYTES, message = "A imagem pode ter até 5 MB.") long size) {
+			@Max(value = ImageUploads.MAX_BYTES, message = "A imagem pode ter até 5 MB.") long size) {
 	}
 
 	/** Passo 1 do envio: a web recebe a URL, faz o PUT direto no bucket e depois salva a mídia no evento. */

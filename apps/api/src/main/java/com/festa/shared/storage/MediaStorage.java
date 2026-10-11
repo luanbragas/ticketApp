@@ -1,9 +1,9 @@
-package com.festa.event.app;
+package com.festa.shared.storage;
 
 import java.net.URI;
 import java.time.Duration;
 
-/** Armazenamento de imagens dos eventos (Cloudflare R2 em produção, S3Mock em dev). */
+/** Armazenamento de imagens (flyer, logo): Cloudflare R2 em produção, S3Mock em dev. */
 public interface MediaStorage {
 
 	/**
