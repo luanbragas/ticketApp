@@ -4,6 +4,16 @@ const isDev = process.env.NODE_ENV !== "production"
 const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080"
 /** Imagens do bucket (R2 em produção, S3Mock em dev). */
 const mediaUrl = process.env.NEXT_PUBLIC_MEDIA_URL ?? "http://localhost:9090"
+/** Para onde o navegador manda os erros (host do DSN do Sentry), se configurado. */
+const sentryOrigin = (() => {
+  const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN
+  if (!dsn) return ""
+  try {
+    return ` https://${new URL(dsn).host}`
+  } catch {
+    return ""
+  }
+})()
 
 /**
  * Política completa em modo relatório até ser conferida no navegador (SECURITY.md §Entrada e saída).
@@ -15,7 +25,7 @@ const fullPolicy = [
   "style-src 'self' 'unsafe-inline'",
   `img-src 'self' data: blob: ${mediaUrl} https:`,
   "font-src 'self'",
-  `connect-src 'self' ${apiUrl}${isDev ? " ws:" : ""}`,
+  `connect-src 'self' ${apiUrl}${sentryOrigin}${isDev ? " ws:" : ""}`,
   "media-src 'self' blob:",
   "worker-src 'self'",
   "frame-ancestors 'none'",

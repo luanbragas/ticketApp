@@ -67,6 +67,12 @@
 			<!-- Exigido pelo Argon2PasswordEncoder (ver SECURITY.md) -->
 		</dependency>
 		<dependency>
+			<!-- Erros em produção (PLAN.md M0). Sem SENTRY_DSN não envia nada. -->
+			<groupId>io.sentry</groupId>
+			<artifactId>sentry-spring-boot-4-starter</artifactId>
+			<version>8.58.0</version>
+		</dependency>
+		<dependency>
 			<!-- Rate limit em memória (SECURITY.md §Abuso). -->
 			<groupId>com.bucket4j</groupId>
 			<artifactId>bucket4j_jdk17-core</artifactId>

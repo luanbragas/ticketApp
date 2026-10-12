@@ -16,7 +16,7 @@ Regra: só começar um marco quando o anterior estiver pronto (exceto onde indic
 - [x] `apps/api`: Spring Boot + Flyway + Actuator + Testcontainers + estrutura de módulos (ver BACKEND.md)
 - [x] `apps/web`: Next.js + TS + Tailwind + shadcn/ui + ESLint/Prettier
 - [x] CI (GitHub Actions): lint, typecheck, testes da web e da api
-- [ ] Sentry na web e na api
+- [ ] Sentry na web e na api — SDK integrado e desligado sem DSN (`SENTRY_DSN` na API e no servidor do Next, `NEXT_PUBLIC_SENTRY_DSN` no navegador; sem PII, sem replay); falta criar o projeto no Sentry e configurar os DSNs
 - [ ] Ambiente de staging (web + api + Postgres gerenciado) com deploy automático da `main`
 - [ ] Conta Mercado Pago de testes + app criado no painel de desenvolvedor
 - [x] **ADR-001** autenticação (sessão em cookie vs JWT)
