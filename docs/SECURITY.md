@@ -89,4 +89,4 @@ Gravar em `audit_logs`: reembolso, cortesia, desfazer check-in, alteração de p
 - [ ] Dependências sem vulnerabilidade crítica — Dependabot; `pnpm audit` limpo; workflow semanal `dependency-check.yml` (OWASP na API, falha com CVSS ≥ 7). Falta cadastrar o segredo `NVD_API_KEY` no GitHub e ver a primeira execução passar
 - [ ] Headers de segurança conferidos (configurados; falta tirar a CSP completa do `Report-Only` depois de ver no navegador)
 - [ ] CPF criptografado e mascarado ponta a ponta
-- [ ] Backup restaurado com sucesso
+- [ ] Backup restaurado com sucesso — ensaio local feito em 2026-10-12 com `infra/backup/backup.sh` + `restore-check.sh` (Postgres descartável, confere migrations, contagens e estoque); falta repetir com o banco de produção e agendar o backup extra fora do provedor
