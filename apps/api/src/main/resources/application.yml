@@ -71,9 +71,6 @@ festa:
   api:
     # Endereço público da API (notification_url do webhook).
     base-url: ${API_BASE_URL:http://localhost:8080}
-  legal:
-    # Versão dos termos aceita no checkout. Trocar quando o texto jurídico mudar (PLAN.md M8).
-    terms-version: ${TERMS_VERSION:rascunho-2026-10}
   web:
     # Base dos links enviados por e-mail.
     base-url: ${WEB_BASE_URL:http://localhost:3000}

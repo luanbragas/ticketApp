@@ -291,7 +291,26 @@ function Form({
           />
         )}
         <Check
-          label="Li e aceito os termos de uso e a política de privacidade"
+          label={
+            <>
+              Li e aceito os{" "}
+              <Link
+                href="/termos"
+                target="_blank"
+                className="font-bold underline underline-offset-4"
+              >
+                termos de uso
+              </Link>{" "}
+              e a{" "}
+              <Link
+                href="/privacidade"
+                target="_blank"
+                className="font-bold underline underline-offset-4"
+              >
+                política de privacidade
+              </Link>
+            </>
+          }
           registration={register("terms")}
           error={(errors as FieldErrors<{ terms: boolean }>).terms?.message}
         />
@@ -416,7 +435,7 @@ function Check({
   registration,
   error,
 }: {
-  label: string
+  label: React.ReactNode
   registration: UseFormRegisterReturn
   error?: string
 }) {

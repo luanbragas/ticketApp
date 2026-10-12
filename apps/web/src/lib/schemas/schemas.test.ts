@@ -51,9 +51,11 @@ describe("schemas", () => {
       name: " ",
       email: "x",
       password: "curta",
+      termsAccepted: false,
     })
     expect(result.success).toBe(false)
     const messages = result.error?.issues.map((issue) => issue.message)
+    expect(messages).toContain("É preciso aceitar os termos.")
     expect(messages).toContain("Informe seu nome.")
     expect(messages).toContain("E-mail inválido.")
     expect(messages).toContain("A senha deve ter pelo menos 8 caracteres.")

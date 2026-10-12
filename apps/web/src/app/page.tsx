@@ -172,6 +172,14 @@ export default function Home() {
           </Link>
           .
         </p>
+        <p className="flex gap-4">
+          <Link href="/termos" className="underline underline-offset-4">
+            Termos
+          </Link>
+          <Link href="/privacidade" className="underline underline-offset-4">
+            Privacidade
+          </Link>
+        </p>
       </footer>
     </div>
   )

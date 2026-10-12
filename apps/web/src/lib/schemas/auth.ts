@@ -28,6 +28,9 @@ export const signupSchema = z.object({
     .string()
     .min(8, { error: "A senha deve ter pelo menos 8 caracteres." })
     .max(128, { error: "A senha deve ter no máximo 128 caracteres." }),
+  termsAccepted: z.boolean().refine((accepted) => accepted, {
+    error: "É preciso aceitar os termos.",
+  }),
 })
 
 export const magicLinkSchema = z.object({ email })

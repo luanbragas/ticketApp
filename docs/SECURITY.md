@@ -75,7 +75,7 @@ Gravar em `audit_logs`: reembolso, cortesia, desfazer check-in, alteração de p
 
 - Plataforma: controladora dos dados de conta; operadora dos dados de participantes tratados para o produtor (deixar claro nos termos).
 - Bases legais: execução de contrato (compra); consentimento separado para marketing.
-- Registrar aceite em `consent_records` com versão dos termos.
+- Registrar aceite em `consent_records` com versão dos termos (cadastro e compra, com IP e navegador; ADR-014).
 - Minimização: coletar só o necessário; promoter não vê CPF.
 - Direitos do titular: exportação e anonimização sob pedido.
 - Pixels de terceiros (Fase 3) só com aviso de cookies.

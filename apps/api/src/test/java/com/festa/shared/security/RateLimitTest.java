@@ -59,7 +59,7 @@ class RateLimitTest {
 
 	private static String body() {
 		return "{\"name\":\"Ana\",\"email\":\"rl-" + UUID.randomUUID().toString().substring(0, 8)
-				+ "@festa.test\",\"password\":\"senha-forte-123\"}";
+				+ "@festa.test\",\"password\":\"senha-forte-123\",\"termsAccepted\":true}";
 	}
 
 }

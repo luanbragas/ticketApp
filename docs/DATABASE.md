@@ -124,8 +124,9 @@ CREATE UNIQUE INDEX ux_checkins_active ON checkins(ticket_id) WHERE undone_at IS
 
 ### compliance e infra
 ```sql
-terms_versions (id, kind CHECK IN ('TERMS','PRIVACY'), version, published_at, url)
-consent_records (id, user_id NULL, email, terms_version_id FK, purpose, granted, ip, user_agent, created_at)
+terms_versions (id, kind CHECK IN ('TERMS','PRIVACY'), version, published_at, url, UNIQUE(kind, version))
+consent_records (id, user_id NULL, email, terms_version_id FK, purpose CHECK IN ('SIGNUP','CHECKOUT'),
+                 reference_id NULL, granted, ip, user_agent, created_at)   -- só insere (ADR-014)
 audit_logs (id, organization_id NULL, actor_user_id, action, entity, entity_id, data JSONB, created_at)
 outbox_events (id, type, aggregate_id, payload JSONB, status CHECK IN ('PENDING','DONE','FAILED'),
                attempts INT DEFAULT 0, next_attempt_at, last_error, processed_at, created_at)

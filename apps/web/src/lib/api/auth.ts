@@ -5,6 +5,7 @@ export const signup = (body: {
   name: string
   email: string
   password: string
+  termsAccepted: boolean
 }) => api<Me>("/api/v1/auth/signup", { method: "POST", body })
 
 export const login = (body: { email: string; password: string }) =>

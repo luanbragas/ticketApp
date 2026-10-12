@@ -213,7 +213,7 @@ class MemberInvitationFlowTest {
 	private TestBrowser user(String name, String email) throws Exception {
 		TestBrowser browser = new TestBrowser(mvc);
 		browser.post("/api/v1/auth/signup",
-				"{\"name\":\"%s\",\"email\":\"%s\",\"password\":\"senha-forte-123\"}".formatted(name, email))
+				"{\"name\":\"%s\",\"email\":\"%s\",\"password\":\"senha-forte-123\",\"termsAccepted\":true}".formatted(name, email))
 			.andExpect(status().isCreated());
 		return browser;
 	}

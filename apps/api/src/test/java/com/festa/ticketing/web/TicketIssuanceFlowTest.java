@@ -145,7 +145,7 @@ class TicketIssuanceFlowTest {
 
 		TestBrowser buyer = new TestBrowser(mvc);
 		buyer.post("/api/v1/auth/signup",
-				"{\"name\":\"Ana\",\"email\":\"" + email + "\",\"password\":\"senha-forte-123\"}")
+				"{\"name\":\"Ana\",\"email\":\"" + email + "\",\"password\":\"senha-forte-123\",\"termsAccepted\":true}")
 			.andExpect(status().isCreated());
 		buyer.get("/api/v1/me/tickets")
 			.andExpect(status().isForbidden())

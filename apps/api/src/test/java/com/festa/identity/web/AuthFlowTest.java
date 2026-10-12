@@ -110,7 +110,7 @@ class AuthFlowTest {
 	@Test
 	void rejectsUnknownFields() throws Exception {
 		browser.post("/api/v1/auth/signup",
-				"{\"name\":\"Ana\",\"email\":\"" + uniqueEmail() + "\",\"password\":\"senha-forte-123\",\"role\":\"ADMIN\"}")
+				"{\"name\":\"Ana\",\"email\":\"" + uniqueEmail() + "\",\"password\":\"senha-forte-123\",\"termsAccepted\":true,\"role\":\"ADMIN\"}")
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("$.type").value("https://festa.com/errors/malformed-request"));
 	}
@@ -208,7 +208,7 @@ class AuthFlowTest {
 	}
 
 	private static String signup(String name, String email, String password) {
-		return "{\"name\":\"%s\",\"email\":\"%s\",\"password\":\"%s\"}".formatted(name, email, password);
+		return "{\"name\":\"%s\",\"email\":\"%s\",\"password\":\"%s\",\"termsAccepted\":true}".formatted(name, email, password);
 	}
 
 	private static String login(String email, String password) {
