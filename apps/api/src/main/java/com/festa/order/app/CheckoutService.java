@@ -119,7 +119,8 @@ public class CheckoutService {
 
 	/**
 	 * Cria o pedido {@code PENDING_PAYMENT} e reserva o estoque na mesma transação: se qualquer lote não
-	 * tiver estoque, nada fica reservado. A mesma chave de acesso devolve o pedido já criado.
+	 * tiver estoque (ou o preço tiver mudado desde o resumo), nada fica gravado. A mesma chave de acesso devolve
+	 * o pedido já criado.
 	 */
 	public Placed place(PlaceOrder command) {
 		String keyHash = SecureToken.hash(command.accessKey());
@@ -194,20 +195,11 @@ public class CheckoutService {
 			}
 		}
 
-		// Ordem fixa de lote evita espera circular entre dois pedidos que pegam os mesmos lotes.
-		Map<UUID, Long> prices = new LinkedHashMap<>();
-		for (UUID batchId : selection.keySet().stream().sorted(Comparator.naturalOrder()).toList()) {
-			OptionalLong price = inventory.reserve(event.id(), batchId, selection.get(batchId), now);
-			if (price.isEmpty()) {
-				throw unavailable(offers.get(batchId));
-			}
-			prices.put(batchId, price.getAsLong());
-		}
-
+		// Preço do resumo; a reserva, no fim, confere que ele não mudou.
 		long subtotal = 0;
 		long fee = 0;
 		for (TicketRequest ticket : tickets) {
-			long price = prices.get(ticket.batchId());
+			long price = offers.get(ticket.batchId()).priceCents();
 			subtotal += price;
 			fee += fees.feeFor(price);
 		}
@@ -225,12 +217,27 @@ public class CheckoutService {
 		List<OrderItem> saved = new ArrayList<>();
 		for (int i = 0; i < tickets.size(); i++) {
 			TicketRequest ticket = tickets.get(i);
-			long price = prices.get(ticket.batchId());
+			long price = offers.get(ticket.batchId()).priceCents();
 			HalfPriceReason reason = offers.get(ticket.batchId()).halfPrice() ? ticket.halfPriceReason() : null;
 			saved.add(new OrderItem(order.getId(), ticket.batchId(), price, fees.feeFor(price), holders.get(i), reason, i));
 		}
 		items.saveAll(saved);
 		orders.flush();
+
+		// Reserva por último: a linha do lote fica travada só daqui até o commit, e não durante os inserts do
+		// pedido. Na abertura de lote, quem compra o mesmo lote espera menos na fila (infra/load/README.md).
+		// Ordem fixa de lote evita espera circular entre dois pedidos que pegam os mesmos lotes.
+		for (UUID batchId : selection.keySet().stream().sorted(Comparator.naturalOrder()).toList()) {
+			Offer offer = offers.get(batchId);
+			OptionalLong price = inventory.reserve(event.id(), batchId, selection.get(batchId), now);
+			if (price.isEmpty()) {
+				throw unavailable(offer);
+			}
+			if (price.getAsLong() != offer.priceCents()) {
+				throw OrderRuleException.conflict("price-changed", "O preço do " + offer.batchName() + " de "
+						+ offer.typeName() + " mudou agora há pouco. Confira o novo valor.", Map.of("batchId", batchId));
+			}
+		}
 		return new Placed(event, order, saved, offers, true);
 	}
 

@@ -74,7 +74,7 @@ UPDATE ticket_batches
    AND sold + reserved + :qty <= capacity;
 -- 0 linhas = indisponível
 ```
-- Criação do pedido e reserva na **mesma transação**.
+- Criação do pedido e reserva na **mesma transação**, com a reserva **por último** (depois dos inserts do pedido), para a linha do lote ficar travada só até o commit; se o preço mudou desde o resumo, o pedido não nasce (`price-changed`). Medido em `infra/load/README.md`.
 - Pagamento confirmado: `reserved -= qty; sold += qty`.
 - Expiração (job a cada minuto): `reserved -= qty`, pedido → `EXPIRED`.
 - Virada de lote avaliada após cada venda/expiração e por job de data.

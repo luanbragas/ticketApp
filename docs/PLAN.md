@@ -117,7 +117,7 @@ Regra: só começar um marco quando o anterior estiver pronto (exceto onde indic
 - [x] Reembolso manual pelo admin (estorna no gateway, cancela ingresso) — ADR-012; botão em Participantes; estorno e chargeback do gateway pelo webhook
 - [x] Landing da plataforma
 - [ ] Revisão do checklist de SECURITY.md — feito: rate limit, headers, audit log (evento, lote, check-in), gitleaks, Dependabot; `pnpm audit` limpo; isolamento varrido em todas as rotas; webhook assinado (M5); OWASP dependency-check semanal no CI (falta o segredo `NVD_API_KEY`); falta: backup
-- [ ] Teste de carga da página do evento e da abertura de lote
+- [ ] Teste de carga da página do evento e da abertura de lote — scripts k6 e resultado local em `infra/load/` (lote: zero overselling, p95 4,3 s → 2 s com a reserva no fim); falta repetir em staging, onde a página do evento (render do Next) é o ponto a olhar
 - [ ] Deploy de produção, domínio, backups do Postgres testados
 - [ ] Validação jurídica (meia-entrada, reembolso, termos)
 - [ ] **Festa piloto** com uma atlética
