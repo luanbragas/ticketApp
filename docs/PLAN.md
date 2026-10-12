@@ -44,7 +44,7 @@ Regra: só começar um marco quando o anterior estiver pronto (exceto onde indic
 
 - [x] Tabelas `events`, `event_media`, `event_lineup`
 - [x] Upload de flyer para R2 via URL pré-assinada (validar tipo e tamanho) — salvar a mídia no evento entra no CRUD
-- [x] CRUD de evento com estados DRAFT → PUBLISHED → ENDED / CANCELLED — publicar exige data, local, flyer e ingressos; exigir conta Mercado Pago (M5) quando existir; encerramento automático fica para um job
+- [x] CRUD de evento com estados DRAFT → PUBLISHED → ENDED / CANCELLED — publicar exige data, local, flyer e ingressos; exige conta Mercado Pago (M5); encerramento automático pelo job `EventEnding` (a cada 5 min)
 - [x] Wizard web: Informações → Aparência (flyer + cor do flyer) → Revisar e publicar
 - [x] Wizard: passo Ingressos, com as configurações de venda (cota de meia, limite por CPF) no mesmo passo
 - [x] Página pública `/e/{slug}` com SSR, metadados Open Graph e botão "Comprar" fixo — o botão leva aos ingressos quando o M3 existir

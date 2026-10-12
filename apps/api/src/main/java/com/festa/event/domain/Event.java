@@ -163,7 +163,7 @@ public class Event extends BaseEntity {
 		publishedAt = now;
 	}
 
-	/** Publicado → encerrado (manual; o encerramento automático vem depois). */
+	/** Publicado → encerrado pelo produtor. O automático, depois do término, é o {@code EventEnding}. */
 	public void end() {
 		if (status != EventStatus.PUBLISHED) {
 			throw EventRuleException.invalidTransition(status, "encerrar");
