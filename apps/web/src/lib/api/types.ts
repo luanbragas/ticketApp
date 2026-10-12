@@ -387,3 +387,34 @@ export type SyncResponse = {
     outcome: SyncOutcome
   }[]
 }
+
+export type PaymentMethod = "PIX" | "CARD"
+export type PaymentStatus =
+  | "PENDING"
+  | "APPROVED"
+  | "REJECTED"
+  | "CANCELLED"
+  | "REFUNDED"
+  | "CHARGED_BACK"
+
+/** Pagamento do pedido (POST/GET /public/orders/{id}/payment). */
+export type OrderPayment = {
+  id: string
+  method: PaymentMethod
+  status: PaymentStatus
+  statusDetail: string | null
+  amountCents: number
+  pixQrCode: string | null
+  pixQrBase64: string | null
+  pixExpiresAt: string | null
+  /** Gateway simulado (só em desenvolvimento): a tela mostra o botão de teste. */
+  simulated: boolean
+}
+
+/** Conta de recebimento da organização (OAuth do Mercado Pago). */
+export type PaymentAccountStatus = {
+  connected: boolean
+  provider: "MERCADO_PAGO" | "FAKE"
+  providerUserId: string | null
+  connectedAt: string | null
+}
