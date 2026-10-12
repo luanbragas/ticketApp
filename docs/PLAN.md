@@ -116,7 +116,7 @@ Regra: só começar um marco quando o anterior estiver pronto (exceto onde indic
 - [x] Termos de uso e política de privacidade versionados + `consent_records` — ADR-014; páginas `/termos` e `/privacidade` com rascunho, texto final depende da validação jurídica
 - [x] Reembolso manual pelo admin (estorna no gateway, cancela ingresso) — ADR-012; botão em Participantes; estorno e chargeback do gateway pelo webhook
 - [x] Landing da plataforma
-- [ ] Revisão do checklist de SECURITY.md — feito: rate limit, headers, audit log (evento, lote, check-in), gitleaks, Dependabot; `pnpm audit` limpo; isolamento varrido em todas as rotas; webhook assinado (M5); falta: OWASP dependency-check, backup
+- [ ] Revisão do checklist de SECURITY.md — feito: rate limit, headers, audit log (evento, lote, check-in), gitleaks, Dependabot; `pnpm audit` limpo; isolamento varrido em todas as rotas; webhook assinado (M5); OWASP dependency-check semanal no CI (falta o segredo `NVD_API_KEY`); falta: backup
 - [ ] Teste de carga da página do evento e da abertura de lote
 - [ ] Deploy de produção, domínio, backups do Postgres testados
 - [ ] Validação jurídica (meia-entrada, reembolso, termos)
