@@ -45,7 +45,8 @@ class AuditAndHeadersTest {
 			.andExpect(status().isOk());
 		shop.producer().post(shop.eventPath() + "/cancel", "{}").andExpect(status().isOk());
 
-		assertThat(actions(shop.org())).containsExactly("event.published", "batch.terms-changed", "event.cancelled");
+		assertThat(actions(shop.org())).containsExactly("payment-account.connected", "event.published",
+				"batch.terms-changed", "event.cancelled");
 		String data = jdbc.sql("SELECT data::text FROM audit_logs WHERE action = 'batch.terms-changed' AND organization_id = ?")
 			.param(UUID.fromString(shop.org())).query(String.class).single();
 		assertThat(data).contains("3000", "3500", "100", "120");

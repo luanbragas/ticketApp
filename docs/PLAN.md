@@ -75,12 +75,12 @@ Regra: só começar um marco quando o anterior estiver pronto (exceto onde indic
 ### M5 · Pagamentos
 **Pronto quando:** compra PIX e cartão em sandbox gera pedido `PAID`, com split para a conta do produtor.
 
-- [ ] Produtor conecta conta Mercado Pago (OAuth) → `payment_accounts`
-- [ ] Criar cobrança PIX e cartão com split (taxa da plataforma) e idempotency key = id do pedido
+- [x] Produtor conecta conta Mercado Pago (OAuth) → `payment_accounts` — falta testar com o app real
+- [x] Criar cobrança PIX e cartão com split (taxa da plataforma) e idempotency key = id do pedido — ADR-011; tela do cartão (Card Payment Brick) espera a public key
 - [ ] Tela PIX: QR, copia e cola, contador, status por polling
-- [ ] Webhook: validar assinatura → consultar pagamento no gateway → processar idempotente → `payments`
-- [ ] Caso de borda: pagamento confirmado após expiração (emite se houver estoque; senão estorna)
-- [ ] Testes do webhook com payloads repetidos e fora de ordem
+- [x] Webhook: validar assinatura → consultar pagamento no gateway → processar idempotente → `payments`
+- [x] Caso de borda: pagamento confirmado após expiração (emite se houver estoque; senão estorna)
+- [x] Testes do webhook com payloads repetidos e fora de ordem (com o gateway simulado)
 
 ### M6 · Emissão de ingressos
 **Pronto quando:** após pagar, o comprador recebe e-mail com ingresso e acessa "Meus ingressos" pelo link mágico.
