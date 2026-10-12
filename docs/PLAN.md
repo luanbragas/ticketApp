@@ -112,9 +112,9 @@ Regra: só começar um marco quando o anterior estiver pronto (exceto onde indic
 ### M9 · Financeiro, compliance e lançamento
 **Pronto quando:** festa piloto realizada.
 
-- [ ] Financeiro básico: bruto, taxas, comissões calculadas, líquido, repassado / a receber
+- [x] Financeiro básico: bruto, taxas, comissões calculadas, líquido, repassado / a receber — ADR-013; tarifas do Mercado Pago e comissões entram depois (ADR-003 e comissões automáticas); sem repasse: o split cai direto na conta do produtor
 - [ ] Termos de uso e política de privacidade versionados + `consent_records`
-- [ ] Reembolso manual pelo admin (estorna no gateway, cancela ingresso)
+- [x] Reembolso manual pelo admin (estorna no gateway, cancela ingresso) — ADR-012; botão em Participantes; estorno e chargeback do gateway pelo webhook
 - [x] Landing da plataforma
 - [ ] Revisão do checklist de SECURITY.md — feito: rate limit, headers, audit log (evento, lote, check-in), gitleaks, Dependabot; `pnpm audit` limpo; isolamento varrido em todas as rotas; webhook assinado (M5); falta: OWASP dependency-check, backup
 - [ ] Teste de carga da página do evento e da abertura de lote

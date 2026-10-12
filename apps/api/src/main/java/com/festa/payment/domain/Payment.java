@@ -108,6 +108,15 @@ public class Payment extends BaseEntity {
 		rawPayload = raw;
 	}
 
+	/** Estorno pedido por aqui (reembolso manual ou pagamento atrasado sem estoque); o aviso do gateway confirma depois. */
+	public void refundedHere(String detail) {
+		if (status != Status.APPROVED) {
+			throw new IllegalStateException("só pagamento aprovado é estornado (" + status + ")");
+		}
+		status = Status.REFUNDED;
+		statusDetail = detail;
+	}
+
 	public UUID getOrderId() {
 		return orderId;
 	}

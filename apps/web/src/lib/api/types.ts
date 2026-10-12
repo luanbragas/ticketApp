@@ -349,6 +349,8 @@ export type Participant = {
   /** Só para a gerência; o operador da portaria recebe nulo. */
   holderCpf: string | null
   buyerEmail: string | null
+  /** Só para a gerência: o reembolso é do pedido inteiro. */
+  orderId: string | null
   checkinId: string | null
   checkedInAt: string | null
 }
@@ -417,4 +419,33 @@ export type PaymentAccountStatus = {
   provider: "MERCADO_PAGO" | "FAKE"
   providerUserId: string | null
   connectedAt: string | null
+}
+
+/** Somas do financeiro, em centavos. Estornos vêm positivos (quanto saiu). */
+export type FinanceTotals = {
+  ticketSalesCents: number
+  ticketRefundsCents: number
+  /** Do produtor: ingressos − estornos, antes das tarifas do Mercado Pago. */
+  netCents: number
+  ticketsSold: number
+  ticketsRefunded: number
+  paidOrders: number
+  refundedOrders: number
+  chargebacks: number
+  /** Taxa de serviço paga pelo comprador: fica com a plataforma. */
+  serviceFeeCents: number
+  serviceFeeRefundsCents: number
+}
+
+export type EventFinance = {
+  eventId: string
+  name: string
+  startsAt: string | null
+  status: EventStatus
+  totals: FinanceTotals
+}
+
+export type FinanceOverview = {
+  events: EventFinance[]
+  totals: FinanceTotals
 }

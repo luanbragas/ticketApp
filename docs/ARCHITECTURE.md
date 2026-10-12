@@ -44,7 +44,9 @@ O contexto de organização vem do usuário autenticado + vínculo em `organizat
 **Pedido**
 ```
 PENDING_PAYMENT → PAID | EXPIRED | FAILED
+EXPIRED         → PAID | REFUNDED        (pagamento que chegou depois do prazo, ADR-011)
 PAID            → REFUNDED | PARTIALLY_REFUNDED | CHARGEBACK
+REFUNDED        → CHARGEBACK             (contestação depois do reembolso)
 ```
 
 **Ingresso** (só existe após pagamento)
@@ -211,3 +213,20 @@ Formato: contexto → decisão → consequências. Registrar aqui em ordem.
     - **Caso de borda:** pagamento aprovado com pedido expirado tenta reservar de novo; sem estoque, estorna no gateway e o pedido vira `REFUNDED`.
     - Publicar exige conta de recebimento conectada (`PublishPrerequisite`).
   - **Consequências:** o adaptador do Mercado Pago foi escrito a partir da API pública e **precisa ser validado com credenciais de teste** antes do piloto. Chamadas HTTP ao gateway acontecem dentro da transação (simples no MVP; revisar se o gateway ficar lento). Sem job de conciliação: se um webhook se perder, o painel do Mercado Pago permite reenviar.
+- **ADR-012 — Reembolso total, com o gateway primeiro.** *Aceito em 2026-10-11.*
+  - **Contexto:** PLAN.md M9 pede reembolso manual pelo admin; o Mercado Pago também avisa estornos feitos no painel dele e chargebacks.
+  - **Decisão:**
+    - `POST /orgs/{orgId}/orders/{id}/refund` (dono e admin, motivo obrigatório). Trava o pagamento aprovado, estorna no gateway (chave `refund:{pagamento}`), grava `refunds`, pedido `PAID → REFUNDED` e audit log `order.refunded`, tudo numa transação: se o gateway falhar, nada muda.
+    - Só **reembolso total** do pedido. Recusado se algum ingresso do pedido já entrou (desfazer o check-in antes).
+    - Estorno ou chargeback que chega pelo webhook (aprovado → `REFUNDED`/`CHARGED_BACK` no gateway) segue o mesmo caminho, com `created_by` nulo; o pedido vira `REFUNDED` ou `CHARGEBACK`.
+    - O pedido publica `OrderRefunded` no outbox: o ticketing cancela os ingressos `VALID`, o promoter marca a venda como estornada (`promoter_sales.refunded_at`) e o comprador recebe e-mail (só no reembolso, não no chargeback).
+    - Os ingressos estornados voltam para o lote (`sold -= n`); o status do lote não muda (esgotado não reabre sozinho).
+  - **Consequências:** o comprador recebe o total pago, taxa de serviço incluída; falta confirmar com o Mercado Pago de quem sai a taxa devolvida (`application_fee`) — entra no ADR-003. Aparelho de portaria com lista offline antiga ainda aceita ingresso cancelado até baixar a lista de novo.
+- **ADR-013 — Financeiro por livro de lançamentos alimentado por eventos.** *Aceito em 2026-10-11.*
+  - **Contexto:** PLAN.md M9 pede bruto, taxas, estornos e líquido; o módulo `finance` não pode ler as tabelas de pedido (CLAUDE.md regra 7).
+  - **Decisão:**
+    - Tabela `ledger_entries` (só insere): `TICKET_SALE` e `SERVICE_FEE` no `OrderPaid`; `TICKET_REFUND` e `SERVICE_FEE_REFUND` (negativos) no `OrderRefunded`. Idempotente por (pedido, tipo). Os handlers leem o JSON com contrato próprio, como o promoter.
+    - `OrderPaid` ganhou `feeCents` e `totalCents` (nulos em eventos antigos); a migration V013 lançou uma vez os pedidos pagos antes do livro.
+    - Líquido do produtor = ingressos vendidos − estornados, **antes das tarifas do Mercado Pago**. Taxa de serviço aparece à parte (é da plataforma).
+    - Sem "repasse": no split o dinheiro cai direto na conta do produtor a cada venda (ADR-003); o prazo de liberação é do Mercado Pago e fica fora daqui.
+  - **Consequências:** tarifas do gateway e comissões de promoter ainda não entram (comissões automáticas estão fora do MVP; tarifas dependem do ADR-003 e de ler `fee_details` do pagamento). Rotas: `GET /orgs/{orgId}/finance` e `GET /orgs/{orgId}/events/{id}/finance` (dono, admin e gerente).

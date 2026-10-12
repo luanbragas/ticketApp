@@ -84,8 +84,8 @@ class CheckinController {
 	record SyncResponse(List<SyncItemResponse> results) {
 	}
 
-	record ParticipantResponse(PassResponse ticket, String holderCpf, String buyerEmail, UUID checkinId,
-			Instant checkedInAt) {
+	record ParticipantResponse(PassResponse ticket, String holderCpf, String buyerEmail, UUID orderId,
+			UUID checkinId, Instant checkedInAt) {
 	}
 
 	record ParticipantsResponse(List<ParticipantResponse> items, int issued, int checkedIn, int duplicates,
@@ -149,7 +149,7 @@ class CheckinController {
 
 	private static ParticipantResponse participant(Participant p) {
 		return new ParticipantResponse(PassResponse.of(p.attendee().pass()), p.attendee().holderCpf(),
-				p.attendee().buyerEmail(), p.checkin() == null ? null : p.checkin().id(),
+				p.attendee().buyerEmail(), p.attendee().orderId(), p.checkin() == null ? null : p.checkin().id(),
 				p.checkin() == null ? null : p.checkin().checkedInAt());
 	}
 

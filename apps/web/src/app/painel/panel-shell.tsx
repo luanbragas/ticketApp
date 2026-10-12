@@ -2,6 +2,7 @@
 
 import { useMutation } from "@tanstack/react-query"
 import {
+  BanknoteIcon,
   CalendarIcon,
   CheckIcon,
   ChevronsUpDownIcon,
@@ -37,6 +38,7 @@ type NavItem = { href: string; label: string; icon: LucideIcon }
 const NAV: NavItem[] = [
   { href: "/painel", label: "Início", icon: HouseIcon },
   { href: "/painel/eventos", label: "Eventos", icon: CalendarIcon },
+  { href: "/painel/financeiro", label: "Financeiro", icon: BanknoteIcon },
   { href: "/painel/equipe", label: "Equipe", icon: UsersIcon },
 ]
 
@@ -110,7 +112,7 @@ export function PanelShell({
 
         <nav
           aria-label="Painel"
-          className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-3 border-t bg-background pb-[env(safe-area-inset-bottom)] md:hidden"
+          className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 border-t bg-background pb-[env(safe-area-inset-bottom)] md:hidden"
         >
           {NAV.map((item) => (
             <Link

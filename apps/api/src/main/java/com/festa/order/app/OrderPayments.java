@@ -3,6 +3,7 @@ package com.festa.order.app;
 import com.festa.event.api.EventDirectory;
 import com.festa.order.api.OrderBilling;
 import com.festa.order.api.OrderPaid;
+import com.festa.order.api.OrderRefunded;
 import com.festa.order.domain.Order;
 import com.festa.order.domain.OrderItem;
 import com.festa.order.domain.OrderStatus;
@@ -109,6 +110,27 @@ public class OrderPayments implements OrderBilling {
 		}
 	}
 
+	@Override
+	@Transactional
+	public boolean reversed(UUID orderId, boolean chargeback) {
+		Order order = orders.findByIdForUpdate(orderId).orElseThrow();
+		boolean wasPaid = order.getStatus() == OrderStatus.PAID;
+		if (!order.markReversed(chargeback)) {
+			return false;
+		}
+		if (wasPaid) {
+			// Os ingressos cancelados voltam para o lote (estornado → chargeback não devolve de novo).
+			List<OrderItem> orderItems = items.findByOrderIdOrderByPosition(orderId);
+			int tickets = orderItems.size();
+			perBatch(orderItems).forEach((batchId, quantity) -> inventory.unsell(order.getEventId(), batchId, quantity));
+			outbox.publish(OrderRefunded.TYPE, order.getId(), new OrderRefunded(order.getId(), order.getEventId(),
+					order.getOrganizationId(), order.getBuyerName(), order.getBuyerEmail(), order.getPromoterId(),
+					order.getSubtotalCents(), order.getFeeCents(), order.getTotalCents(), tickets,
+					chargeback ? OrderRefunded.CHARGEBACK : OrderRefunded.REFUND, clock.instant()));
+		}
+		return true;
+	}
+
 	/** Atalho dos testes e do webhook: {@code true} se o pedido mudou para pago agora. */
 	@Transactional
 	public boolean confirmPaid(UUID orderId) {
@@ -145,7 +167,8 @@ public class OrderPayments implements OrderBilling {
 					.map(item -> new OrderPaid.Item(item.getId(), item.getTicketBatchId(), item.getHolderName(),
 							Base64.getEncoder().encodeToString(item.getHolderCpfEncrypted()), item.getHolderCpfHash(),
 							item.isHalfPrice()))
-					.toList()));
+					.toList(),
+				order.getFeeCents(), order.getTotalCents()));
 	}
 
 	/** Quantidade por lote, em ordem de id (mesma ordem da reserva: sem espera circular). */

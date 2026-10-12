@@ -78,3 +78,10 @@ export const finishPaymentAccount = (
 
 export const disconnectPaymentAccount = (orgId: string) =>
   api<void>(accountPath(orgId), { method: "DELETE" })
+
+/** Reembolso do pedido inteiro (dono e admin): estorna no gateway e cancela os ingressos. */
+export const refundOrder = (orgId: string, orderId: string, reason: string) =>
+  api<{ orderId: string; amountCents: number }>(
+    `/api/v1/orgs/${orgId}/orders/${orderId}/refund`,
+    { method: "POST", body: { reason } },
+  )

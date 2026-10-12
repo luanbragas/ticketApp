@@ -8,13 +8,16 @@ import {
 } from "@tanstack/react-query"
 import { SearchIcon } from "lucide-react"
 import { useEffect, useId, useState } from "react"
+import { toast } from "sonner"
 
 import { FormError } from "@/components/form/form-error"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { getParticipants, undoCheckin } from "@/lib/api/checkin"
+import { refundOrder } from "@/lib/api/payments"
 import type { Participant, TicketStatus } from "@/lib/api/types"
+import { formatCents } from "@/lib/money"
 import { cn } from "@/lib/utils"
 
 const FILTERS: { value: TicketStatus | undefined; label: string }[] = [
@@ -29,7 +32,10 @@ const TIME = new Intl.DateTimeFormat("pt-BR", {
   timeZone: "America/Sao_Paulo",
 })
 
-/** Participantes (PLAN.md M8): busca por nome ou CPF completo, filtro por entrada e desfazer check-in. */
+/**
+ * Participantes (PLAN.md M8): busca por nome ou CPF completo, filtro por entrada, desfazer check-in e (M9)
+ * reembolsar o pedido de um ingresso.
+ */
 export function ParticipantsView({
   organizationId,
   eventId,
@@ -209,7 +215,9 @@ function Row({
             ? `Entrou ${participant.checkedInAt ? TIME.format(new Date(participant.checkedInAt)) : ""}`
             : ticket.status === "VALID"
               ? "Não entrou"
-              : "Inválido"}
+              : ticket.status === "CANCELLED"
+                ? "Cancelado"
+                : "Inválido"}
         </span>
       </div>
       <p className="text-sm text-muted-foreground">
@@ -252,6 +260,103 @@ function Row({
         </div>
       )}
       <FormError message={undo.error?.message ?? null} />
+      {canUndo && ticket.status === "VALID" && participant.orderId && (
+        <Refund
+          organizationId={organizationId}
+          eventId={eventId}
+          orderId={participant.orderId}
+        />
+      )}
     </li>
+  )
+}
+
+/** Reembolso do pedido inteiro: pede o motivo e confirma, porque não tem volta. */
+function Refund({
+  organizationId,
+  eventId,
+  orderId,
+}: {
+  organizationId: string
+  eventId: string
+  orderId: string
+}) {
+  const queryClient = useQueryClient()
+  const reasonId = useId()
+  const [open, setOpen] = useState(false)
+  const [reason, setReason] = useState("")
+  const refund = useMutation({
+    mutationFn: () => refundOrder(organizationId, orderId, reason.trim()),
+    onSuccess: ({ amountCents }) => {
+      setOpen(false)
+      toast.success(`Reembolso de ${formatCents(amountCents)} feito`)
+      // Os ingressos são cancelados logo em seguida (fila de eventos): busca de novo daqui a pouco.
+      setTimeout(
+        () =>
+          queryClient.invalidateQueries({
+            queryKey: ["participants", organizationId, eventId],
+          }),
+        3_000,
+      )
+    },
+  })
+
+  if (!open) {
+    return (
+      <Button
+        type="button"
+        variant="ghost"
+        className="h-10 w-fit px-0 text-muted-foreground"
+        onClick={() => setOpen(true)}
+      >
+        Reembolsar pedido
+      </Button>
+    )
+  }
+  return (
+    <form
+      className="grid gap-2 border border-input p-3"
+      onSubmit={(e) => {
+        e.preventDefault()
+        refund.mutate()
+      }}
+    >
+      <p className="text-sm">
+        Devolve o valor pago (ingressos e taxa) e cancela{" "}
+        <strong>todos os ingressos desse pedido</strong>. Não dá para desfazer.
+      </p>
+      <label htmlFor={reasonId} className="text-sm font-bold">
+        Motivo
+      </label>
+      <textarea
+        id={reasonId}
+        rows={2}
+        className="min-h-16 w-full border border-input bg-transparent px-3 py-2 text-base outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 md:text-sm"
+        value={reason}
+        maxLength={500}
+        required
+        onChange={(e) => setReason(e.target.value)}
+        placeholder="Ex.: comprou duas vezes por engano"
+      />
+      <FormError message={refund.error?.message ?? null} />
+      <div className="flex gap-2">
+        <Button
+          type="submit"
+          variant="destructive"
+          className="h-10"
+          disabled={refund.isPending || reason.trim() === ""}
+        >
+          {refund.isPending ? "Reembolsando…" : "Reembolsar"}
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          className="h-10"
+          onClick={() => setOpen(false)}
+        >
+          Cancelar
+        </Button>
+      </div>
+    </form>
   )
 }

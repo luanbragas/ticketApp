@@ -88,7 +88,17 @@ payments (id, order_id FK, organization_id, provider, provider_payment_id, idemp
           method CHECK IN ('PIX','CARD'), status CHECK IN ('PENDING','APPROVED','REJECTED','CANCELLED','REFUNDED','CHARGED_BACK'),
           status_detail, amount_cents, platform_fee_cents, pix_qr_code, pix_qr_base64, pix_expires_at,
           raw_payload JSONB, approved_at, UNIQUE(provider, provider_payment_id))
-refunds (id, payment_id FK, order_id, amount_cents, reason, provider_refund_id, status, created_by)
+refunds (id, payment_id FK UNIQUE, order_id FK, organization_id FK, kind CHECK IN ('REFUND','CHARGEBACK'),
+         amount_cents, reason, created_by NULL)   -- um por pagamento (reembolso total, ADR-012); nunca apagado
+```
+
+### finance
+```sql
+ledger_entries (id, organization_id FK, (event_id, organization_id) FK, order_id,
+                entry_type CHECK IN ('TICKET_SALE','SERVICE_FEE','TICKET_REFUND','SERVICE_FEE_REFUND'),
+                amount_cents  -- com sinal: venda positiva, estorno negativo
+                , tickets, reason NULL, occurred_at, UNIQUE(order_id, entry_type))
+-- só insere, nunca edita (ADR-013); alimentada por OrderPaid e OrderRefunded
 ```
 
 ### promoter
@@ -97,7 +107,8 @@ promoters (id, organization_id FK, user_id NULL FK, name, phone NULL, UNIQUE(org
 promoter_event_links (id, (promoter_id, organization_id) FK, (event_id, organization_id) FK, code, active,
                       UNIQUE(event_id, code), UNIQUE(event_id, promoter_id))
                       -- comissão (FIXED/PERCENT) entra com "Comissões automáticas"
-promoter_sales (order_id PK, promoter_id FK, (event_id, organization_id) FK, tickets, revenue_cents, paid_at)
+promoter_sales (order_id PK, promoter_id FK, (event_id, organization_id) FK, tickets, revenue_cents, paid_at,
+                refunded_at NULL)   -- estornada deixa de contar (ADR-012)
                 -- alimentada pelo OrderPaid (ADR-009); orders.promoter_id guarda a atribuição
 ```
 

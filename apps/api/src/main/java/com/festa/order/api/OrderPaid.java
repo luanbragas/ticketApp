@@ -8,9 +8,10 @@ import java.util.UUID;
  * Evento de domínio publicado no outbox quando o pagamento de um pedido é confirmado (ARCHITECTURE.md
  * §Pagamento, passo 4d). Leva tudo o que a emissão de ingressos precisa, para o módulo ticketing não ler
  * as tabelas de pedido. CPF vai só cifrado. {@code promoterId} é nulo sem atribuição (ADR-009).
+ * {@code feeCents} e {@code totalCents} entraram com o financeiro (M9): nulos em eventos gravados antes.
  */
 public record OrderPaid(UUID orderId, UUID eventId, UUID organizationId, String buyerName, String buyerEmail,
-		UUID promoterId, long subtotalCents, Instant paidAt, List<Item> items) {
+		UUID promoterId, long subtotalCents, Instant paidAt, List<Item> items, Long feeCents, Long totalCents) {
 
 	public static final String TYPE = "OrderPaid";
 

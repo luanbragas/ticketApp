@@ -6,6 +6,8 @@ import com.festa.order.api.OrderBilling.PaidOutcome;
 import com.festa.payment.app.PaymentGateway.GatewayPayment;
 import com.festa.payment.domain.Payment;
 import com.festa.payment.infra.PaymentRepository;
+import com.festa.payment.infra.RefundStore;
+import com.festa.shared.id.UuidV7;
 import com.festa.shared.web.ApiException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,15 +42,17 @@ public class PaymentService {
 	private final PaymentAccountService accounts;
 	private final PaymentGateway gateway;
 	private final OrderBilling orders;
+	private final RefundStore refunds;
 	private final Clock clock;
 	private final String notificationUrl;
 
 	PaymentService(PaymentRepository payments, PaymentAccountService accounts, PaymentGateway gateway,
-			OrderBilling orders, Clock clock, @Value("${festa.api.base-url}") String apiBaseUrl) {
+			OrderBilling orders, RefundStore refunds, Clock clock, @Value("${festa.api.base-url}") String apiBaseUrl) {
 		this.payments = payments;
 		this.accounts = accounts;
 		this.gateway = gateway;
 		this.orders = orders;
+		this.refunds = refunds;
 		this.clock = clock;
 		this.notificationUrl = apiBaseUrl + "/api/v1/webhooks/mercadopago";
 	}
@@ -139,19 +143,42 @@ public class PaymentService {
 			return true;
 		}
 		Instant now = clock.instant();
-		boolean newlyApproved = remote.status() == Payment.Status.APPROVED && payment.getStatus() != Payment.Status.APPROVED;
+		Payment.Status before = payment.getStatus();
+		boolean newlyApproved = remote.status() == Payment.Status.APPROVED && before != Payment.Status.APPROVED;
 		payment.update(remote.status(), remote.statusDetail(), remote.raw(), now);
+		if (reversedOutside(before, remote.status())) {
+			// Estorno pelo painel do gateway ou contestação do comprador: o pedido acompanha.
+			boolean chargeback = remote.status() == Payment.Status.CHARGED_BACK;
+			refunds.record(UuidV7.generate(), payment.getId(), payment.getOrderId(), payment.getOrganizationId(),
+					chargeback ? RefundStore.Kind.CHARGEBACK : RefundStore.Kind.REFUND, payment.getAmountCents(),
+					chargeback ? "Contestação no gateway" : "Estornado no gateway", null);
+			orders.reversed(payment.getOrderId(), chargeback);
+			log.warn("Pagamento {} do pedido {} virou {} no gateway", providerPaymentId, payment.getOrderId(),
+					remote.status());
+		}
 		if (newlyApproved) {
 			PaidOutcome outcome = orders.paid(payment.getOrderId());
 			if (outcome == PaidOutcome.NO_STOCK) {
 				// Pagou depois da reserva vencer e não sobrou ingresso: devolve o dinheiro (ARCHITECTURE.md).
 				gateway.refund(seller, providerPaymentId, "refund:" + payment.getId());
-				payment.update(Payment.Status.REFUNDED, "late_payment_no_stock", remote.raw(), now);
+				payment.refundedHere("late_payment_no_stock");
+				refunds.record(UuidV7.generate(), payment.getId(), payment.getOrderId(), payment.getOrganizationId(),
+						RefundStore.Kind.REFUND, payment.getAmountCents(), "Pagamento depois da reserva vencer, sem estoque",
+						null);
 				orders.refunded(payment.getOrderId());
 				log.warn("Pedido {} pago depois de expirar e sem estoque: estornado", payment.getOrderId());
 			}
 		}
 		return true;
+	}
+
+	/** Aprovado que virou estorno ou chargeback lá fora (ou estornado que virou chargeback), não por aqui. */
+	private static boolean reversedOutside(Payment.Status before, Payment.Status now) {
+		if (now == before) {
+			return false;
+		}
+		return (before == Payment.Status.APPROVED && (now == Payment.Status.REFUNDED || now == Payment.Status.CHARGED_BACK))
+				|| (before == Payment.Status.REFUNDED && now == Payment.Status.CHARGED_BACK);
 	}
 
 	private BillableOrder payable(UUID orderId, String accessKey) {
