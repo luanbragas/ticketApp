@@ -160,7 +160,7 @@ public class CheckinService {
 		List<Attendee> found = admission.attendees(eventId, query, status, limit + 1);
 		boolean full = role != Role.CHECKIN_OPERATOR;
 		List<Attendee> page = found.subList(0, Math.min(limit, found.size())).stream()
-			.map(a -> full ? a : new Attendee(a.pass(), null, null))
+			.map(a -> full ? a : new Attendee(a.pass(), null, null, null))
 			.toList();
 		Map<UUID, Active> active = checkins.activeFor(eventId, page.stream().map(a -> a.pass().ticketId()).toList());
 		return new Participants(page.stream().map(a -> new Participant(a, active.get(a.pass().ticketId()))).toList(),

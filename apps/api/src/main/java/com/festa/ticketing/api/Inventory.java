@@ -39,6 +39,12 @@ public interface Inventory {
 	void confirm(UUID eventId, UUID batchId, int quantity);
 
 	/**
+	 * Venda estornada: {@code sold -= n}. O status do lote não muda (lote esgotado não reabre sozinho; o
+	 * produtor decide).
+	 */
+	void unsell(UUID eventId, UUID batchId, int quantity);
+
+	/**
 	 * Estoque do evento para o dashboard. {@code offered}: capacidade dos lotes abertos ou na fila e, dos
 	 * encerrados, só o que saiu (o resto nunca esteve à venda).
 	 */

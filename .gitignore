@@ -10,3 +10,6 @@ target/
 
 # Material de marca de terceiros (mockups locais)
 design/kits/assets/
+
+# Dumps do banco (dados pessoais): nunca no repositório.
+backups/

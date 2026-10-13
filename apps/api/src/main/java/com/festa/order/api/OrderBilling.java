@@ -34,7 +34,15 @@ public interface OrderBilling {
 	/** Pagamento aprovado e conferido no gateway. Idempotente. */
 	PaidOutcome paid(UUID orderId);
 
-	/** Dinheiro devolvido (pagamento depois da expiração sem estoque, ou reembolso). */
+	/** Pagamento que chegou depois da expiração, sem estoque, foi devolvido: expirado → estornado. */
 	void refunded(UUID orderId);
+
+	/**
+	 * Pedido pago devolveu o dinheiro (reembolso pelo produtor, estorno no gateway ou chargeback): os ingressos
+	 * voltam ao estoque e {@link OrderRefunded} vai para o outbox. Idempotente.
+	 *
+	 * @return falso se o pedido já estava estornado (nada mudou)
+	 */
+	boolean reversed(UUID orderId, boolean chargeback);
 
 }

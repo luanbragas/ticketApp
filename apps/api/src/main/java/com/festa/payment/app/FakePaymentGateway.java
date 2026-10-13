@@ -74,6 +74,11 @@ public class FakePaymentGateway implements PaymentGateway {
 		setStatus(paymentId, Payment.Status.APPROVED, "accredited");
 	}
 
+	/** Testes: o comprador contestou a compra no cartão. */
+	public void chargeback(String paymentId) {
+		setStatus(paymentId, Payment.Status.CHARGED_BACK, "chargeback");
+	}
+
 	@Override
 	public String authorizationUrl(String state, String redirectUri) {
 		// Sem tela do gateway: volta direto para o retorno com um código de mentira.

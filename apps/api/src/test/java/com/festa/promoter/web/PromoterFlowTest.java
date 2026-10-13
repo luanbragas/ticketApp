@@ -88,13 +88,13 @@ class PromoterFlowTest {
 
 		payments.confirmPaid(viaCaio);
 		payments.confirmPaid(viaNobody);
-		outbox.drain(100);
+		outbox.drain(Integer.MAX_VALUE);
 		// O mesmo OrderPaid de novo não conta duas vezes.
 		jdbc.sql("""
 				INSERT INTO outbox_events (id, type, aggregate_id, payload, next_attempt_at)
 				SELECT gen_random_uuid(), type, aggregate_id, payload, now() - interval '1 minute' FROM outbox_events
 				 WHERE type = 'OrderPaid' AND aggregate_id = ?""").param(viaCaio).update();
-		outbox.drain(100);
+		outbox.drain(Integer.MAX_VALUE);
 
 		shop.producer().get(shop.eventPath() + "/promoters")
 			.andExpect(jsonPath("$.links[0].code").value("caio"))
@@ -192,7 +192,7 @@ class PromoterFlowTest {
 	private TestBrowser member(Shop shop, String role) throws Exception {
 		String email = role.toLowerCase() + "-" + UUID.randomUUID().toString().substring(0, 8) + "@festa.test";
 		TestBrowser browser = new TestBrowser(mvc);
-		browser.post("/api/v1/auth/signup", "{\"name\":\"Membro\",\"email\":\"" + email + "\",\"password\":\"senha-forte-123\"}")
+		browser.post("/api/v1/auth/signup", "{\"name\":\"Membro\",\"email\":\"" + email + "\",\"password\":\"senha-forte-123\",\"termsAccepted\":true}")
 			.andExpect(status().isCreated());
 		UUID user = jdbc.sql("SELECT id FROM users WHERE email = ?").param(email).query(UUID.class).single();
 		jdbc.sql("INSERT INTO organization_members (id, organization_id, user_id, role) VALUES (?, ?, ?, ?)")

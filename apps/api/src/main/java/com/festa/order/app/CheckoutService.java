@@ -1,5 +1,6 @@
 package com.festa.order.app;
 
+import com.festa.compliance.api.Consents;
 import com.festa.event.api.EventDirectory;
 import com.festa.event.api.EventDirectory.EventRef;
 import com.festa.event.api.EventStatus;
@@ -59,12 +60,11 @@ public class CheckoutService {
 	private final TransactionTemplate tx;
 	private final Clock clock;
 	private final Duration reservationTtl;
-	private final String termsVersion;
+	private final Consents consents;
 
 	CheckoutService(EventDirectory events, PromoterLinks promoters, Inventory inventory, OrderRepository orders, OrderItemRepository items,
 			OrderQueries queries, PersonalDataCipher cipher, FeePolicy fees, PlatformTransactionManager transactions,
-			Clock clock, @Value("${festa.orders.reservation-ttl}") Duration reservationTtl,
-			@Value("${festa.legal.terms-version}") String termsVersion) {
+			Clock clock, @Value("${festa.orders.reservation-ttl}") Duration reservationTtl, Consents consents) {
 		this.events = events;
 		this.promoters = promoters;
 		this.inventory = inventory;
@@ -76,7 +76,7 @@ public class CheckoutService {
 		this.tx = new TransactionTemplate(transactions);
 		this.clock = clock;
 		this.reservationTtl = reservationTtl;
-		this.termsVersion = termsVersion;
+		this.consents = consents;
 	}
 
 	/** Linha do resumo: um lote com a quantidade escolhida. */
@@ -102,8 +102,9 @@ public class CheckoutService {
 	 *        pedido, e só quem tem a chave acompanha o status
 	 */
 	/** @param promoterCode código do link de promoter guardado pelo navegador; desconhecido é ignorado */
+	/** @param origin IP e navegador de quem comprou: prova do aceite dos termos (SECURITY.md §LGPD) */
 	public record PlaceOrder(String eventSlug, String accessKey, Buyer buyer, List<TicketRequest> tickets,
-			boolean adultDeclared, boolean termsAccepted, String promoterCode) {
+			boolean adultDeclared, boolean termsAccepted, String promoterCode, Consents.Origin origin) {
 	}
 
 	/** Pedido com os itens e o nome dos lotes, para a resposta. {@code created} = falso quando repetido. */
@@ -118,7 +119,8 @@ public class CheckoutService {
 
 	/**
 	 * Cria o pedido {@code PENDING_PAYMENT} e reserva o estoque na mesma transação: se qualquer lote não
-	 * tiver estoque, nada fica reservado. A mesma chave de acesso devolve o pedido já criado.
+	 * tiver estoque (ou o preço tiver mudado desde o resumo), nada fica gravado. A mesma chave de acesso devolve
+	 * o pedido já criado.
 	 */
 	public Placed place(PlaceOrder command) {
 		String keyHash = SecureToken.hash(command.accessKey());
@@ -193,37 +195,49 @@ public class CheckoutService {
 			}
 		}
 
-		// Ordem fixa de lote evita espera circular entre dois pedidos que pegam os mesmos lotes.
-		Map<UUID, Long> prices = new LinkedHashMap<>();
-		for (UUID batchId : selection.keySet().stream().sorted(Comparator.naturalOrder()).toList()) {
-			OptionalLong price = inventory.reserve(event.id(), batchId, selection.get(batchId), now);
-			if (price.isEmpty()) {
-				throw unavailable(offers.get(batchId));
-			}
-			prices.put(batchId, price.getAsLong());
-		}
-
+		// Preço do resumo; a reserva, no fim, confere que ele não mudou.
 		long subtotal = 0;
 		long fee = 0;
 		for (TicketRequest ticket : tickets) {
-			long price = prices.get(ticket.batchId());
+			long price = offers.get(ticket.batchId()).priceCents();
 			subtotal += price;
 			fee += fees.feeFor(price);
 		}
+		String termsVersion = consents.current().stream()
+			.filter(v -> "TERMS".equals(v.kind()))
+			.findFirst()
+			.orElseThrow(() -> new IllegalStateException("termos sem versão publicada"))
+			.version();
 		Order order = orders.save(new Order(event.id(), event.organizationId(),
 				new Order.Buyer(command.buyer().name(), command.buyer().email(), phone(command.buyer().phone()),
 						cipher.encrypt(buyerCpf), buyerCpfHash),
 				subtotal, fee, now, now.plus(reservationTtl), keyHash, command.adultDeclared(), termsVersion));
+		consents.accept(null, command.buyer().email(), Consents.Purpose.CHECKOUT, order.getId(), command.origin());
 		promoters.resolve(event.id(), command.promoterCode()).ifPresent(order::attributeTo);
 		List<OrderItem> saved = new ArrayList<>();
 		for (int i = 0; i < tickets.size(); i++) {
 			TicketRequest ticket = tickets.get(i);
-			long price = prices.get(ticket.batchId());
+			long price = offers.get(ticket.batchId()).priceCents();
 			HalfPriceReason reason = offers.get(ticket.batchId()).halfPrice() ? ticket.halfPriceReason() : null;
 			saved.add(new OrderItem(order.getId(), ticket.batchId(), price, fees.feeFor(price), holders.get(i), reason, i));
 		}
 		items.saveAll(saved);
 		orders.flush();
+
+		// Reserva por último: a linha do lote fica travada só daqui até o commit, e não durante os inserts do
+		// pedido. Na abertura de lote, quem compra o mesmo lote espera menos na fila (infra/load/README.md).
+		// Ordem fixa de lote evita espera circular entre dois pedidos que pegam os mesmos lotes.
+		for (UUID batchId : selection.keySet().stream().sorted(Comparator.naturalOrder()).toList()) {
+			Offer offer = offers.get(batchId);
+			OptionalLong price = inventory.reserve(event.id(), batchId, selection.get(batchId), now);
+			if (price.isEmpty()) {
+				throw unavailable(offer);
+			}
+			if (price.getAsLong() != offer.priceCents()) {
+				throw OrderRuleException.conflict("price-changed", "O preço do " + offer.batchName() + " de "
+						+ offer.typeName() + " mudou agora há pouco. Confira o novo valor.", Map.of("batchId", batchId));
+			}
+		}
 		return new Placed(event, order, saved, offers, true);
 	}
 

@@ -43,12 +43,20 @@ public class PromoterSalesStore {
 			.update();
 	}
 
-	/** Totais por promoter num evento da organização. */
+	/** Venda estornada deixa de contar; a linha fica para o histórico. Idempotente. */
+	public void refunded(UUID orderId, Instant refundedAt) {
+		jdbc.sql("UPDATE promoter_sales SET refunded_at = :at WHERE order_id = :orderId AND refunded_at IS NULL")
+			.param("orderId", orderId)
+			.param("at", Timestamp.from(refundedAt))
+			.update();
+	}
+
+	/** Totais por promoter num evento da organização (sem as vendas estornadas). */
 	public Map<UUID, Totals> byPromoter(UUID eventId, UUID organizationId) {
 		return jdbc.sql("""
 				SELECT promoter_id, sum(tickets) AS tickets, sum(revenue_cents) AS revenue
 				  FROM promoter_sales
-				 WHERE event_id = :eventId AND organization_id = :organizationId
+				 WHERE event_id = :eventId AND organization_id = :organizationId AND refunded_at IS NULL
 				 GROUP BY promoter_id
 				""")
 			.param("eventId", eventId)

@@ -1,5 +1,9 @@
 package com.festa.identity.web;
 
+import com.festa.compliance.api.Consents;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.NotNull;
+import org.springframework.http.HttpHeaders;
 import com.festa.identity.app.AccountService;
 import com.festa.identity.domain.User;
 import com.festa.shared.security.AuthenticatedUser;
@@ -46,7 +50,8 @@ class AuthController {
 			@NotBlank(message = "Informe seu e-mail.") @Email(message = "E-mail inválido.")
 			@Size(max = 320, message = "E-mail muito longo.") String email,
 			@NotBlank(message = "Informe uma senha.")
-			@Size(min = 8, max = 128, message = "A senha deve ter entre 8 e 128 caracteres.") String password) {
+			@Size(min = 8, max = 128, message = "A senha deve ter entre 8 e 128 caracteres.") String password,
+			@NotNull(message = "É preciso aceitar os termos.") @AssertTrue(message = "É preciso aceitar os termos.") Boolean termsAccepted) {
 	}
 
 	record LoginRequest(
@@ -72,7 +77,8 @@ class AuthController {
 	@PostMapping("/signup")
 	ResponseEntity<MeResponse> signup(@Valid @RequestBody SignupRequest body, HttpServletRequest request,
 			HttpServletResponse response) {
-		User user = accounts.signUp(body.name(), body.email(), body.password());
+		User user = accounts.signUp(body.name(), body.email(), body.password(),
+				new Consents.Origin(request.getRemoteAddr(), request.getHeader(HttpHeaders.USER_AGENT)));
 		sessionAuthenticator.startSession(user.getId(), request, response);
 		return ResponseEntity.status(HttpStatus.CREATED).body(MeResponse.of(user));
 	}

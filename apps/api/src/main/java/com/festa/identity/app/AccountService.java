@@ -1,5 +1,6 @@
 package com.festa.identity.app;
 
+import com.festa.compliance.api.Consents;
 import com.festa.identity.domain.User;
 import com.festa.identity.infra.UserRepository;
 import com.festa.shared.web.ApiException;
@@ -16,21 +17,26 @@ public class AccountService {
 
 	private final UserRepository users;
 	private final PasswordEncoder passwordEncoder;
+	private final Consents consents;
 
-	AccountService(UserRepository users, PasswordEncoder passwordEncoder) {
+	AccountService(UserRepository users, PasswordEncoder passwordEncoder, Consents consents) {
 		this.users = users;
 		this.passwordEncoder = passwordEncoder;
+		this.consents = consents;
 	}
 
 	@Transactional
-	public User signUp(String name, String email, String rawPassword) {
+	/** @param origin IP e navegador: prova do aceite dos termos (SECURITY.md §LGPD) */
+	public User signUp(String name, String email, String rawPassword, Consents.Origin origin) {
 		String normalizedEmail = User.normalizeEmail(email);
 		if (users.existsByEmail(normalizedEmail)) {
 			throw emailAlreadyRegistered();
 		}
 		User user = User.registerWithPassword(name, normalizedEmail, passwordEncoder.encode(rawPassword));
 		try {
-			return users.saveAndFlush(user);
+			User saved = users.saveAndFlush(user);
+			consents.accept(saved.getId(), normalizedEmail, Consents.Purpose.SIGNUP, null, origin);
+			return saved;
 		}
 		catch (DataIntegrityViolationException ex) {
 			// Cadastro concorrente com o mesmo e-mail: o UNIQUE do banco decide.

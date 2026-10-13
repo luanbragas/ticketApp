@@ -1,5 +1,8 @@
 package com.festa.order.web;
 
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpHeaders;
+import com.festa.compliance.api.Consents;
 import com.festa.order.app.CheckoutService;
 import com.festa.order.app.CheckoutService.Buyer;
 import com.festa.order.app.CheckoutService.Placed;
@@ -128,7 +131,7 @@ class PublicOrderController {
 	@PostMapping("/orders")
 	ResponseEntity<OrderResponse> place(
 			@RequestHeader(name = "Idempotency-Key", required = false) String key,
-			@Valid @RequestBody PlaceOrderRequest body) {
+			@Valid @RequestBody PlaceOrderRequest body, HttpServletRequest request) {
 		String accessKey = requireKey(key, "Idempotency-Key");
 		Placed placed = translate(() -> checkout.place(new PlaceOrder(body.event(), accessKey,
 				new Buyer(body.buyer().name(), body.buyer().email(), body.buyer().phone(), body.buyer().cpf()),
@@ -136,7 +139,8 @@ class PublicOrderController {
 					.map(t -> new TicketRequest(t.batchId(), t.holderName(), t.holderCpf(), t.halfPriceReason()))
 					.toList(),
 				Boolean.TRUE.equals(body.adultDeclared()), Boolean.TRUE.equals(body.termsAccepted()),
-				body.promoterCode())));
+				body.promoterCode(),
+				new Consents.Origin(request.getRemoteAddr(), request.getHeader(HttpHeaders.USER_AGENT)))));
 		return ResponseEntity.status(placed.created() ? HttpStatus.CREATED : HttpStatus.OK)
 			.cacheControl(CacheControl.noStore())
 			.body(response(placed));

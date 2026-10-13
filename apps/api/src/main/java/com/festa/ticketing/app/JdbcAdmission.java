@@ -105,7 +105,7 @@ class JdbcAdmission implements Admission {
 	public List<Attendee> attendees(UUID eventId, String query, String status, int limit) {
 		String q = query == null ? "" : query.trim();
 		String cpfHash = Cpf.isValid(q) ? cipher.hash(Cpf.digits(q)) : null;
-		return jdbc.sql("SELECT t.holder_cpf_encrypted, t.buyer_email, " + PASS_COLUMNS + """
+		return jdbc.sql("SELECT t.holder_cpf_encrypted, t.buyer_email, t.order_id, " + PASS_COLUMNS + """
 				 WHERE t.event_id = :eventId
 				   AND (CAST(:status AS text) IS NULL OR t.status = CAST(:status AS text))
 				   AND (:q = '' OR t.holder_cpf_hash = CAST(:cpfHash AS text)
@@ -120,7 +120,7 @@ class JdbcAdmission implements Admission {
 			.param("like", q.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_"))
 			.param("limit", limit)
 			.query((rs, i) -> new Attendee(pass(rs), Cpf.mask(cipher.decrypt(rs.getBytes("holder_cpf_encrypted"))),
-					rs.getString("buyer_email")))
+					rs.getString("buyer_email"), rs.getObject("order_id", UUID.class)))
 			.list();
 	}
 

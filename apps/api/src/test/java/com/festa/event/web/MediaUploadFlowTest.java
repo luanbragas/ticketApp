@@ -125,7 +125,7 @@ class MediaUploadFlowTest {
 	private TestBrowser loggedInUser() throws Exception {
 		TestBrowser browser = new TestBrowser(mvc);
 		browser.post("/api/v1/auth/signup",
-				"{\"name\":\"Produtor\",\"email\":\"prod-" + unique() + "@festa.test\",\"password\":\"senha-forte-123\"}")
+				"{\"name\":\"Produtor\",\"email\":\"prod-" + unique() + "@festa.test\",\"password\":\"senha-forte-123\",\"termsAccepted\":true}")
 			.andExpect(status().isCreated());
 		return browser;
 	}

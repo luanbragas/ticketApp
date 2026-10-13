@@ -28,7 +28,7 @@ public final class TestShop {
 		String unique = UUID.randomUUID().toString().substring(0, 8);
 		TestBrowser producer = new TestBrowser(mvc);
 		producer.post("/api/v1/auth/signup",
-				"{\"name\":\"Produtor\",\"email\":\"shop-" + unique + "@festa.test\",\"password\":\"senha-forte-123\"}")
+				"{\"name\":\"Produtor\",\"email\":\"shop-" + unique + "@festa.test\",\"password\":\"senha-forte-123\",\"termsAccepted\":true}")
 			.andExpect(status().isCreated());
 		String org = JsonPath.read(producer.post("/api/v1/orgs", "{\"name\":\"Atlética " + unique + "\"}")
 			.andExpect(status().isCreated()).andReturn().getResponse().getContentAsString(), "$.id");

@@ -71,9 +71,6 @@ festa:
   api:
     # Endereço público da API (notification_url do webhook).
     base-url: ${API_BASE_URL:http://localhost:8080}
-  legal:
-    # Versão dos termos aceita no checkout. Trocar quando o texto jurídico mudar (PLAN.md M8).
-    terms-version: ${TERMS_VERSION:rascunho-2026-10}
   web:
     # Base dos links enviados por e-mail.
     base-url: ${WEB_BASE_URL:http://localhost:3000}
@@ -104,3 +101,19 @@ management:
     health:
       probes:
         enabled: true
+
+# Erros em produção (PLAN.md M0). DSN vazio = desligado (dev e testes).
+sentry:
+  dsn: ${SENTRY_DSN:}
+  environment: ${SENTRY_ENVIRONMENT:local}
+  # LGPD: nada de IP, cookie, corpo de requisição ou usuário nos eventos (CPF e e-mail ficam de fora).
+  send-default-pii: false
+  max-request-body-size: none
+  # Só erros por enquanto; desempenho entra se precisar.
+  traces-sample-rate: 0.0
+  # Erros 4xx tratados (ApiException) não viram evento. O inesperado chega pelo log.error do
+  # ProblemDetailsHandler e dos jobs (integração com o Logback).
+  exception-resolver-order: 2147483647
+  logging:
+    minimum-event-level: error
+    minimum-breadcrumb-level: info

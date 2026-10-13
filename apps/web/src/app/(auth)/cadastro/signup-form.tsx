@@ -31,7 +31,10 @@ export function SignupForm({ next }: { next?: string }) {
     handleSubmit,
     setError,
     formState: { errors, isSubmitting },
-  } = useForm<SignupInput>({ resolver: zodResolver(signupSchema) })
+  } = useForm<SignupInput>({
+    resolver: zodResolver(signupSchema),
+    defaultValues: { termsAccepted: false },
+  })
   const loginHref = next
     ? `/entrar?next=${encodeURIComponent(next)}`
     : "/entrar"
@@ -45,7 +48,12 @@ export function SignupForm({ next }: { next?: string }) {
       router.refresh()
     } catch (error) {
       setFormError(
-        applyApiError(error, setError, ["name", "email", "password"]),
+        applyApiError(error, setError, [
+          "name",
+          "email",
+          "password",
+          "termsAccepted",
+        ]),
       )
     }
   })
@@ -83,6 +91,39 @@ export function SignupForm({ next }: { next?: string }) {
             registration={register("password")}
             error={errors.password}
           />
+          <div className="grid gap-1">
+            <label className="flex min-h-11 cursor-pointer items-center gap-3">
+              <input
+                type="checkbox"
+                className="size-5 shrink-0 accent-primary"
+                aria-invalid={errors.termsAccepted ? true : undefined}
+                {...register("termsAccepted")}
+              />
+              <span className="text-sm">
+                Li e aceito os{" "}
+                <Link
+                  href="/termos"
+                  target="_blank"
+                  className="font-medium underline underline-offset-4"
+                >
+                  termos de uso
+                </Link>{" "}
+                e a{" "}
+                <Link
+                  href="/privacidade"
+                  target="_blank"
+                  className="font-medium underline underline-offset-4"
+                >
+                  política de privacidade
+                </Link>
+              </span>
+            </label>
+            {errors.termsAccepted && (
+              <p role="alert" className="text-sm text-destructive">
+                {errors.termsAccepted.message}
+              </p>
+            )}
+          </div>
           <Button
             type="submit"
             size="lg"

@@ -157,7 +157,7 @@ class MagicLinkFlowTest {
 		String email = uniqueEmail();
 		TestBrowser intruder = new TestBrowser(mvc);
 		intruder.post("/api/v1/auth/signup",
-				"{\"name\":\"Intruso\",\"email\":\"" + email + "\",\"password\":\"senha-do-intruso\"}")
+				"{\"name\":\"Intruso\",\"email\":\"" + email + "\",\"password\":\"senha-do-intruso\",\"termsAccepted\":true}")
 			.andExpect(status().isCreated());
 
 		requestLink(email);

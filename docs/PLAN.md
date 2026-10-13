@@ -16,7 +16,7 @@ Regra: só começar um marco quando o anterior estiver pronto (exceto onde indic
 - [x] `apps/api`: Spring Boot + Flyway + Actuator + Testcontainers + estrutura de módulos (ver BACKEND.md)
 - [x] `apps/web`: Next.js + TS + Tailwind + shadcn/ui + ESLint/Prettier
 - [x] CI (GitHub Actions): lint, typecheck, testes da web e da api
-- [ ] Sentry na web e na api
+- [ ] Sentry na web e na api — SDK integrado e desligado sem DSN (`SENTRY_DSN` na API e no servidor do Next, `NEXT_PUBLIC_SENTRY_DSN` no navegador; sem PII, sem replay); falta criar o projeto no Sentry e configurar os DSNs
 - [ ] Ambiente de staging (web + api + Postgres gerenciado) com deploy automático da `main`
 - [ ] Conta Mercado Pago de testes + app criado no painel de desenvolvedor
 - [x] **ADR-001** autenticação (sessão em cookie vs JWT)
@@ -44,7 +44,7 @@ Regra: só começar um marco quando o anterior estiver pronto (exceto onde indic
 
 - [x] Tabelas `events`, `event_media`, `event_lineup`
 - [x] Upload de flyer para R2 via URL pré-assinada (validar tipo e tamanho) — salvar a mídia no evento entra no CRUD
-- [x] CRUD de evento com estados DRAFT → PUBLISHED → ENDED / CANCELLED — publicar exige data, local, flyer e ingressos; exigir conta Mercado Pago (M5) quando existir; encerramento automático fica para um job
+- [x] CRUD de evento com estados DRAFT → PUBLISHED → ENDED / CANCELLED — publicar exige data, local, flyer e ingressos; exige conta Mercado Pago (M5); encerramento automático pelo job `EventEnding` (a cada 5 min)
 - [x] Wizard web: Informações → Aparência (flyer + cor do flyer) → Revisar e publicar
 - [x] Wizard: passo Ingressos, com as configurações de venda (cota de meia, limite por CPF) no mesmo passo
 - [x] Página pública `/e/{slug}` com SSR, metadados Open Graph e botão "Comprar" fixo — o botão leva aos ingressos quando o M3 existir
@@ -112,12 +112,12 @@ Regra: só começar um marco quando o anterior estiver pronto (exceto onde indic
 ### M9 · Financeiro, compliance e lançamento
 **Pronto quando:** festa piloto realizada.
 
-- [ ] Financeiro básico: bruto, taxas, comissões calculadas, líquido, repassado / a receber
-- [ ] Termos de uso e política de privacidade versionados + `consent_records`
-- [ ] Reembolso manual pelo admin (estorna no gateway, cancela ingresso)
+- [x] Financeiro básico: bruto, taxas, comissões calculadas, líquido, repassado / a receber — ADR-013; tarifas do Mercado Pago e comissões entram depois (ADR-003 e comissões automáticas); sem repasse: o split cai direto na conta do produtor
+- [x] Termos de uso e política de privacidade versionados + `consent_records` — ADR-014; páginas `/termos` e `/privacidade` com rascunho, texto final depende da validação jurídica
+- [x] Reembolso manual pelo admin (estorna no gateway, cancela ingresso) — ADR-012; botão em Participantes; estorno e chargeback do gateway pelo webhook
 - [x] Landing da plataforma
-- [ ] Revisão do checklist de SECURITY.md — feito: rate limit, headers, audit log (evento, lote, check-in), gitleaks, Dependabot; `pnpm audit` limpo; isolamento varrido em todas as rotas; webhook assinado (M5); falta: OWASP dependency-check, backup
-- [ ] Teste de carga da página do evento e da abertura de lote
+- [ ] Revisão do checklist de SECURITY.md — feito: rate limit, headers, audit log (evento, lote, check-in), gitleaks, Dependabot; `pnpm audit` limpo; isolamento varrido em todas as rotas; webhook assinado (M5); OWASP dependency-check semanal no CI (falta o segredo `NVD_API_KEY`); ensaio de backup/restauração local (`infra/backup/`); falta: restaurar o backup de produção
+- [ ] Teste de carga da página do evento e da abertura de lote — scripts k6 e resultado local em `infra/load/` (lote: zero overselling, p95 4,3 s → 2 s com a reserva no fim); falta repetir em staging, onde a página do evento (render do Next) é o ponto a olhar
 - [ ] Deploy de produção, domínio, backups do Postgres testados
 - [ ] Validação jurídica (meia-entrada, reembolso, termos)
 - [ ] **Festa piloto** com uma atlética

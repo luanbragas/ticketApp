@@ -75,7 +75,7 @@ Gravar em `audit_logs`: reembolso, cortesia, desfazer check-in, alteração de p
 
 - Plataforma: controladora dos dados de conta; operadora dos dados de participantes tratados para o produtor (deixar claro nos termos).
 - Bases legais: execução de contrato (compra); consentimento separado para marketing.
-- Registrar aceite em `consent_records` com versão dos termos.
+- Registrar aceite em `consent_records` com versão dos termos (cadastro e compra, com IP e navegador; ADR-014).
 - Minimização: coletar só o necessário; promoter não vê CPF.
 - Direitos do titular: exportação e anonimização sob pedido.
 - Pixels de terceiros (Fase 3) só com aviso de cookies.
@@ -86,7 +86,7 @@ Gravar em `audit_logs`: reembolso, cortesia, desfazer check-in, alteração de p
 - [x] Webhook rejeita assinatura inválida e processa repetidos sem duplicar (`PaymentFlowTest`, `WebhookSignatureTest`; validar com o Mercado Pago real)
 - [x] Rate limit ativo nos endpoints listados (cupom quando existir)
 - [x] Nenhum segredo no repositório (gitleaks no CI; exceção só para as chaves de dev do `application-local.yml`)
-- [ ] Dependências sem vulnerabilidade crítica (Dependabot configurado; falta rodar `pnpm audit` e OWASP dependency-check antes do piloto)
+- [ ] Dependências sem vulnerabilidade crítica — Dependabot; `pnpm audit` limpo; workflow semanal `dependency-check.yml` (OWASP na API, falha com CVSS ≥ 7). Falta cadastrar o segredo `NVD_API_KEY` no GitHub e ver a primeira execução passar
 - [ ] Headers de segurança conferidos (configurados; falta tirar a CSP completa do `Report-Only` depois de ver no navegador)
 - [ ] CPF criptografado e mascarado ponta a ponta
-- [ ] Backup restaurado com sucesso
+- [ ] Backup restaurado com sucesso — ensaio local feito em 2026-10-12 com `infra/backup/backup.sh` + `restore-check.sh` (Postgres descartável, confere migrations, contagens e estoque); falta repetir com o banco de produção e agendar o backup extra fora do provedor

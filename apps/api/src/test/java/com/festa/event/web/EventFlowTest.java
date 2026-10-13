@@ -241,7 +241,7 @@ class EventFlowTest {
 	private TestBrowser signup(String email) throws Exception {
 		TestBrowser browser = new TestBrowser(mvc);
 		browser.post("/api/v1/auth/signup",
-				"{\"name\":\"Produtor\",\"email\":\"" + email + "\",\"password\":\"senha-forte-123\"}")
+				"{\"name\":\"Produtor\",\"email\":\"" + email + "\",\"password\":\"senha-forte-123\",\"termsAccepted\":true}")
 			.andExpect(status().isCreated());
 		return browser;
 	}

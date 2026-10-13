@@ -44,7 +44,9 @@ O contexto de organização vem do usuário autenticado + vínculo em `organizat
 **Pedido**
 ```
 PENDING_PAYMENT → PAID | EXPIRED | FAILED
+EXPIRED         → PAID | REFUNDED        (pagamento que chegou depois do prazo, ADR-011)
 PAID            → REFUNDED | PARTIALLY_REFUNDED | CHARGEBACK
+REFUNDED        → CHARGEBACK             (contestação depois do reembolso)
 ```
 
 **Ingresso** (só existe após pagamento)
@@ -72,7 +74,7 @@ UPDATE ticket_batches
    AND sold + reserved + :qty <= capacity;
 -- 0 linhas = indisponível
 ```
-- Criação do pedido e reserva na **mesma transação**.
+- Criação do pedido e reserva na **mesma transação**, com a reserva **por último** (depois dos inserts do pedido), para a linha do lote ficar travada só até o commit; se o preço mudou desde o resumo, o pedido não nasce (`price-changed`). Medido em `infra/load/README.md`.
 - Pagamento confirmado: `reserved -= qty; sold += qty`.
 - Expiração (job a cada minuto): `reserved -= qty`, pedido → `EXPIRED`.
 - Virada de lote avaliada após cada venda/expiração e por job de data.
@@ -171,7 +173,7 @@ Formato: contexto → decisão → consequências. Registrar aqui em ordem.
     - **Limite por CPF** conta os ingressos de pedidos pagos ou aguardando pagamento do **CPF do comprador** no evento. Dois pedidos do mesmo CPF ao mesmo tempo passam em fila (`pg_advisory_xact_lock`).
     - **CPF** de comprador e titulares: AES-256-GCM (`PERSONAL_DATA_KEY`) + HMAC-SHA256 (`PERSONAL_DATA_HASH_KEY`) para busca. A API só devolve mascarado.
     - **Meia:** o titular declara o benefício (estudante, PCD, jovem de baixa renda, pessoa idosa); o documento é conferido na entrada. **18+:** o comprador declara pelos titulares quando o evento é para maiores.
-  - **Consequências:** o M5 cobra o `total_cents` do pedido e, no webhook, faz `reserved -= n; sold += n` e roda a virada. O aceite dos termos fica no pedido (`terms_version`, `terms_accepted_at`) até o M8 criar `consent_records` e o texto jurídico. Rate limit e Turnstile no `POST /public/orders` ficam para o M8.
+  - **Consequências:** o M5 cobra o `total_cents` do pedido e, no webhook, faz `reserved -= n; sold += n` e roda a virada. O aceite dos termos fica no pedido (`terms_version`, `terms_accepted_at`) e, desde o ADR-014, também em `consent_records`. Rate limit e Turnstile no `POST /public/orders` ficam para o M8.
 
 - **ADR-008 — Emissão por outbox e token do QR remontável.** *Aceito em 2026-10-08.*
   - **Contexto:** o ingresso só nasce depois do pagamento (CLAUDE.md regra 6), o e-mail não pode se perder nem duplicar ingresso, e o comprador precisa ver o QR de novo no e-mail e em "Meus ingressos" sem o banco guardar o token (SECURITY.md).
@@ -211,3 +213,28 @@ Formato: contexto → decisão → consequências. Registrar aqui em ordem.
     - **Caso de borda:** pagamento aprovado com pedido expirado tenta reservar de novo; sem estoque, estorna no gateway e o pedido vira `REFUNDED`.
     - Publicar exige conta de recebimento conectada (`PublishPrerequisite`).
   - **Consequências:** o adaptador do Mercado Pago foi escrito a partir da API pública e **precisa ser validado com credenciais de teste** antes do piloto. Chamadas HTTP ao gateway acontecem dentro da transação (simples no MVP; revisar se o gateway ficar lento). Sem job de conciliação: se um webhook se perder, o painel do Mercado Pago permite reenviar.
+- **ADR-012 — Reembolso total, com o gateway primeiro.** *Aceito em 2026-10-11.*
+  - **Contexto:** PLAN.md M9 pede reembolso manual pelo admin; o Mercado Pago também avisa estornos feitos no painel dele e chargebacks.
+  - **Decisão:**
+    - `POST /orgs/{orgId}/orders/{id}/refund` (dono e admin, motivo obrigatório). Trava o pagamento aprovado, estorna no gateway (chave `refund:{pagamento}`), grava `refunds`, pedido `PAID → REFUNDED` e audit log `order.refunded`, tudo numa transação: se o gateway falhar, nada muda.
+    - Só **reembolso total** do pedido. Recusado se algum ingresso do pedido já entrou (desfazer o check-in antes).
+    - Estorno ou chargeback que chega pelo webhook (aprovado → `REFUNDED`/`CHARGED_BACK` no gateway) segue o mesmo caminho, com `created_by` nulo; o pedido vira `REFUNDED` ou `CHARGEBACK`.
+    - O pedido publica `OrderRefunded` no outbox: o ticketing cancela os ingressos `VALID`, o promoter marca a venda como estornada (`promoter_sales.refunded_at`) e o comprador recebe e-mail (só no reembolso, não no chargeback).
+    - Os ingressos estornados voltam para o lote (`sold -= n`); o status do lote não muda (esgotado não reabre sozinho).
+  - **Consequências:** o comprador recebe o total pago, taxa de serviço incluída; falta confirmar com o Mercado Pago de quem sai a taxa devolvida (`application_fee`) — entra no ADR-003. Aparelho de portaria com lista offline antiga ainda aceita ingresso cancelado até baixar a lista de novo.
+- **ADR-013 — Financeiro por livro de lançamentos alimentado por eventos.** *Aceito em 2026-10-11.*
+  - **Contexto:** PLAN.md M9 pede bruto, taxas, estornos e líquido; o módulo `finance` não pode ler as tabelas de pedido (CLAUDE.md regra 7).
+  - **Decisão:**
+    - Tabela `ledger_entries` (só insere): `TICKET_SALE` e `SERVICE_FEE` no `OrderPaid`; `TICKET_REFUND` e `SERVICE_FEE_REFUND` (negativos) no `OrderRefunded`. Idempotente por (pedido, tipo). Os handlers leem o JSON com contrato próprio, como o promoter.
+    - `OrderPaid` ganhou `feeCents` e `totalCents` (nulos em eventos antigos); a migration V013 lançou uma vez os pedidos pagos antes do livro.
+    - Líquido do produtor = ingressos vendidos − estornados, **antes das tarifas do Mercado Pago**. Taxa de serviço aparece à parte (é da plataforma).
+    - Sem "repasse": no split o dinheiro cai direto na conta do produtor a cada venda (ADR-003); o prazo de liberação é do Mercado Pago e fica fora daqui.
+  - **Consequências:** tarifas do gateway e comissões de promoter ainda não entram (comissões automáticas estão fora do MVP; tarifas dependem do ADR-003 e de ler `fee_details` do pagamento). Rotas: `GET /orgs/{orgId}/finance` e `GET /orgs/{orgId}/events/{id}/finance` (dono, admin e gerente).
+- **ADR-014 — Termos versionados e aceite registrado.** *Aceito em 2026-10-11.*
+  - **Contexto:** SECURITY.md §LGPD pede o aceite registrado com a versão; até aqui só o pedido guardava `terms_version` (vindo de configuração).
+  - **Decisão:**
+    - `compliance` guarda `terms_versions` (TERMS e PRIVACY; vigente = a mais recente já publicada) e `consent_records` (quem, e-mail, versão, finalidade, pedido, IP e navegador). Só insere.
+    - O aceite é gravado na mesma transação do cadastro (`termsAccepted` agora obrigatório em `/auth/signup`) e da criação do pedido (`reference_id` = pedido). `orders.terms_version` passa a vir da versão vigente; sai a configuração `festa.legal.terms-version`.
+    - `GET /public/legal` devolve as versões vigentes. A web tem `/termos` e `/privacidade` com um **rascunho** marcado como tal.
+    - Texto novo = migration nova inserindo a versão em `terms_versions` + atualizar `LEGAL_VERSION` e o texto na web.
+  - **Consequências:** login por link mágico cria a conta sem aceite próprio (o aceite fica no pedido que originou o acesso). Não há pedido de novo aceite para quem já tem conta quando a versão muda; entra se o jurídico exigir. IP e navegador são dado pessoal: prazo de guarda a definir com o jurídico.

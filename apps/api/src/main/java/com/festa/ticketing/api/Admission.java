@@ -34,7 +34,8 @@ public interface Admission {
 	}
 
 	/** Participante para a lista do painel (CPF mascarado). */
-	record Attendee(Pass pass, String holderCpf, String buyerEmail) {
+	/** {@code orderId}: para a gerência reembolsar o pedido do ingresso. */
+	record Attendee(Pass pass, String holderCpf, String buyerEmail, UUID orderId) {
 	}
 
 	record Counts(int issued, int checkedIn) {

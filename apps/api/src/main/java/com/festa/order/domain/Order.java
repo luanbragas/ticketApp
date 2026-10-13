@@ -130,6 +130,23 @@ public class Order extends BaseEntity {
 		status = OrderStatus.REFUNDED;
 	}
 
+	/**
+	 * Pago → estornado (ou chargeback). Estornado ainda pode virar chargeback se o comprador contestar depois.
+	 *
+	 * @return falso se não mudou nada (aviso repetido)
+	 */
+	public boolean markReversed(boolean chargeback) {
+		OrderStatus next = chargeback ? OrderStatus.CHARGEBACK : OrderStatus.REFUNDED;
+		if (status == next || status == OrderStatus.CHARGEBACK) {
+			return false;
+		}
+		if (status != OrderStatus.PAID && status != OrderStatus.REFUNDED) {
+			throw OrderRuleException.conflict("invalid-order-status", "Só pedido pago pode ser estornado.");
+		}
+		status = next;
+		return true;
+	}
+
 	/** Aguardando pagamento → expirado. Quem chama devolve a reserva ao estoque na mesma transação. */
 	public void expire(Instant now) {
 		if (status != OrderStatus.PENDING_PAYMENT) {

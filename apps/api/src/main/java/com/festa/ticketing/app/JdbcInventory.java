@@ -107,6 +107,22 @@ class JdbcInventory implements Inventory {
 
 	@Override
 	@Transactional(propagation = Propagation.MANDATORY)
+	public void unsell(UUID eventId, UUID batchId, int quantity) {
+		int updated = jdbc.sql("""
+				UPDATE ticket_batches SET sold = sold - :qty, updated_at = now()
+				 WHERE id = :id AND event_id = :eventId AND sold >= :qty
+				""")
+			.param("qty", quantity)
+			.param("id", batchId)
+			.param("eventId", eventId)
+			.update();
+		if (updated != 1) {
+			throw new IllegalStateException("vendidos do lote " + batchId + " menor que " + quantity);
+		}
+	}
+
+	@Override
+	@Transactional(propagation = Propagation.MANDATORY)
 	public void confirm(UUID eventId, UUID batchId, int quantity) {
 		int updated = jdbc.sql("""
 				UPDATE ticket_batches SET reserved = reserved - :qty, sold = sold + :qty, updated_at = now()
