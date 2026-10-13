@@ -35,6 +35,41 @@ public class Organization extends BaseEntity {
 		this.slug = slug;
 	}
 
+	/**
+	 * Dados públicos da organização (aparecem na página do evento). {@code null} mantém; texto vazio apaga
+	 * Instagram e WhatsApp. Instagram vira só o usuário (sem @ nem link); WhatsApp, só dígitos.
+	 */
+	public void updateProfile(String newName, String newInstagram, String newWhatsapp) {
+		if (newName != null) {
+			if (newName.isBlank() || newName.trim().length() > 80) {
+				throw new IllegalArgumentException("nome inválido");
+			}
+			name = newName.trim();
+		}
+		if (newInstagram != null) {
+			String handle = newInstagram.trim()
+				.replaceFirst("(?i)^(https?://)?(www\\.)?instagram\\.com/", "")
+				.replaceFirst("^@", "")
+				.replaceFirst("/+$", "");
+			if (!handle.isEmpty() && !handle.matches("^[A-Za-z0-9._]{1,30}$")) {
+				throw new IllegalArgumentException("instagram inválido");
+			}
+			instagram = handle.isEmpty() ? null : handle;
+		}
+		if (newWhatsapp != null) {
+			String digits = newWhatsapp.replaceAll("\\D", "");
+			if (!digits.isEmpty() && (digits.length() < 10 || digits.length() > 15)) {
+				throw new IllegalArgumentException("whatsapp inválido");
+			}
+			whatsapp = digits.isEmpty() ? null : digits;
+		}
+	}
+
+	/** Logo já enviada ao bucket; {@code null} tira a logo. */
+	public void changeLogo(String url) {
+		logoUrl = url;
+	}
+
 	public String getName() {
 		return name;
 	}

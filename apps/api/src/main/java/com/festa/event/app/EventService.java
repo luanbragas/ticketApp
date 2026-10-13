@@ -15,6 +15,7 @@ import com.festa.organization.api.OrganizationDirectory;
 import com.festa.organization.api.OrganizationDirectory.OrganizationSummary;
 import com.festa.organization.api.Role;
 import com.festa.organization.api.TenantGuard;
+import com.festa.shared.storage.ImageUploads;
 import com.festa.shared.text.Slugs;
 import com.festa.shared.web.ApiException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -28,7 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -46,27 +46,26 @@ public class EventService {
 	private static final Role[] CANCELLERS = { Role.OWNER, Role.ADMIN };
 
 	private static final int MAX_SLUG_SUFFIX = 50;
-	private static final Pattern FLYER_KEY = Pattern.compile("^[a-z0-9-]+\\.(jpg|png|webp)$");
 
 	private final EventRepository events;
 	private final EventMediaRepository media;
 	private final LineupRepository lineup;
 	private final TenantGuard tenantGuard;
 	private final OrganizationDirectory organizations;
-	private final MediaStorage storage;
+	private final ImageUploads uploads;
 	private final List<PublishPrerequisite> prerequisites;
 	private final AuditLog audit;
 	private final Clock clock;
 
 	EventService(EventRepository events, EventMediaRepository media, LineupRepository lineup, TenantGuard tenantGuard,
-			OrganizationDirectory organizations, MediaStorage storage, List<PublishPrerequisite> prerequisites,
+			OrganizationDirectory organizations, ImageUploads uploads, List<PublishPrerequisite> prerequisites,
 			AuditLog audit, Clock clock) {
 		this.events = events;
 		this.media = media;
 		this.lineup = lineup;
 		this.tenantGuard = tenantGuard;
 		this.organizations = organizations;
-		this.storage = storage;
+		this.uploads = uploads;
 		this.prerequisites = prerequisites;
 		this.audit = audit;
 		this.clock = clock;
@@ -161,12 +160,8 @@ public class EventService {
 		tenantGuard.requireRole(organizationId, userId, EDITORS);
 		Event event = load(organizationId, eventId);
 		apply(event::requireEditable);
-		String folder = "orgs/%s/events/%s/flyer/".formatted(organizationId, eventId);
-		if (key == null || !key.startsWith(folder) || !FLYER_KEY.matcher(key.substring(folder.length())).matches()) {
-			throw new ApiException(HttpStatus.UNPROCESSABLE_CONTENT, "invalid-media-key", "Arquivo inválido",
-				"Esse arquivo não foi enviado para este evento.");
-		}
-		String url = storage.publicUrl(key).toString();
+		String url = uploads.accept(MediaUploadService.folder(organizationId, eventId, MediaUploadService.Kind.FLYER), key)
+			.toString();
 		media.findByEventIdAndKind(eventId, Kind.FLYER).ifPresentOrElse(
 				existing -> existing.replace(url, width, height),
 				() -> media.save(new EventMedia(eventId, organizationId, Kind.FLYER, url, width, height)));

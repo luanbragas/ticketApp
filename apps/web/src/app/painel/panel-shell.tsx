@@ -8,6 +8,7 @@ import {
   HouseIcon,
   LogOutIcon,
   PlusIcon,
+  SettingsIcon,
   UsersIcon,
   type LucideIcon,
 } from "lucide-react"
@@ -189,6 +190,14 @@ function OrganizationSwitcher({
             ))}
             <DropdownMenuSeparator />
           </>
+        )}
+        {current && (current.role === "OWNER" || current.role === "ADMIN") && (
+          <DropdownMenuItem asChild className="min-h-10">
+            <Link href="/painel/organizacao">
+              <SettingsIcon className="size-4" aria-hidden />
+              Dados da organização
+            </Link>
+          </DropdownMenuItem>
         )}
         <DropdownMenuItem asChild className="min-h-10">
           <Link href="/painel/organizacoes/nova">

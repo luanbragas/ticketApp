@@ -1,6 +1,5 @@
-package com.festa.event.infra;
+package com.festa.shared.storage;
 
-import com.festa.event.app.MediaStorage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
