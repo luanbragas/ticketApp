@@ -67,6 +67,12 @@
 			<!-- Exigido pelo Argon2PasswordEncoder (ver SECURITY.md) -->
 		</dependency>
 		<dependency>
+			<!-- Rate limit em memória (SECURITY.md §Abuso). -->
+			<groupId>com.bucket4j</groupId>
+			<artifactId>bucket4j_jdk17-core</artifactId>
+			<version>8.14.0</version>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
