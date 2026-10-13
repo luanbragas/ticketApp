@@ -57,7 +57,7 @@ Regras verificadas com **ArchUnit** no CI:
 ### Públicos
 ```
 GET  /public/events/{slug}
-GET  /public/events/{slug}/availability
+GET  /public/events/{slug}/availability    # tipos e lotes visíveis; status já virado; sem números de venda
 POST /public/orders                       # cria pedido + reserva
 GET  /public/orders/{id}/status
 POST /public/orders/{id}/payment          # PIX ou cartão
@@ -82,8 +82,10 @@ POST /invitations/accept                     # aceitar convite (logado com o e-m
 GET|POST /orgs/{orgId}/events                · GET|PATCH /orgs/{orgId}/events/{id}
 POST /orgs/{orgId}/events/{id}/publish       · POST /orgs/{orgId}/events/{id}/end · POST /orgs/{orgId}/events/{id}/cancel
 POST /orgs/{orgId}/events/{id}/media/upload-url · PUT /orgs/{orgId}/events/{id}/media/flyer   # 1) assina o PUT  2) liga o arquivo ao evento
-GET|POST /orgs/{orgId}/events/{id}/ticket-types
-GET|POST|PATCH /orgs/{orgId}/events/{id}/batches
+GET|POST /orgs/{orgId}/events/{id}/ticket-types · PATCH|DELETE /orgs/{orgId}/events/{id}/ticket-types/{typeId}
+POST /orgs/{orgId}/events/{id}/ticket-types/{typeId}/batches
+PUT|DELETE /orgs/{orgId}/events/{id}/batches/{batchId} · POST /orgs/{orgId}/events/{id}/batches/{batchId}/close
+                                             # toda escrita devolve o catálogo inteiro, já com a virada (ADR-006)
 GET  /orgs/{orgId}/events/{id}/dashboard
 GET  /orgs/{orgId}/events/{id}/attendees
 GET|POST /orgs/{orgId}/events/{id}/promoters

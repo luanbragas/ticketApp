@@ -80,3 +80,8 @@ export function mapsUrl(parts: (string | null | undefined)[]): string {
   const query = parts.filter(Boolean).join(", ")
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`
 }
+
+/** "Ter 10.11 23h": dia e hora curtos para datas de lote. */
+export function dayAndHour(iso: string): string {
+  return `${shortDay(iso)} ${compactHour(iso)}`
+}

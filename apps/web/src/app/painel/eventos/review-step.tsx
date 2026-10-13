@@ -8,7 +8,13 @@ import { FormError } from "@/components/form/form-error"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { getEvent, publishEvent } from "@/lib/api/events"
-import { EVENT_STATUS_LABELS, type EventDetail } from "@/lib/api/types"
+import { getCatalog } from "@/lib/api/tickets"
+import {
+  EVENT_STATUS_LABELS,
+  type EventDetail,
+  type TicketCatalog,
+} from "@/lib/api/types"
+import { formatCents } from "@/lib/money"
 import { cn } from "@/lib/utils"
 
 const when = new Intl.DateTimeFormat("pt-BR", {
@@ -28,7 +34,40 @@ type Item = {
   blocking: boolean
 }
 
-function checklist(event: EventDetail): Item[] {
+function ticketsItem(event: EventDetail, catalog: TicketCatalog): Item {
+  const open = catalog.types.flatMap((t) =>
+    t.batches.filter((b) => b.status === "SCHEDULED" || b.status === "ON_SALE"),
+  )
+  const types = catalog.types.filter((t) => t.batches.length > 0).length
+  const lowest = open.length ? Math.min(...open.map((b) => b.priceCents)) : 0
+  return {
+    label: "Ingressos",
+    detail: open.length
+      ? `${types} ${types === 1 ? "tipo" : "tipos"} · ${open.length} ${open.length === 1 ? "lote" : "lotes"} · a partir de ${formatCents(lowest)}`
+      : "Falta criar pelo menos um lote",
+    ok: open.length > 0,
+    href: `/painel/eventos/${event.id}/ingressos`,
+    blocking: true,
+  }
+}
+
+function quotaItem(event: EventDetail, catalog: TicketCatalog): Item[] {
+  const quota = catalog.halfPriceQuota
+  if (quota.total === 0) return []
+  return [
+    {
+      label: "Meia-entrada",
+      detail: quota.met
+        ? `${quota.halfPrice} de ${quota.total} ingressos são meia`
+        : `Abaixo da cota de ${quota.percent}%: faltam ${quota.minimum - quota.halfPrice} de meia`,
+      ok: quota.met,
+      href: `/painel/eventos/${event.id}/ingressos`,
+      blocking: false,
+    },
+  ]
+}
+
+function checklist(event: EventDetail, catalog: TicketCatalog): Item[] {
   const hasInfo = !!(event.startsAt && event.endsAt && event.venueName)
   return [
     {
@@ -47,12 +86,8 @@ function checklist(event: EventDetail): Item[] {
       href: `/painel/eventos/${event.id}/aparencia`,
       blocking: true,
     },
-    {
-      label: "Ingressos",
-      detail: "Tipos e lotes chegam na próxima etapa do produto",
-      ok: false,
-      blocking: false,
-    },
+    ticketsItem(event, catalog),
+    ...quotaItem(event, catalog),
   ]
 }
 
@@ -68,13 +103,17 @@ export function ReviewStep({
     queryKey: ["event", organizationId, eventId],
     queryFn: () => getEvent(organizationId, eventId),
   })
+  const catalog = useQuery({
+    queryKey: ["tickets", organizationId, eventId],
+    queryFn: () => getCatalog(organizationId, eventId),
+  })
   const publish = useMutation({
     mutationFn: () => publishEvent(organizationId, eventId),
     onSuccess: (saved) =>
       queryClient.setQueryData(["event", organizationId, eventId], saved),
   })
 
-  if (event.isPending) {
+  if (event.isPending || catalog.isPending) {
     return (
       <div aria-busy="true" className="grid gap-3">
         <Skeleton className="h-16 w-full" />
@@ -84,9 +123,10 @@ export function ReviewStep({
     )
   }
   if (event.isError) return <FormError message={event.error.message} />
+  if (catalog.isError) return <FormError message={catalog.error.message} />
 
   const data = event.data
-  const items = checklist(data)
+  const items = checklist(data, catalog.data)
   const ready = items.every((item) => item.ok || !item.blocking)
   const published = data.status === "PUBLISHED"
 

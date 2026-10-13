@@ -8,6 +8,7 @@ import { useForm, useWatch, type UseFormRegisterReturn } from "react-hook-form"
 
 import { FormError } from "@/components/form/form-error"
 import { TextField } from "@/components/form/text-field"
+import { Toggle } from "@/components/form/toggle"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -251,50 +252,6 @@ function TextArea({
       />
       {error && (
         <p id={`${id}-error`} role="alert" className="text-sm text-destructive">
-          {error}
-        </p>
-      )}
-    </div>
-  )
-}
-
-function Toggle({
-  label,
-  hint,
-  registration,
-  disabled,
-  error,
-}: {
-  label: string
-  hint?: string
-  registration: UseFormRegisterReturn
-  disabled?: boolean
-  error?: string
-}) {
-  const id = useId()
-  return (
-    <div className="border-b py-3">
-      <label
-        htmlFor={id}
-        className="flex min-h-11 cursor-pointer items-center gap-3"
-      >
-        <span className="flex-1">
-          <span className="block font-bold">{label}</span>
-          {hint && (
-            <span className="block text-sm text-muted-foreground">{hint}</span>
-          )}
-        </span>
-        <input
-          id={id}
-          type="checkbox"
-          role="switch"
-          disabled={disabled}
-          className="size-6 accent-primary disabled:opacity-60"
-          {...registration}
-        />
-      </label>
-      {error && (
-        <p role="alert" className="text-sm text-destructive">
           {error}
         </p>
       )}

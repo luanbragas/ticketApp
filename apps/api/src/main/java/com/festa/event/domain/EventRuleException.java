@@ -1,5 +1,7 @@
 package com.festa.event.domain;
 
+import com.festa.event.api.EventStatus;
+
 import java.util.List;
 
 /**

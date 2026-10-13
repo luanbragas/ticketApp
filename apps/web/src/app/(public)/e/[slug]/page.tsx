@@ -11,6 +11,7 @@ import { hourRange, longDay, mapsUrl, shortDay } from "@/lib/event-format"
 import { getPublicEvent } from "@/lib/public-events"
 
 import { Countdown, ShareButton } from "./event-client"
+import { BuyBar, TicketList } from "./tickets-client"
 
 export async function generateMetadata({
   params,
@@ -138,6 +139,8 @@ function EventView({ event }: { event: PublicEvent }) {
             <Fact label="Local" value={event.venueName} />
           </dl>
 
+          {!ended && <TicketList slug={event.slug} />}
+
           {event.lineup.length > 0 && (
             <section aria-labelledby="noite" className="mt-6">
               <h2
@@ -198,7 +201,7 @@ function EventView({ event }: { event: PublicEvent }) {
           </a>
 
           <div className="fixed inset-x-0 bottom-0 z-20 border-t bg-background px-3 pt-2.5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] md:static md:mt-8 md:border-0 md:p-0">
-            <BuyBar ended={ended} />
+            <BuyBar slug={event.slug} ended={ended} />
           </div>
         </main>
       </div>
@@ -285,23 +288,6 @@ function Fact({
       <dd className="mt-0.5 font-display text-2xl leading-none font-extrabold break-words">
         {value}
       </dd>
-    </div>
-  )
-}
-
-/** Botão de comprar no estilo da grade. Ingressos chegam no M3. */
-function BuyBar({ ended }: { ended: boolean }) {
-  return (
-    <div
-      aria-disabled="true"
-      className="flex h-14 items-center justify-between bg-(--accent) px-5 text-(--on-accent)"
-    >
-      <span className="font-display text-2xl font-black uppercase">
-        {ended ? "Encerrado" : "Comprar"}
-      </span>
-      <span className="text-sm font-extrabold">
-        {ended ? "obrigado por ir!" : "ingressos em breve"}
-      </span>
     </div>
   )
 }

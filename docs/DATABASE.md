@@ -48,12 +48,16 @@ event_lineup (id, (event_id, organization_id) FK, name, starts_at NULL, position
 
 ### ticketing
 ```sql
-ticket_types (id, event_id FK, organization_id, name, description, is_half_price BOOLEAN, position)
-ticket_batches (id, ticket_type_id FK, event_id, organization_id, name, price_cents,
-                capacity INT, sold INT DEFAULT 0, reserved INT DEFAULT 0,
-                sales_start_at, sales_end_at, max_per_order SMALLINT, visible BOOLEAN,
+ticket_types (id, (event_id, organization_id) FK, name, description, is_half_price BOOLEAN, position,
+              UNIQUE(event_id, position))                         -- is_half_price fixo depois de criado
+ticket_batches (id, (ticket_type_id, event_id, organization_id) FK, name, price_cents BIGINT > 0,
+                capacity INT, sold INT DEFAULT 0, reserved INT DEFAULT 0,  -- sold/reserved só por UPDATE atômico
+                sales_start_at NULL, sales_end_at NULL,            -- não abre antes de / vira em
+                max_per_order SMALLINT NULL, visible BOOLEAN,
                 status CHECK IN ('SCHEDULED','ON_SALE','SOLD_OUT','CLOSED'), position,
+                UNIQUE(ticket_type_id, position),
                 CHECK (sold + reserved <= capacity))
+-- um lote ON_SALE por tipo: EXCLUDE ... WHERE status = 'ON_SALE' DEFERRABLE INITIALLY DEFERRED (ADR-006)
 tickets (id, order_item_id FK, event_id, organization_id, ticket_batch_id,
          holder_name, holder_cpf_encrypted, holder_cpf_hash,
          token_hash UNIQUE, status CHECK IN ('VALID','CHECKED_IN','TRANSFERRED','CANCELLED'))
@@ -107,7 +111,7 @@ outbox_events (id, type, aggregate_id, payload JSONB, status CHECK IN ('PENDING'
 ## Índices essenciais
 
 - `events(organization_id, starts_at)`, `events(status, starts_at)`
-- `ticket_batches(event_id, position)`
+- `ticket_batches(event_id)`, `ticket_batches(status)` parcial em `SCHEDULED`/`ON_SALE` (job de virada)
 - `orders(event_id, status)`, `orders(status, expires_at)` (job de expiração), `orders(buyer_cpf_hash, event_id)` (limite por CPF)
 - `tickets(event_id, status)`, `tickets(holder_cpf_hash)`
 - `outbox_events(status, next_attempt_at)`

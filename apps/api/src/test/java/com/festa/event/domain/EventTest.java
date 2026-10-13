@@ -1,5 +1,6 @@
 package com.festa.event.domain;
 
+import com.festa.event.api.EventStatus;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
@@ -22,6 +23,19 @@ class EventTest {
 		assertThat(event.getStatus()).isEqualTo(EventStatus.DRAFT);
 		assertThat(event.getMinAge()).isEqualTo(18);
 		assertThat(event.getHalfPriceQuotaPercent()).isEqualTo(40);
+	}
+
+	@Test
+	void zeroRemovesThePerCpfLimit() {
+		Event event = draft();
+		event.update(new Event.Changes(null, null, null, null, null, null, null, null, null, null, null, 4, null));
+		assertThat(event.getMaxTicketsPerCpf()).isEqualTo(4);
+
+		event.update(new Event.Changes(null, null, null, null, null, null, null, null, null, null, null, null, null));
+		assertThat(event.getMaxTicketsPerCpf()).isEqualTo(4);
+
+		event.update(new Event.Changes(null, null, null, null, null, null, null, null, null, null, null, 0, null));
+		assertThat(event.getMaxTicketsPerCpf()).isNull();
 	}
 
 	@Test

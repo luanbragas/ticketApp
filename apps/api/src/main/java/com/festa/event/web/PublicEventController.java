@@ -4,7 +4,7 @@ import com.festa.event.app.EventService;
 import com.festa.event.app.EventService.Flyer;
 import com.festa.event.app.EventService.PublicEventView;
 import com.festa.event.domain.Event;
-import com.festa.event.domain.EventStatus;
+import com.festa.event.api.EventStatus;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +18,8 @@ import java.util.List;
 
 /**
  * Página pública do evento (sem login). Não expõe ids internos nem dados da equipe; a disponibilidade
- * dos ingressos vem em rota própria quando o M3 existir, porque muda rápido e não pode ir para o cache.
+ * dos ingressos vem em rota própria ({@code /availability}, módulo ticketing), porque muda rápido e não
+ * pode ficar um minuto no cache.
  */
 @RestController
 @RequestMapping("/api/v1/public/events")

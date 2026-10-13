@@ -163,7 +163,7 @@ function AppearanceForm({
         accentColor: color === PLATFORM_ACCENT ? "" : color,
       })
       queryClient.setQueryData(["event", organizationId, event.id], saved)
-      router.push(`/painel/eventos/${event.id}/revisar`)
+      router.push(`/painel/eventos/${event.id}/ingressos`)
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Não deu pra salvar.")
       setSaving(false)

@@ -2,16 +2,17 @@ import Link from "next/link"
 
 import { cn } from "@/lib/utils"
 
-/** Passos do wizard. Ingressos entra entre Aparência e Revisar quando o M3 existir. */
+/** Passos do wizard. As regras de venda (cota de meia, limite por CPF) ficam no passo Ingressos. */
 export const WIZARD_STEPS = [
   { slug: "informacoes", label: "Informações" },
   { slug: "aparencia", label: "Aparência" },
+  { slug: "ingressos", label: "Ingressos" },
   { slug: "revisar", label: "Revisar e publicar" },
 ] as const
 
 export type WizardStep = (typeof WIZARD_STEPS)[number]["slug"]
 
-/** Cabeçalho "passo N de 3" com barra de progresso; com evento salvo, os passos viram links. */
+/** Cabeçalho "passo N de 4" com barra de progresso; com evento salvo, os passos viram links. */
 export function WizardHeader({
   step,
   eventId,
@@ -37,7 +38,7 @@ export function WizardHeader({
         </Link>
       </div>
       <nav aria-label="Passos do evento">
-        <ol className="grid grid-cols-3 gap-1">
+        <ol className="grid grid-cols-4 gap-1">
           {WIZARD_STEPS.map((s, i) => {
             const done = i < current
             const active = i === current

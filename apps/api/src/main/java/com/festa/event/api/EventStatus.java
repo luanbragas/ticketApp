@@ -1,4 +1,4 @@
-package com.festa.event.domain;
+package com.festa.event.api;
 
 /** Ciclo de vida do evento (ARCHITECTURE.md §Máquinas de estado). */
 public enum EventStatus {
