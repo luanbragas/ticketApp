@@ -123,10 +123,14 @@ public class OrderPayments implements OrderBilling {
 			List<OrderItem> orderItems = items.findByOrderIdOrderByPosition(orderId);
 			int tickets = orderItems.size();
 			perBatch(orderItems).forEach((batchId, quantity) -> inventory.unsell(order.getEventId(), batchId, quantity));
-			outbox.publish(OrderRefunded.TYPE, order.getId(), new OrderRefunded(order.getId(), order.getEventId(),
+			OrderRefunded event = new OrderRefunded(order.getId(), order.getEventId(),
 					order.getOrganizationId(), order.getBuyerName(), order.getBuyerEmail(), order.getPromoterId(),
 					order.getSubtotalCents(), order.getFeeCents(), order.getTotalCents(), tickets,
-					chargeback ? OrderRefunded.CHARGEBACK : OrderRefunded.REFUND, clock.instant()));
+					chargeback ? OrderRefunded.CHARGEBACK : OrderRefunded.REFUND, clock.instant());
+			outbox.publish(OrderRefunded.TYPE, order.getId(), event);
+			if (!chargeback) {
+				outbox.publish(RefundEmailHandler.TYPE, order.getId(), event);
+			}
 		}
 		return true;
 	}

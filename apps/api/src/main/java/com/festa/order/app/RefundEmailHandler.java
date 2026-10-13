@@ -14,8 +14,9 @@ import java.text.NumberFormat;
 import java.util.Locale;
 
 /**
- * Avisa o comprador que o pedido foi reembolsado e os ingressos cancelados. Chargeback não gera e-mail: quem
- * contestou já sabe, e o aviso poderia atrapalhar a disputa.
+ * Avisa o comprador que o pedido foi reembolsado e os ingressos cancelados. Entrega separada do
+ * {@code OrderRefunded}: se o e-mail cair, só ele é tentado de novo, sem segurar o cancelamento dos ingressos e o
+ * financeiro. Chargeback não gera e-mail: quem contestou já sabe, e o aviso poderia atrapalhar a disputa.
  */
 @Component
 class RefundEmailHandler implements OutboxHandler {
@@ -30,17 +31,17 @@ class RefundEmailHandler implements OutboxHandler {
 		this.json = json;
 	}
 
+	/** Publicado junto com {@code OrderRefunded}, só no reembolso; o payload é o mesmo. */
+	static final String TYPE = "RefundEmail";
+
 	@Override
 	public String type() {
-		return OrderRefunded.TYPE;
+		return TYPE;
 	}
 
 	@Override
 	public void handle(OutboxMessage message) {
 		OrderRefunded refunded = json.readValue(message.payload(), OrderRefunded.class);
-		if (!OrderRefunded.REFUND.equals(refunded.kind())) {
-			return;
-		}
 		String eventName = events.find(refunded.organizationId(), refunded.eventId())
 			.map(EventDirectory.EventRef::name)
 			.orElse("a festa");
