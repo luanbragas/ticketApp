@@ -16,8 +16,12 @@ public interface UserDirectory {
 	/** Usuários encontrados, por id. Ids inexistentes ficam de fora. */
 	Map<UUID, UserSummary> findAll(Collection<UUID> userIds);
 
-	/** @param name pode ser nulo (conta criada por link mágico, ADR-004) */
-	record UserSummary(UUID id, String name, String email) {
+	/**
+	 * @param name pode ser nulo (conta criada por link mágico, ADR-004)
+	 * @param emailVerified dono do e-mail confirmado (link mágico ou confirmação); dado ligado ao e-mail,
+	 *        como ingressos comprados sem conta, só aparece com isso
+	 */
+	record UserSummary(UUID id, String name, String email, boolean emailVerified) {
 	}
 
 }

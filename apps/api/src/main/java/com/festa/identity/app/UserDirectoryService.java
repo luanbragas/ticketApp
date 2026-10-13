@@ -43,7 +43,7 @@ class UserDirectoryService implements UserDirectory {
 	}
 
 	private static UserSummary summary(User user) {
-		return new UserSummary(user.getId(), user.getName(), user.getEmail());
+		return new UserSummary(user.getId(), user.getName(), user.getEmail(), user.isEmailVerified());
 	}
 
 }

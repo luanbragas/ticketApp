@@ -32,4 +32,10 @@ public interface Inventory {
 	/** Devolve ao lote uma reserva que não virou venda (pedido expirado ou cancelado). */
 	void release(UUID batchId, int quantity);
 
+	/**
+	 * Reserva paga vira venda ({@code reserved -= n; sold += n}) e a virada do evento roda em seguida: se o
+	 * lote esgotou, o próximo abre na mesma transação (ADR-006).
+	 */
+	void confirm(UUID eventId, UUID batchId, int quantity);
+
 }

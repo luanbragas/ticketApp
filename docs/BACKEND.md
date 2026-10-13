@@ -62,10 +62,10 @@ POST /public/events/{slug}/quote          # subtotal, taxa e total da seleção,
 POST /public/orders                       # cria pedido + reserva; header Idempotency-Key obrigatório (ADR-007)
 GET  /public/orders/{id}                  # status e resumo; header X-Order-Key = a mesma chave
 POST /public/orders/{id}/payment          # PIX ou cartão
-GET  /public/tickets/{token}
+GET  /public/tickets/{token}               # ingresso pelo token do QR (sem cache, Referrer-Policy: no-referrer)
 POST /public/magic-links                  # "meus ingressos"
 POST /public/invitations/preview          # dados do convite para a tela de aceite (token no corpo)
-GET  /public/me/tickets                   # sessão via link mágico
+GET  /me/tickets                          # "Meus ingressos": sessão com e-mail verificado (ADR-004, ADR-008)
 ```
 
 ### Autenticação

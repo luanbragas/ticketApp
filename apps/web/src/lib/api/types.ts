@@ -263,3 +263,29 @@ export type PublicOrder = {
   feeCents: number
   totalCents: number
 }
+
+export type TicketStatus = "VALID" | "CHECKED_IN" | "TRANSFERRED" | "CANCELLED"
+
+/** Ingresso como o comprador vê (GET /public/tickets/{token}). Sem ids internos; CPF mascarado. */
+export type PublicTicket = {
+  token: string
+  status: TicketStatus
+  holderName: string
+  holderCpf: string
+  halfPrice: boolean
+  typeName: string
+  batchName: string
+  event: {
+    slug: string
+    name: string
+    startsAt: string
+    endsAt: string
+    venueName: string | null
+    address: string | null
+    city: string | null
+    accentColor: string | null
+  }
+}
+
+/** GET /me/tickets: próximos em ordem de data, passados do mais recente para trás. */
+export type MyTickets = { upcoming: PublicTicket[]; past: PublicTicket[] }

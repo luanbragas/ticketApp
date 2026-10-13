@@ -92,9 +92,26 @@ function Details({ order }: { order: PublicOrder }) {
               </span>
             </p>
           </>
+        ) : order.status === "PAID" ? (
+          <>
+            <h1 className="mt-1 font-display text-5xl leading-[0.9] font-black uppercase">
+              Pago
+            </h1>
+            <p className="mt-2 text-muted-foreground">
+              Os ingressos foram para {order.buyer.email}, com o QR Code de cada
+              titular.
+            </p>
+            <Link
+              href="/meus-ingressos"
+              className="mt-4 flex h-14 items-center justify-between bg-primary px-5 font-display text-2xl font-black text-primary-foreground uppercase"
+            >
+              Meus ingressos
+              <span aria-hidden>→</span>
+            </Link>
+          </>
         ) : (
           <h1 className="mt-1 font-display text-5xl leading-[0.9] font-black uppercase">
-            {order.status === "PAID" ? "Pago" : "Pedido encerrado"}
+            Pedido encerrado
           </h1>
         )}
       </div>

@@ -85,6 +85,10 @@ public class OrderItem extends BaseEntity {
 		return holderCpfEncrypted;
 	}
 
+	public String getHolderCpfHash() {
+		return holderCpfHash;
+	}
+
 	public boolean isHalfPrice() {
 		return halfPrice;
 	}

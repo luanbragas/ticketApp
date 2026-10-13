@@ -91,6 +91,18 @@ public class Order extends BaseEntity {
 		this.termsAcceptedAt = now;
 	}
 
+	/**
+	 * Aguardando pagamento → pago. Só o webhook validado do gateway chega aqui (CLAUDE.md regra 4); quem
+	 * chama transforma a reserva em venda e publica {@code OrderPaid} na mesma transação.
+	 */
+	public void markPaid(Instant now) {
+		if (status != OrderStatus.PENDING_PAYMENT) {
+			throw OrderRuleException.conflict("invalid-order-status", "Só pedido aguardando pagamento pode ser pago.");
+		}
+		status = OrderStatus.PAID;
+		paidAt = now;
+	}
+
 	/** Aguardando pagamento → expirado. Quem chama devolve a reserva ao estoque na mesma transação. */
 	public void expire(Instant now) {
 		if (status != OrderStatus.PENDING_PAYMENT) {
@@ -153,6 +165,10 @@ public class Order extends BaseEntity {
 
 	public Instant getPaidAt() {
 		return paidAt;
+	}
+
+	public String getBuyerCpfHash() {
+		return buyerCpfHash;
 	}
 
 	public String getAccessKeyHash() {

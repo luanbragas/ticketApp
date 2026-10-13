@@ -40,8 +40,8 @@
 
 ## QR Code
 
-- Token aleatório de 32 bytes, codificado em base64url, assinado com HMAC-SHA256 (chave em env).
-- Banco guarda só `token_hash`. QR não contém nome, CPF nem ID sequencial.
+- Token = HMAC-SHA256(`TICKET_TOKEN_KEY`, nonce aleatório de 32 bytes), em base64url (ADR-008).
+- Banco guarda só o nonce e o `token_hash`; sem a chave não se monta um token. QR não contém nome, CPF nem ID sequencial.
 - Ingresso cancelado ou transferido invalida o token na hora.
 
 ## Abuso e disponibilidade

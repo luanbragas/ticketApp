@@ -28,8 +28,17 @@ import {
 } from "@/lib/schemas/auth"
 import { useSessionChanged } from "@/lib/session"
 
-export function LoginForm({ next }: { next?: string }) {
-  const [mode, setMode] = useState<"password" | "magic-link">("password")
+/** {@code startWithMagicLink}: comprador sem senha ("Meus ingressos") já cai no link mágico. */
+export function LoginForm({
+  next,
+  startWithMagicLink = false,
+}: {
+  next?: string
+  startWithMagicLink?: boolean
+}) {
+  const [mode, setMode] = useState<"password" | "magic-link">(
+    startWithMagicLink ? "magic-link" : "password",
+  )
   const [sentTo, setSentTo] = useState<string | null>(null)
   const signupHref = next
     ? `/cadastro?next=${encodeURIComponent(next)}`
