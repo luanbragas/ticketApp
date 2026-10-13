@@ -10,5 +10,15 @@ services:
   mailpit:
     image: axllent/mailpit
     ports: ["1025:1025", "8025:8025"]
+  s3:
+    # Bucket S3 local no lugar do Cloudflare R2 (mesma API). Não confere assinatura; leitura pública.
+    image: adobe/s3mock:5.2.2
+    environment:
+      COM_ADOBE_TESTING_S3MOCK_STORE_INITIAL_BUCKETS: festa-media
+      COM_ADOBE_TESTING_S3MOCK_STORE_ROOT: /s3mockroot
+      COM_ADOBE_TESTING_S3MOCK_STORE_RETAIN_FILES_ON_EXIT: "true"
+    ports: ["9090:9090"]
+    volumes: [s3data:/s3mockroot]
 volumes:
   pgdata:
+  s3data:

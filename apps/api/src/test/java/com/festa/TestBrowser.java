@@ -33,13 +33,18 @@ public class TestBrowser {
 	}
 
 	public ResultActions post(String url, String json) throws Exception {
+		return send(MockMvcRequestBuilders.post(url), json);
+	}
+
+	/** Escrita com corpo JSON (POST, PUT, PATCH...) já com o token CSRF. */
+	public ResultActions send(MockHttpServletRequestBuilder request, String json) throws Exception {
 		if (!csrfFetched) {
 			get("/api/v1/auth/csrf").andExpect(status().isNoContent());
 			csrfFetched = true;
 		}
 		Cookie csrf = cookies.get("XSRF-TOKEN");
-		assertThat(csrf).as("cookie XSRF-TOKEN presente antes de " + url).isNotNull();
-		return perform(MockMvcRequestBuilders.post(url)
+		assertThat(csrf).as("cookie XSRF-TOKEN presente antes da escrita").isNotNull();
+		return perform(request
 			.contentType(MediaType.APPLICATION_JSON)
 			.content(json)
 			.header("X-XSRF-TOKEN", csrf.getValue()));

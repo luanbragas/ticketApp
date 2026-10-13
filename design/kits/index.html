@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FESTA · Kits de identidade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Graduate&amp;family=Archivo:wdth,wght@75..112,800..900&amp;family=Krona+One&amp;family=Saira:wght@400;600&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+  body { --page-bg: #101010; --font-body: "Saira", system-ui, sans-serif; }
+  .intro { max-width: 760px; margin: 0 auto; padding: 40px 16px 8px; }
+  .intro h1 { margin: 0; font: 900 clamp(40px, 9vw, 84px)/0.9 "Archivo", sans-serif; font-stretch: 75%; text-transform: uppercase; }
+  .intro p { margin: 16px 0 0; font-size: 17px; line-height: 1.55; color: #cfcfcf; }
+  .kits { max-width: 1200px; margin: 24px auto 64px; padding: 0 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+  .kit { position: relative; display: flex; flex-direction: column; justify-content: flex-end; min-height: 420px; padding: 22px; overflow: hidden; border-radius: 28px; text-decoration: none; transition: transform var(--t-move) var(--ease-out); }
+  .kit:hover, .kit:focus-visible { transform: translateY(-6px) rotate(-1deg); }
+  .kit img.mark { position: absolute; top: 22px; right: 22px; width: 140px; }
+  .kit h2 { margin: 0; font-size: 34px; line-height: 0.95; }
+  .kit p { margin: 8px 0 0; font-size: 15px; line-height: 1.45; }
+  .krk { background: #6a1fb0 repeating-linear-gradient(90deg, rgba(0,0,0,0.3) 0 3px, transparent 3px 80px); color: #f4f0ff; }
+  .krk h2 { font-family: "Graduate", serif; color: #ffc515; }
+  .krk img.mark { border-radius: 999px; border: 5px solid #fff; }
+  .a3 { background: #ffc20e; color: #0d0d0d; }
+  .a3 h2 { font-family: "Archivo", sans-serif; font-weight: 900; font-stretch: 75%; text-transform: uppercase; font-size: 46px; }
+  .a3 img.mark { clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); }
+  .ck { background: #f2f0eb linear-gradient(rgba(11,11,11,0.08) 1px, transparent 1px) 0 0 / 22px 22px; color: #0b0b0b; }
+  .ck h2 { font-family: "Krona One", sans-serif; color: #ff1e1e; font-size: 28px; }
+</style>
+</head>
+<body>
+<header class="intro">
+  <h1>Cada festa com a cara de quem faz</h1>
+  <p>Kits de identidade: a atlética ou a casa sobe mascote, cores e fotos, e a página do evento, o checkout e o ingresso vestem a marca, cada um com o próprio movimento. A estrutura e a usabilidade continuam as mesmas.</p>
+</header>
+<main class="kits">
+  <a class="kit krk" href="krakens.html"><img class="mark" src="assets/lau-logo.png" alt=""><h2>Krakens</h2><p>LAU · Unisinos. Armário que abre, adesivos de time e ingresso holográfico que brilha ao inclinar.</p></a>
+  <a class="kit a3" href="a3fad.html"><img class="mark" src="assets/a3fad-logo.png" alt=""><h2>A3FAD</h2><p>UFRGS · ARQ + DSG. Colmeia, colagem xerox e o lote como favos que enchem de mel.</p></a>
+  <a class="kit ck" href="cucko.html"><img class="mark" src="assets/cucko-logo.jpg" alt=""><h2>Cucko</h2><p>Cidade Baixa · POA. Papel quadriculado, fotocópia vermelha e visor de câmera gravando.</p></a>
+</main>
+</body>
+</html>

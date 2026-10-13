@@ -6,6 +6,18 @@
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["--dir", "apps/web", "dev"],
       "port": 3000
+    },
+    {
+      "name": "api",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "apps\\api\\mvnw.cmd", "-f", "apps\\api\\pom.xml", "-q", "spring-boot:run"],
+      "port": 8080
+    },
+    {
+      "name": "kits",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "4321", "--directory", "design/kits"],
+      "port": 4321
     }
   ]
 }

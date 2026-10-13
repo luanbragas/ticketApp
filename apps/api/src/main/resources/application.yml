@@ -32,6 +32,15 @@ spring:
       initialize-schema: never
 
 festa:
+  storage:
+    # Cloudflare R2 (API S3). Em dev, S3Mock do docker-compose (application-local.yml).
+    endpoint: ${STORAGE_ENDPOINT}
+    region: ${STORAGE_REGION:auto}
+    bucket: ${STORAGE_BUCKET}
+    access-key: ${STORAGE_ACCESS_KEY}
+    secret-key: ${STORAGE_SECRET_KEY}
+    # Domínio público (CDN) de onde as imagens são servidas.
+    public-base-url: ${STORAGE_PUBLIC_BASE_URL}
   mail:
     from: ${MAIL_FROM:FESTA <nao-responda@festa.local>}
   web:

@@ -80,7 +80,8 @@ GET|POST /orgs                               · GET /orgs/{orgId}       # GET /o
 GET|POST /orgs/{orgId}/members               · POST /orgs/{orgId}/payment-account/connect
 POST /invitations/accept                     # aceitar convite (logado com o e-mail convidado)
 GET|POST /orgs/{orgId}/events                · GET|PATCH /orgs/{orgId}/events/{id}
-POST /orgs/{orgId}/events/{id}/publish       · POST /orgs/{orgId}/events/{id}/media/upload-url
+POST /orgs/{orgId}/events/{id}/publish       · POST /orgs/{orgId}/events/{id}/end · POST /orgs/{orgId}/events/{id}/cancel
+POST /orgs/{orgId}/events/{id}/media/upload-url · PUT /orgs/{orgId}/events/{id}/media/flyer   # 1) assina o PUT  2) liga o arquivo ao evento
 GET|POST /orgs/{orgId}/events/{id}/ticket-types
 GET|POST|PATCH /orgs/{orgId}/events/{id}/batches
 GET  /orgs/{orgId}/events/{id}/dashboard

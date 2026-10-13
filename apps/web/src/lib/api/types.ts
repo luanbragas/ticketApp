@@ -54,3 +54,84 @@ export type InvitationPreview = {
   role: Role
   roleLabel: string
 }
+
+export type EventStatus = "DRAFT" | "PUBLISHED" | "ENDED" | "CANCELLED"
+
+export const EVENT_STATUS_LABELS: Record<EventStatus, string> = {
+  DRAFT: "Rascunho",
+  PUBLISHED: "Publicado",
+  ENDED: "Encerrado",
+  CANCELLED: "Cancelado",
+}
+
+export type Flyer = { url: string; width: number; height: number }
+
+export type EventDetail = {
+  id: string
+  slug: string
+  name: string
+  description: string | null
+  category: string | null
+  /** ISO-8601 em UTC; exibir em America/Sao_Paulo. */
+  startsAt: string | null
+  endsAt: string | null
+  venueName: string | null
+  address: string | null
+  city: string | null
+  minAge: number
+  hasOpenBar: boolean
+  halfPriceQuotaPercent: number
+  maxTicketsPerCpf: number | null
+  /** Cor de destaque da página (#rrggbb), tirada do flyer; nula = verde da plataforma. */
+  accentColor: string | null
+  status: EventStatus
+  publishedAt: string | null
+  flyer: Flyer | null
+  lineup: { name: string; startsAt: string | null }[]
+  pageUrl: string
+}
+
+export type EventSummary = {
+  id: string
+  slug: string
+  name: string
+  status: EventStatus
+  startsAt: string | null
+  venueName: string | null
+  flyerUrl: string | null
+}
+
+export type EventList = { items: EventSummary[] }
+
+export type UploadUrl = {
+  uploadUrl: string
+  method: "PUT"
+  headers: Record<string, string>
+  key: string
+  publicUrl: string
+  expiresAt: string
+}
+
+/** Evento como o público vê (GET /public/events/{slug}). Sem ids internos. */
+export type PublicEvent = {
+  slug: string
+  name: string
+  description: string | null
+  startsAt: string
+  endsAt: string
+  venueName: string
+  address: string | null
+  city: string | null
+  minAge: number
+  hasOpenBar: boolean
+  accentColor: string | null
+  status: "PUBLISHED" | "ENDED"
+  flyer: Flyer | null
+  lineup: { name: string; startsAt: string | null }[]
+  organizer: {
+    name: string
+    slug: string
+    logoUrl: string | null
+    instagram: string | null
+  }
+}

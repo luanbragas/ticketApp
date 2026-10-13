@@ -31,7 +31,7 @@ Contexto para o Claude Code neste repositório. Leia este arquivo inteiro antes 
 │   ├── web/        # Next.js (área pública + painel + check-in PWA)
 │   └── api/        # Spring Boot (monólito modular)
 ├── infra/
-│   └── docker-compose.yml   # Postgres local, Mailpit
+│   └── docker-compose.yml   # Postgres local, Mailpit, S3Mock (no lugar do R2)
 └── .github/workflows/       # CI
 ```
 

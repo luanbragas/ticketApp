@@ -1,16 +1,20 @@
 import type { Metadata, Viewport } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
+import { Big_Shoulders, Manrope } from "next/font/google"
 import "./globals.css"
 import { Providers } from "./providers"
 
-const geistSans = Geist({
+// Tema G: Manrope no texto, Big Shoulders Display nos títulos e números grandes.
+const manrope = Manrope({
   variable: "--font-sans",
   subsets: ["latin"],
 })
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const display = Big_Shoulders({
+  variable: "--font-display",
   subsets: ["latin"],
+  weight: ["800", "900"],
+  // O Next não tem métricas de fallback para esta fonte; sem isso ele avisa a cada página.
+  adjustFontFallback: false,
 })
 
 export const metadata: Metadata = {
@@ -24,13 +28,14 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  themeColor: "#000000",
 }
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="pt-BR"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${manrope.variable} ${display.variable} dark h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
         <Providers>{children}</Providers>

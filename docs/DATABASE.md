@@ -34,13 +34,16 @@ payment_accounts (id, organization_id FK UNIQUE, provider, provider_account_id,
 ### event
 ```sql
 events (id, organization_id FK, slug UNIQUE, name, description, category,
-        starts_at, ends_at, venue_name, address, city, lat, lng,
-        min_age SMALLINT, has_open_bar BOOLEAN,
+        starts_at NULL, ends_at NULL, venue_name NULL, address, city, lat, lng,   -- rascunho pode ficar sem data/local
+        min_age SMALLINT DEFAULT 18, has_open_bar BOOLEAN,       -- CHECK: open bar só com min_age >= 18
         half_price_quota_percent SMALLINT DEFAULT 40,
         max_tickets_per_cpf SMALLINT,
-        status CHECK IN ('DRAFT','PUBLISHED','ENDED','CANCELLED'), published_at)
-event_media (id, event_id FK, organization_id, kind CHECK IN ('FLYER','GALLERY'), url, position)
-event_lineup (id, event_id FK, organization_id, name, position)
+        accent_color NULL,                                        -- '#rrggbb' tirada do flyer (ADR-005)
+        status CHECK IN ('DRAFT','PUBLISHED','ENDED','CANCELLED'), published_at,
+        UNIQUE(id, organization_id))                              -- CHECK: PUBLISHED exige data, local e published_at
+event_media (id, (event_id, organization_id) FK, kind CHECK IN ('FLYER','GALLERY'), url,
+             width, height, position)                             -- um FLYER por evento (índice parcial)
+event_lineup (id, (event_id, organization_id) FK, name, starts_at NULL, position, UNIQUE(event_id, position))
 ```
 
 ### ticketing

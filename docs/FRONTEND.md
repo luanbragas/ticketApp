@@ -20,7 +20,7 @@ apps/web/src/
 │   ├── painel/
 │   │   ├── layout.tsx                # shell: menu lateral (desktop) / barra inferior (mobile)
 │   │   ├── page.tsx                  # dashboard
-│   │   ├── eventos/ (lista, novo = wizard, [id]/ingressos, participantes, promoters)
+│   │   ├── eventos/ (lista, novo = wizard passo 1, [id]/informacoes|aparencia|revisar, [id]/ingressos, participantes, promoters)
 │   │   ├── equipe/                   # membros e convites
 │   │   ├── organizacoes/nova/
 │   │   ├── financeiro/
@@ -46,6 +46,12 @@ apps/web/src/
 - **Cache Components está ligado**: leitura de sessão, `cookies()` ou `searchParams` sempre dentro de `<Suspense>` (ou de um `loading.tsx`).
 - Tokens de link mágico e convite chegam no fragmento da URL (`#token=`) e são removidos da barra logo após a leitura.
 - `?next=` passa por `safeNext()` (só caminhos internos).
+
+## Visual
+
+- Tema G "Grade da noite" (design aprovado no canvas): fundo preto, texto branco, uma cor de destaque. Painel usa o verde-limão `#d7ff1f`; páginas do comprador usam `events.accentColor` (ADR-005).
+- Fontes: Manrope no texto (`font-sans`) e Big Shoulders em títulos e números grandes (`font-display`, caixa alta). Cantos quase retos (`--radius: 0.125rem`).
+- Tokens em `src/app/globals.css`; componentes shadcn herdam deles.
 
 ## Padrões
 
