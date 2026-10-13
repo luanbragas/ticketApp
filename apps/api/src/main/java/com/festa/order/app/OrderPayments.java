@@ -63,7 +63,7 @@ public class OrderPayments {
 			.sorted(Map.Entry.comparingByKey())
 			.forEach(entry -> inventory.confirm(order.getEventId(), entry.getKey(), entry.getValue().intValue()));
 		outbox.publish(OrderPaid.TYPE, orderId, new OrderPaid(orderId, order.getEventId(), order.getOrganizationId(),
-				order.getBuyerName(), order.getBuyerEmail(),
+				order.getBuyerName(), order.getBuyerEmail(), order.getPromoterId(), order.getSubtotalCents(), now,
 				orderItems.stream()
 					.map(item -> new OrderPaid.Item(item.getId(), item.getTicketBatchId(), item.getHolderName(),
 							Base64.getEncoder().encodeToString(item.getHolderCpfEncrypted()), item.getHolderCpfHash(),

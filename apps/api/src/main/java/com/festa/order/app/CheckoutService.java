@@ -11,6 +11,7 @@ import com.festa.order.domain.OrderRuleException;
 import com.festa.order.infra.OrderItemRepository;
 import com.festa.order.infra.OrderQueries;
 import com.festa.order.infra.OrderRepository;
+import com.festa.promoter.api.PromoterLinks;
 import com.festa.shared.crypto.PersonalDataCipher;
 import com.festa.shared.security.SecureToken;
 import com.festa.shared.text.Cpf;
@@ -48,6 +49,7 @@ public class CheckoutService {
 	public static final int MAX_TICKETS_PER_ORDER = 20;
 
 	private final EventDirectory events;
+	private final PromoterLinks promoters;
 	private final Inventory inventory;
 	private final OrderRepository orders;
 	private final OrderItemRepository items;
@@ -59,11 +61,12 @@ public class CheckoutService {
 	private final Duration reservationTtl;
 	private final String termsVersion;
 
-	CheckoutService(EventDirectory events, Inventory inventory, OrderRepository orders, OrderItemRepository items,
+	CheckoutService(EventDirectory events, PromoterLinks promoters, Inventory inventory, OrderRepository orders, OrderItemRepository items,
 			OrderQueries queries, PersonalDataCipher cipher, FeePolicy fees, PlatformTransactionManager transactions,
 			Clock clock, @Value("${festa.orders.reservation-ttl}") Duration reservationTtl,
 			@Value("${festa.legal.terms-version}") String termsVersion) {
 		this.events = events;
+		this.promoters = promoters;
 		this.inventory = inventory;
 		this.orders = orders;
 		this.items = items;
@@ -98,8 +101,9 @@ public class CheckoutService {
 	 * @param accessKey o Idempotency-Key gerado pelo navegador: repetir a mesma chave devolve o mesmo
 	 *        pedido, e só quem tem a chave acompanha o status
 	 */
+	/** @param promoterCode código do link de promoter guardado pelo navegador; desconhecido é ignorado */
 	public record PlaceOrder(String eventSlug, String accessKey, Buyer buyer, List<TicketRequest> tickets,
-			boolean adultDeclared, boolean termsAccepted) {
+			boolean adultDeclared, boolean termsAccepted, String promoterCode) {
 	}
 
 	/** Pedido com os itens e o nome dos lotes, para a resposta. {@code created} = falso quando repetido. */
@@ -210,6 +214,7 @@ public class CheckoutService {
 				new Order.Buyer(command.buyer().name(), command.buyer().email(), phone(command.buyer().phone()),
 						cipher.encrypt(buyerCpf), buyerCpfHash),
 				subtotal, fee, now, now.plus(reservationTtl), keyHash, command.adultDeclared(), termsVersion));
+		promoters.resolve(event.id(), command.promoterCode()).ifPresent(order::attributeTo);
 		List<OrderItem> saved = new ArrayList<>();
 		for (int i = 0; i < tickets.size(); i++) {
 			TicketRequest ticket = tickets.get(i);

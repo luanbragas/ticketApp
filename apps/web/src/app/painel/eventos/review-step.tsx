@@ -205,9 +205,16 @@ export function ReviewStep({
             </a>
             . Compartilhe o link para a galera.
           </p>
-          <Button asChild variant="outline" className="h-11 w-fit">
-            <Link href="/painel/eventos">Ver meus eventos</Link>
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button asChild className="h-11">
+              <Link href={`/painel/eventos/${data.id}/promoters`}>
+                Links de promoter
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="h-11">
+              <Link href="/painel/eventos">Ver meus eventos</Link>
+            </Button>
+          </div>
         </div>
       ) : (
         <>

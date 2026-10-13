@@ -90,10 +90,12 @@ refunds (id, payment_id FK, order_id, amount_cents, reason, provider_refund_id, 
 
 ### promoter
 ```sql
-promoters (id, organization_id FK, user_id NULL, name, phone)
-promoter_event_links (id, promoter_id FK, event_id FK, organization_id, code,
-                      commission_type CHECK IN ('FIXED','PERCENT'), commission_value,
-                      UNIQUE(event_id, code))
+promoters (id, organization_id FK, user_id NULL FK, name, phone NULL, UNIQUE(organization_id, user_id))
+promoter_event_links (id, (promoter_id, organization_id) FK, (event_id, organization_id) FK, code, active,
+                      UNIQUE(event_id, code), UNIQUE(event_id, promoter_id))
+                      -- comissão (FIXED/PERCENT) entra com "Comissões automáticas"
+promoter_sales (order_id PK, promoter_id FK, (event_id, organization_id) FK, tickets, revenue_cents, paid_at)
+                -- alimentada pelo OrderPaid (ADR-009); orders.promoter_id guarda a atribuição
 ```
 
 ### checkin

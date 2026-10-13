@@ -95,7 +95,8 @@ class PublicOrderController {
 			@Size(max = CheckoutService.MAX_TICKETS_PER_ORDER, message = "No máximo 20 ingressos por pedido.")
 			List<@Valid @NotNull TicketHolderRequest> tickets,
 			Boolean adultDeclared,
-			@NotNull @AssertTrue(message = "É preciso aceitar os termos.") Boolean termsAccepted) {
+			@NotNull @AssertTrue(message = "É preciso aceitar os termos.") Boolean termsAccepted,
+			@Size(max = 40) String promoterCode) {
 	}
 
 	record ItemResponse(String batchName, String typeName, long unitPriceCents, long feeCents, boolean halfPrice,
@@ -134,7 +135,8 @@ class PublicOrderController {
 				body.tickets().stream()
 					.map(t -> new TicketRequest(t.batchId(), t.holderName(), t.holderCpf(), t.halfPriceReason()))
 					.toList(),
-				Boolean.TRUE.equals(body.adultDeclared()), Boolean.TRUE.equals(body.termsAccepted()))));
+				Boolean.TRUE.equals(body.adultDeclared()), Boolean.TRUE.equals(body.termsAccepted()),
+				body.promoterCode())));
 		return ResponseEntity.status(placed.created() ? HttpStatus.CREATED : HttpStatus.OK)
 			.cacheControl(CacheControl.noStore())
 			.body(response(placed));

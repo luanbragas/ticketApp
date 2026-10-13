@@ -35,6 +35,7 @@ import {
   serializeSelection,
 } from "@/lib/selection"
 import { rememberOrderKey } from "@/lib/order-keys"
+import { promoterFromCookies } from "@/lib/promoter-cookie"
 
 /** Checkout em uma coluna (PLAN.md M4): comprador, titulares, meia, 18+, termos e resumo. */
 export function CheckoutForm({
@@ -162,7 +163,10 @@ function Form({
     setFormError(null)
     setSoldOut(false)
     try {
-      const order = await placeOrder(orderKey, toOrderBody(slug, values))
+      const order = await placeOrder(orderKey, {
+        ...toOrderBody(slug, values),
+        promoterCode: promoterFromCookies(document.cookie, slug),
+      })
       rememberOrderKey(order.id, orderKey)
       router.push(`/pedido/${order.id}`)
     } catch (error) {

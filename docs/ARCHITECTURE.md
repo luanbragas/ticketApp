@@ -179,3 +179,12 @@ Formato: contexto → decisão → consequências. Registrar aqui em ordem.
     - **Token do QR** = `base64url(HMAC-SHA256(TICKET_TOKEN_KEY, nonce))`, com nonce aleatório de 32 bytes por ingresso. O banco guarda o nonce e o SHA-256 do token; sem a chave, quem lê o banco não monta um QR. Com a chave, o sistema remonta o token para o e-mail e "Meus ingressos". Transferir ou cancelar troca o nonce.
     - "Meus ingressos" lista pelo e-mail do comprador (`tickets.buyer_email`) e só para conta com e-mail verificado (link mágico, ADR-004).
   - **Consequências:** trocar `TICKET_TOKEN_KEY` invalida todos os QRs emitidos. O e-mail pode, raramente, sair duas vezes (enviou e a transação caiu depois); perder o e-mail não acontece. Ingresso de titular que não é o comprador só aparece para o comprador até existir transferência.
+
+- **ADR-009 — Promoter por link, último clique em 7 dias e vendas contadas por evento.** *Aceito em 2026-10-09.*
+  - **Contexto:** o M7 pede link por promoter, atribuição da venda e lista de vendas por promoter, com o promoter vendo só as próprias vendas, sem um módulo ler as tabelas do outro.
+  - **Decisão:**
+    - `promoters` é da organização (nome, telefone e, opcional, o usuário de um membro com papel PROMOTER). Cada evento tem um link por promoter (`promoter_event_links`) com código legível e único no evento (`/e/{slug}?p=joao-silva`), que não muda depois de criado; desativar para de atribuir compras novas.
+    - **Atribuição** no navegador: ao abrir a página com `?p=`, um cookie de 7 dias por evento guarda o código; o último link clicado vence. O checkout manda o código e o backend resolve para o promoter do link ativo daquele evento (`orders.promoter_id`). Código desconhecido não bloqueia a compra.
+    - **Vendas por promoter**: o evento `OrderPaid` leva `promoterId`, subtotal e quantidade; o módulo promoter grava `promoter_sales` (uma linha por pedido, idempotente). Receita = valor dos ingressos, sem a taxa de serviço. O outbox passou a aceitar vários consumidores por tipo, na mesma transação.
+    - PROMOTER vê só o próprio link e as próprias vendas, sem telefone de ninguém nem CPF (SECURITY.md).
+  - **Consequências:** atribuição pelo cookie pode ser trocada por quem compra (aceitável para marketing; não mexe em dinheiro). Comissão (fixa ou %) fica para "Comissões automáticas" (pós-MVP); estorno (M9) precisa descontar de `promoter_sales`.

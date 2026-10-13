@@ -22,6 +22,8 @@
   | Ver eventos | ✓ | ✓ | ✓ | ✓ | ✓ |
   | Criar, editar, publicar e encerrar evento; enviar flyer | ✓ | ✓ | ✓ | — | — |
   | Cancelar evento | ✓ | ✓ | — | — | — |
+  | Ver links e vendas de promoters do evento | ✓ | ✓ | ✓ | só o seu | — |
+  | Criar e desativar link de promoter | ✓ | ✓ | ✓ | — | — |
   | Ver tipos e lotes | ✓ | ✓ | ✓ | ✓ | ✓ |
   | Criar, editar, encerrar e excluir tipos e lotes | ✓ | ✓ | ✓ | — | — |
 

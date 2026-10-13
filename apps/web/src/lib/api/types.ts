@@ -289,3 +289,32 @@ export type PublicTicket = {
 
 /** GET /me/tickets: próximos em ordem de data, passados do mais recente para trás. */
 export type MyTickets = { upcoming: PublicTicket[]; past: PublicTicket[] }
+
+/** Link de promoter num evento, com as vendas pagas atribuídas a ele (ADR-009). */
+export type PromoterLink = {
+  id: string
+  promoterId: string
+  name: string
+  /** Só para quem gerencia; o promoter não vê o contato de ninguém. */
+  phone: string | null
+  teamMember: boolean
+  code: string
+  url: string
+  active: boolean
+  tickets: number
+  revenueCents: number
+}
+
+export type EventPromoters = {
+  links: PromoterLink[]
+  tickets: number
+  revenueCents: number
+  canManage: boolean
+}
+
+export type Promoter = {
+  id: string
+  name: string
+  phone: string | null
+  userId: string | null
+}

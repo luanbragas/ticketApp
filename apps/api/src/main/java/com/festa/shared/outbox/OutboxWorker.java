@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -33,14 +32,15 @@ public class OutboxWorker {
 	private static final Logger log = LoggerFactory.getLogger(OutboxWorker.class);
 
 	private final JdbcClient jdbc;
-	private final Map<String, OutboxHandler> handlers;
+	/** Um tipo pode ter vários consumidores (ex.: OrderPaid emite ingressos e conta venda do promoter). */
+	private final Map<String, List<OutboxHandler>> handlers;
 	private final TransactionTemplate tx;
 	private final TransactionTemplate failureTx;
 	private final Clock clock;
 
 	OutboxWorker(JdbcClient jdbc, List<OutboxHandler> handlers, PlatformTransactionManager transactions, Clock clock) {
 		this.jdbc = jdbc;
-		this.handlers = handlers.stream().collect(Collectors.toMap(OutboxHandler::type, Function.identity()));
+		this.handlers = handlers.stream().collect(Collectors.groupingBy(OutboxHandler::type));
 		this.tx = new TransactionTemplate(transactions);
 		this.failureTx = new TransactionTemplate(transactions);
 		this.failureTx.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
@@ -93,11 +93,12 @@ public class OutboxWorker {
 			}
 			OutboxMessage message = next.get();
 			try {
-				OutboxHandler handler = handlers.get(message.type());
-				if (handler == null) {
+				List<OutboxHandler> consumers = handlers.getOrDefault(message.type(), List.of());
+				if (consumers.isEmpty()) {
 					throw new IllegalStateException("nenhum handler para " + message.type());
 				}
-				handler.handle(message);
+				// Todos na mesma transação: se um falha, o evento volta inteiro e os outros (idempotentes) repetem.
+				consumers.forEach(handler -> handler.handle(message));
 				jdbc.sql("UPDATE outbox_events SET status = 'DONE', attempts = attempts + 1, processed_at = :now WHERE id = :id")
 					.param("now", Timestamp.from(now))
 					.param("id", message.id())

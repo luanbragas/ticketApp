@@ -11,6 +11,7 @@ import { hourRange, longDay, mapsUrl, shortDay } from "@/lib/event-format"
 import { getPublicEvent } from "@/lib/public-events"
 
 import { Countdown, ShareButton } from "./event-client"
+import { PromoterCapture } from "./promoter-capture"
 import { BuyBar, ShopProvider, TicketList } from "./tickets-client"
 
 export async function generateMetadata({
@@ -102,6 +103,7 @@ function EventView({ event }: { event: PublicEvent }) {
         )}
 
         <ShopProvider slug={event.slug}>
+          <PromoterCapture slug={event.slug} />
           <main
             className={
               layout === "story"
