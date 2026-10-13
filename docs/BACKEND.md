@@ -50,7 +50,7 @@ Regras verificadas com **ArchUnit** no CI:
     "status": 409, "detail": "O Lote 2 esgotou.", "errors": [] }
   ```
 - Códigos: 400 validação · 401 sem sessão · 403 sem papel · 404 não encontrado ou de outra organização · 409 conflito de estado/estoque · 422 regra de negócio · 429 rate limit.
-- `Idempotency-Key` aceito em `POST /orders` e `POST /orders/{id}/payment`.
+- `Idempotency-Key` obrigatório em `POST /public/orders` (é também a chave de acesso ao pedido) e aceito em `POST /public/orders/{id}/payment`.
 
 ## Endpoints da Fase 1
 
@@ -58,8 +58,9 @@ Regras verificadas com **ArchUnit** no CI:
 ```
 GET  /public/events/{slug}
 GET  /public/events/{slug}/availability    # tipos e lotes visíveis; status já virado; sem números de venda
-POST /public/orders                       # cria pedido + reserva
-GET  /public/orders/{id}/status
+POST /public/events/{slug}/quote          # subtotal, taxa e total da seleção, sem reservar
+POST /public/orders                       # cria pedido + reserva; header Idempotency-Key obrigatório (ADR-007)
+GET  /public/orders/{id}                  # status e resumo; header X-Order-Key = a mesma chave
 POST /public/orders/{id}/payment          # PIX ou cartão
 GET  /public/tickets/{token}
 POST /public/magic-links                  # "meus ingressos"

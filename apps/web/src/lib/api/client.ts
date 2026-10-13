@@ -14,6 +14,8 @@ export class ApiError extends Error {
   readonly type: string
   readonly title: string
   readonly errors: FieldError[]
+  /** Campos extras do Problem Details (ex.: {@code field}, {@code batchId}, {@code missing}). */
+  readonly extra: Record<string, unknown>
 
   constructor(
     status: number,
@@ -21,6 +23,7 @@ export class ApiError extends Error {
     title: string,
     detail: string,
     errors: FieldError[] = [],
+    extra: Record<string, unknown> = {},
   ) {
     super(detail)
     this.name = "ApiError"
@@ -28,6 +31,7 @@ export class ApiError extends Error {
     this.type = type
     this.title = title
     this.errors = errors
+    this.extra = extra
   }
 
   /** Último trecho do type: "https://festa.com/errors/slug-taken" → "slug-taken". */
@@ -65,6 +69,7 @@ export function toApiError(status: number, body: unknown): ApiError {
         ? problem.detail
         : "Algo deu errado. Tente novamente.",
       errors,
+      problem,
     )
   }
   return new ApiError(
@@ -100,17 +105,18 @@ async function csrfToken(forceRefresh = false): Promise<string> {
 type RequestOptions = {
   method?: "GET" | "POST" | "PATCH" | "PUT" | "DELETE"
   body?: unknown
+  headers?: Record<string, string>
 }
 
 /** Faz a requisição; em escrita, envia o token CSRF e tenta de novo uma vez se ele tiver girado. */
 export async function api<T>(
   path: string,
-  { method = "GET", body }: RequestOptions = {},
+  { method = "GET", body, headers: extraHeaders }: RequestOptions = {},
 ): Promise<T> {
   const isWrite = method !== "GET"
 
   const send = async (forceNewToken: boolean) => {
-    const headers: Record<string, string> = {}
+    const headers: Record<string, string> = { ...extraHeaders }
     if (body !== undefined) headers["Content-Type"] = "application/json"
     if (isWrite) headers["X-XSRF-TOKEN"] = await csrfToken(forceNewToken)
     try {

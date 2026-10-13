@@ -1,13 +1,25 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
+import { keepPreviousData, useQuery } from "@tanstack/react-query"
+import { MinusIcon, PlusIcon } from "lucide-react"
+import Link from "next/link"
+import { createContext, use, useMemo, useState } from "react"
 
 import { Skeleton } from "@/components/ui/skeleton"
 import { api } from "@/lib/api/client"
+import { quote } from "@/lib/api/orders"
 import type { PublicAvailability } from "@/lib/api/types"
 import { formatCents } from "@/lib/money"
+import {
+  selectionItems,
+  serializeSelection,
+  ticketCount,
+  type Selection,
+} from "@/lib/selection"
 import { batchStatusLabel, lowestPrice } from "@/lib/ticket-format"
 import { cn } from "@/lib/utils"
+
+const MAX_TICKETS = 20
 
 /**
  * Disponibilidade muda a cada venda: vem do navegador (a página continua em cache) e se atualiza
@@ -24,8 +36,45 @@ function useAvailability(slug: string) {
   })
 }
 
-export function TicketList({ slug }: { slug: string }) {
+type Shop = {
+  slug: string
+  selection: Selection
+  change: (batchId: string, quantity: number) => void
+}
+
+const ShopContext = createContext<Shop | null>(null)
+
+function useShop(): Shop {
+  const shop = use(ShopContext)
+  if (!shop) throw new Error("useShop fora do ShopProvider")
+  return shop
+}
+
+/** Guarda a escolha de ingressos entre a lista e a barra de comprar. */
+export function ShopProvider({
+  slug,
+  children,
+}: {
+  slug: string
+  children: React.ReactNode
+}) {
+  const [selection, setSelection] = useState<Selection>({})
+  const shop = useMemo<Shop>(
+    () => ({
+      slug,
+      selection,
+      change: (batchId, quantity) =>
+        setSelection((current) => ({ ...current, [batchId]: quantity })),
+    }),
+    [slug, selection],
+  )
+  return <ShopContext value={shop}>{children}</ShopContext>
+}
+
+export function TicketList() {
+  const { slug, selection, change } = useShop()
   const availability = useAvailability(slug)
+  const total = ticketCount(selection)
 
   return (
     <section
@@ -81,32 +130,39 @@ export function TicketList({ slug }: { slug: string }) {
             <ol className="mt-1">
               {type.batches.map((batch) => {
                 const live = batch.status === "ON_SALE"
+                const buyable = live && batch.availability !== "UNAVAILABLE"
                 const gone =
                   batch.status === "SOLD_OUT" || batch.status === "CLOSED"
+                const quantity = selection[batch.id] ?? 0
+                const label = live
+                  ? batch.availability === "LAST_UNITS"
+                    ? "Últimos"
+                    : batch.availability === "UNAVAILABLE"
+                      ? "Tudo reservado"
+                      : ""
+                  : batchStatusLabel(batch)
                 return (
                   <li
                     key={batch.id}
                     className={cn(
-                      "flex min-h-12 items-center gap-3 border-b border-secondary py-2",
+                      "flex min-h-14 items-center gap-3 border-b border-secondary py-1.5",
                       live && "border-l-4 border-l-(--accent) pl-3",
                     )}
                   >
-                    <span
-                      className={cn(
-                        "min-w-0 flex-1",
-                        gone && "text-muted-foreground line-through",
+                    <span className="min-w-0 flex-1">
+                      <span
+                        className={cn(
+                          "block",
+                          gone && "text-muted-foreground line-through",
+                        )}
+                      >
+                        {batch.name}
+                      </span>
+                      {label && (
+                        <span className="block text-xs font-extrabold uppercase">
+                          {label}
+                        </span>
                       )}
-                    >
-                      {batch.name}
-                    </span>
-                    <span className="text-xs font-extrabold uppercase">
-                      {live
-                        ? batch.availability === "LAST_UNITS"
-                          ? "Últimos"
-                          : batch.availability === "UNAVAILABLE"
-                            ? "Tudo reservado"
-                            : ""
-                        : batchStatusLabel(batch)}
                     </span>
                     <span
                       className={cn(
@@ -117,6 +173,17 @@ export function TicketList({ slug }: { slug: string }) {
                     >
                       {formatCents(batch.priceCents)}
                     </span>
+                    {buyable && (
+                      <Stepper
+                        label={`${type.name} ${batch.name}`}
+                        value={quantity}
+                        max={Math.min(
+                          batch.maxPerOrder,
+                          quantity + MAX_TICKETS - total,
+                        )}
+                        onChange={(next) => change(batch.id, next)}
+                      />
+                    )}
                   </li>
                 )
               })}
@@ -127,9 +194,67 @@ export function TicketList({ slug }: { slug: string }) {
   )
 }
 
-/** Barra fixa: leva à lista com o menor preço à venda. A compra em si chega com os pedidos (M4). */
-export function BuyBar({ slug, ended }: { slug: string; ended: boolean }) {
+function Stepper({
+  label,
+  value,
+  max,
+  onChange,
+}: {
+  label: string
+  value: number
+  max: number
+  onChange: (value: number) => void
+}) {
+  return (
+    <span
+      role="group"
+      aria-label={`Quantidade de ${label}`}
+      className="flex shrink-0 items-center"
+    >
+      <button
+        type="button"
+        aria-label="Menos um"
+        disabled={value === 0}
+        onClick={() => onChange(value - 1)}
+        className="flex size-11 items-center justify-center border border-input disabled:opacity-30"
+      >
+        <MinusIcon className="size-4" aria-hidden />
+      </button>
+      <span
+        aria-live="polite"
+        className="w-8 text-center font-display text-2xl font-extrabold"
+      >
+        {value}
+      </span>
+      <button
+        type="button"
+        aria-label="Mais um"
+        disabled={value >= max}
+        onClick={() => onChange(value + 1)}
+        className="flex size-11 items-center justify-center bg-(--accent) text-(--on-accent) disabled:opacity-30"
+      >
+        <PlusIcon className="size-4" aria-hidden />
+      </button>
+    </span>
+  )
+}
+
+/**
+ * Barra fixa. Sem escolha: "a partir de" e leva à lista. Com escolha: total calculado pela API (preço +
+ * taxa de serviço) e segue para o checkout.
+ */
+export function BuyBar({ ended }: { ended: boolean }) {
+  const { slug, selection } = useShop()
   const availability = useAvailability(slug)
+  const items = selectionItems(selection)
+  const count = ticketCount(selection)
+  const priced = useQuery({
+    queryKey: ["quote", slug, serializeSelection(selection)],
+    queryFn: () => quote(slug, items),
+    enabled: count > 0,
+    placeholderData: keepPreviousData,
+    retry: false,
+  })
   const from = availability.data ? lowestPrice(availability.data) : null
   const soldOut =
     availability.isSuccess &&
@@ -148,6 +273,34 @@ export function BuyBar({ slug, ended }: { slug: string; ended: boolean }) {
         <span className="text-sm font-extrabold">
           {ended ? "obrigado por ir!" : "fique de olho no próximo"}
         </span>
+      </div>
+    )
+  }
+  if (count > 0) {
+    return (
+      <div className="grid gap-1">
+        {priced.isError && (
+          <p role="alert" className="text-sm text-destructive">
+            {priced.error.message}
+          </p>
+        )}
+        <Link
+          href={`/e/${slug}/checkout?i=${serializeSelection(selection)}`}
+          aria-disabled={priced.isError || undefined}
+          className={cn(
+            "flex h-14 items-center justify-between bg-(--accent) px-5 text-(--on-accent)",
+            priced.isError && "pointer-events-none opacity-50",
+          )}
+        >
+          <span className="font-display text-2xl font-black uppercase">
+            Continuar
+          </span>
+          <span className="text-right text-sm leading-tight font-extrabold">
+            {count} {count === 1 ? "ingresso" : "ingressos"}
+            <br />
+            {priced.data ? formatCents(priced.data.totalCents) : "…"}
+          </span>
+        </Link>
       </div>
     )
   }

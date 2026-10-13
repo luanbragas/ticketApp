@@ -43,6 +43,23 @@ festa:
     public-base-url: ${STORAGE_PUBLIC_BASE_URL}
   mail:
     from: ${MAIL_FROM:FESTA <nao-responda@festa.local>}
+  crypto:
+    # CPF em repouso (SECURITY.md): AES-256-GCM e HMAC-SHA256, cada um com 32 bytes em base64.
+    # Gerar com: openssl rand -base64 32. Trocar a chave exige migrar o que já foi gravado.
+    personal-data-key: ${PERSONAL_DATA_KEY}
+    personal-data-hash-key: ${PERSONAL_DATA_HASH_KEY}
+  fees:
+    # Taxa de serviço por ingresso, paga pelo comprador por cima do preço (ADR-007).
+    # Em pontos-base: 1000 = 10%. Mínimo em centavos (0 = sem mínimo).
+    service-fee-bps: ${SERVICE_FEE_BPS:1000}
+    service-fee-min-cents: ${SERVICE_FEE_MIN_CENTS:0}
+  orders:
+    # Tempo que o pedido segura o estoque esperando o pagamento (PLAN.md M4).
+    reservation-ttl: ${ORDER_RESERVATION_TTL:10m}
+    expiry-job-delay: 30s
+  legal:
+    # Versão dos termos aceita no checkout. Trocar quando o texto jurídico mudar (PLAN.md M8).
+    terms-version: ${TERMS_VERSION:rascunho-2026-10}
   web:
     # Base dos links enviados por e-mail.
     base-url: ${WEB_BASE_URL:http://localhost:3000}

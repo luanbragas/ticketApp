@@ -138,7 +138,7 @@ public class SecurityConfig {
 		CorsConfiguration cors = new CorsConfiguration();
 		cors.setAllowedOrigins(origins);
 		cors.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-		cors.setAllowedHeaders(List.of("Content-Type", "X-XSRF-TOKEN", "Idempotency-Key"));
+		cors.setAllowedHeaders(List.of("Content-Type", "X-XSRF-TOKEN", "Idempotency-Key", "X-Order-Key"));
 		cors.setAllowCredentials(true);
 		cors.setMaxAge(Duration.ofHours(1));
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

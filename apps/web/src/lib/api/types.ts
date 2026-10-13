@@ -205,3 +205,61 @@ export type PublicAvailability = {
     }[]
   }[]
 }
+
+/** POST /public/events/{slug}/quote: valores calculados no backend (centavos). */
+export type Quote = {
+  lines: {
+    batchId: string
+    batchName: string
+    typeName: string
+    halfPrice: boolean
+    quantity: number
+    unitPriceCents: number
+    unitFeeCents: number
+    totalCents: number
+    maxPerOrder: number
+  }[]
+  subtotalCents: number
+  feeCents: number
+  totalCents: number
+}
+
+export type HalfPriceReason = "STUDENT" | "PCD" | "YOUTH_LOW_INCOME" | "SENIOR"
+
+export const HALF_PRICE_REASONS: Record<HalfPriceReason, string> = {
+  STUDENT: "Estudante (carteirinha CIE)",
+  PCD: "Pessoa com deficiência",
+  YOUTH_LOW_INCOME: "Jovem de baixa renda (ID Jovem)",
+  SENIOR: "Pessoa com 60 anos ou mais",
+}
+
+export type OrderStatus =
+  | "PENDING_PAYMENT"
+  | "PAID"
+  | "EXPIRED"
+  | "FAILED"
+  | "REFUNDED"
+  | "PARTIALLY_REFUNDED"
+  | "CHARGEBACK"
+
+/** Pedido como o comprador vê (CPF sempre mascarado). */
+export type PublicOrder = {
+  id: string
+  status: OrderStatus
+  expiresAt: string
+  event: { slug: string; name: string; startsAt: string; minAge: number }
+  buyer: { name: string; email: string; cpf: string }
+  items: {
+    batchName: string
+    typeName: string
+    unitPriceCents: number
+    feeCents: number
+    halfPrice: boolean
+    halfPriceReason: HalfPriceReason | null
+    holderName: string
+    holderCpf: string
+  }[]
+  subtotalCents: number
+  feeCents: number
+  totalCents: number
+}
