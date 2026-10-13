@@ -56,6 +56,18 @@
         "3001"
       ],
       "port": 3001
+    },
+    {
+      "name": "web-start",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": [
+        "--dir",
+        "apps/web",
+        "start",
+        "-p",
+        "3000"
+      ],
+      "port": 3000
     }
   ]
 }
