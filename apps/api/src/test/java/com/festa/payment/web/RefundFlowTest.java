@@ -59,7 +59,7 @@ class RefundFlowTest {
 		refund(shop.producer(), shop, order)
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.amountCents").value(6600));
-		outbox.drain(100);
+		outbox.drain(Integer.MAX_VALUE);
 
 		assertThat(orderStatus(order)).isEqualTo("REFUNDED");
 		assertThat(jdbc.sql("SELECT status FROM payments WHERE order_id = ? AND status <> 'PENDING'").param(order)
@@ -114,7 +114,7 @@ class RefundFlowTest {
 		gateway.chargeback(providerId);
 		payments.reconcile(providerId);
 		payments.reconcile(providerId);
-		outbox.drain(100);
+		outbox.drain(Integer.MAX_VALUE);
 
 		assertThat(orderStatus(order)).isEqualTo("CHARGEBACK");
 		assertThat(ticketStatuses(order)).containsExactly("CANCELLED");
@@ -133,7 +133,7 @@ class RefundFlowTest {
 
 		gateway.chargeback(providerId);
 		payments.reconcile(providerId);
-		outbox.drain(100);
+		outbox.drain(Integer.MAX_VALUE);
 
 		assertThat(orderStatus(order)).isEqualTo("CHARGEBACK");
 		assertThat(sold(shop)).isZero();

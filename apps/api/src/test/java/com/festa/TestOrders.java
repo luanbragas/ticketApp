@@ -37,7 +37,7 @@ public final class TestOrders {
 			.andExpect(status().isCreated());
 		new TestBrowser(mvc).send(MockMvcRequestBuilders.post(path + "/simulate-approval").header("X-Order-Key", key), "")
 			.andExpect(status().isNoContent());
-		outbox.drain(100);
+		outbox.drain(Integer.MAX_VALUE);
 		return order;
 	}
 

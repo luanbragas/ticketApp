@@ -88,13 +88,13 @@ class PromoterFlowTest {
 
 		payments.confirmPaid(viaCaio);
 		payments.confirmPaid(viaNobody);
-		outbox.drain(100);
+		outbox.drain(Integer.MAX_VALUE);
 		// O mesmo OrderPaid de novo não conta duas vezes.
 		jdbc.sql("""
 				INSERT INTO outbox_events (id, type, aggregate_id, payload, next_attempt_at)
 				SELECT gen_random_uuid(), type, aggregate_id, payload, now() - interval '1 minute' FROM outbox_events
 				 WHERE type = 'OrderPaid' AND aggregate_id = ?""").param(viaCaio).update();
-		outbox.drain(100);
+		outbox.drain(Integer.MAX_VALUE);
 
 		shop.producer().get(shop.eventPath() + "/promoters")
 			.andExpect(jsonPath("$.links[0].code").value("caio"))

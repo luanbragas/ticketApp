@@ -254,7 +254,7 @@ class CheckinFlowTest {
 
 	private void pay(UUID order) {
 		payments.confirmPaid(order);
-		outbox.drain(100);
+		outbox.drain(Integer.MAX_VALUE);
 	}
 
 	private TestBrowser member(Shop shop, String role) throws Exception {

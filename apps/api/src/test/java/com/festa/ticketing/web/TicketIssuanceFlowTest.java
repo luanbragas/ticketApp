@@ -65,7 +65,7 @@ class TicketIssuanceFlowTest {
 				+ ticket(shop.meia(), "Bia Lima", TestCpf.random(), "STUDENT"));
 
 		assertThat(payments.confirmPaid(order)).isTrue();
-		outbox.drain(100);
+		outbox.drain(Integer.MAX_VALUE);
 
 		assertThat(jdbc.sql("SELECT status FROM orders WHERE id = ?").param(order).query(String.class).single())
 			.isEqualTo("PAID");
@@ -108,13 +108,13 @@ class TicketIssuanceFlowTest {
 
 		assertThat(payments.confirmPaid(order)).isTrue();
 		assertThat(payments.confirmPaid(order)).isFalse();
-		outbox.drain(100);
+		outbox.drain(Integer.MAX_VALUE);
 		// O outbox entrega "pelo menos uma vez": o mesmo OrderPaid de novo não emite nada.
 		jdbc.sql("""
 				INSERT INTO outbox_events (id, type, aggregate_id, payload)
 				SELECT gen_random_uuid(), type, aggregate_id, payload FROM outbox_events
 				 WHERE type = 'OrderPaid' AND aggregate_id = ?""").param(order).update();
-		outbox.drain(100);
+		outbox.drain(Integer.MAX_VALUE);
 
 		assertThat(tickets(order)).isEqualTo(1);
 		assertThat(batch(shop.pista(), "sold")).isEqualTo(1);
@@ -141,7 +141,7 @@ class TicketIssuanceFlowTest {
 		UUID order = place(shop, email, cpf, ticket(shop.pista(), "Ana", cpf, null) + ","
 				+ ticket(shop.pista(), "Caio", TestCpf.random(), null));
 		payments.confirmPaid(order);
-		outbox.drain(100);
+		outbox.drain(Integer.MAX_VALUE);
 
 		TestBrowser buyer = new TestBrowser(mvc);
 		buyer.post("/api/v1/auth/signup",

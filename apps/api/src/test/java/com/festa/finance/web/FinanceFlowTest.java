@@ -41,11 +41,11 @@ class FinanceFlowTest {
 		UUID refunded = TestOrders.paid(mvc, outbox, shop, 1, null);
 		shop.producer().post("/api/v1/orgs/" + shop.org() + "/orders/" + refunded + "/refund", "{\"reason\":\"Duplicado\"}")
 			.andExpect(status().isOk());
-		outbox.drain(100);
+		outbox.drain(Integer.MAX_VALUE);
 		// Entregar de novo não lança duas vezes.
 		jdbc.sql("UPDATE outbox_events SET status = 'PENDING', processed_at = NULL, next_attempt_at = now() - interval '1 minute' WHERE aggregate_id = ?")
 			.param(refunded).update();
-		outbox.drain(100);
+		outbox.drain(Integer.MAX_VALUE);
 
 		shop.producer().get(shop.eventPath() + "/finance")
 			.andExpect(status().isOk())

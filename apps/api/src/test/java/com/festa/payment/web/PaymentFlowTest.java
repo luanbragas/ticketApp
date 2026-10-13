@@ -64,7 +64,7 @@ class PaymentFlowTest {
 		assertThat(orderStatus(order)).isEqualTo("PENDING_PAYMENT");
 
 		simulateApproval(order).andExpect(status().isNoContent());
-		outbox.drain(100);
+		outbox.drain(Integer.MAX_VALUE);
 
 		assertThat(orderStatus(order)).isEqualTo("PAID");
 		current(order).andExpect(jsonPath("$.status").value("APPROVED"));
