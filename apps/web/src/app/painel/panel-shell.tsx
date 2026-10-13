@@ -10,6 +10,7 @@ import {
   PlusIcon,
   SettingsIcon,
   UsersIcon,
+  WalletIcon,
   type LucideIcon,
 } from "lucide-react"
 import Link from "next/link"
@@ -196,6 +197,14 @@ function OrganizationSwitcher({
             <Link href="/painel/organizacao">
               <SettingsIcon className="size-4" aria-hidden />
               Dados da organização
+            </Link>
+          </DropdownMenuItem>
+        )}
+        {current && (current.role === "OWNER" || current.role === "ADMIN") && (
+          <DropdownMenuItem asChild className="min-h-10">
+            <Link href="/painel/organizacao/recebimentos">
+              <WalletIcon className="size-4" aria-hidden />
+              Recebimentos
             </Link>
           </DropdownMenuItem>
         )}

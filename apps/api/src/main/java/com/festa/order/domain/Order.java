@@ -110,6 +110,26 @@ public class Order extends BaseEntity {
 		paidAt = now;
 	}
 
+	/**
+	 * Expirado → pago: o pagamento chegou depois do prazo, mas quem chama conseguiu reservar o estoque de novo
+	 * (ARCHITECTURE.md §Pagamento, caso de borda).
+	 */
+	public void markPaidAfterExpiry(Instant now) {
+		if (status != OrderStatus.EXPIRED) {
+			throw OrderRuleException.conflict("invalid-order-status", "Só pedido expirado volta pago por aqui.");
+		}
+		status = OrderStatus.PAID;
+		paidAt = now;
+	}
+
+	/** Expirado → estornado: o dinheiro chegou depois do prazo e não havia mais estoque. */
+	public void markRefunded() {
+		if (status != OrderStatus.EXPIRED) {
+			throw OrderRuleException.conflict("invalid-order-status", "Estorno de pedido pago chega com o reembolso.");
+		}
+		status = OrderStatus.REFUNDED;
+	}
+
 	/** Aguardando pagamento → expirado. Quem chama devolve a reserva ao estoque na mesma transação. */
 	public void expire(Instant now) {
 		if (status != OrderStatus.PENDING_PAYMENT) {

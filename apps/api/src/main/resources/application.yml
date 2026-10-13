@@ -59,6 +59,18 @@ festa:
     # Tempo que o pedido segura o estoque esperando o pagamento (PLAN.md M4).
     reservation-ttl: ${ORDER_RESERVATION_TTL:10m}
     expiry-job-delay: 30s
+  payments:
+    # mercadopago em staging/produção; "fake" (simulado) só em desenvolvimento local (ADR-011).
+    provider: ${PAYMENTS_PROVIDER:mercadopago}
+    mercadopago:
+      # App de marketplace no painel do Mercado Pago (OAuth). O webhook usa a chave secreta do painel.
+      client-id: ${MP_CLIENT_ID:}
+      client-secret: ${MP_CLIENT_SECRET:}
+      webhook-secret: ${MP_WEBHOOK_SECRET:}
+      public-key: ${MP_PUBLIC_KEY:}
+  api:
+    # Endereço público da API (notification_url do webhook).
+    base-url: ${API_BASE_URL:http://localhost:8080}
   legal:
     # Versão dos termos aceita no checkout. Trocar quando o texto jurídico mudar (PLAN.md M8).
     terms-version: ${TERMS_VERSION:rascunho-2026-10}

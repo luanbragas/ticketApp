@@ -27,8 +27,7 @@ magic_links (id, email, token_hash UNIQUE, expires_at, used_at, created_at, upda
 organizations (id, name, slug UNIQUE, logo_url, instagram, whatsapp, created_at, updated_at)
 organization_members (id, organization_id FK, user_id FK, role CHECK IN ('OWNER','ADMIN','MANAGER','PROMOTER','CHECKIN_OPERATOR'),
                       UNIQUE(organization_id, user_id))
-payment_accounts (id, organization_id FK UNIQUE, provider, provider_account_id,
-                  access_token_encrypted, refresh_token_encrypted, expires_at)
+-- payment_accounts mora no módulo payment (ver abaixo)
 ```
 
 ### event
@@ -82,9 +81,13 @@ order_items (id, order_id FK, ticket_batch_id FK, unit_price_cents, fee_cents,
 
 ### payment
 ```sql
-payments (id, order_id FK, organization_id, provider, provider_payment_id UNIQUE,
-          method CHECK IN ('PIX','CARD'), status, amount_cents, platform_fee_cents,
-          raw_payload JSONB, approved_at)
+payment_accounts (id, organization_id FK UNIQUE, provider, provider_user_id, public_key,
+                  access_token_encrypted, refresh_token_encrypted, expires_at, connected_by)
+payment_oauth_states (state_hash PK, organization_id, user_id, expires_at, used_at)   -- OAuth: uso único
+payments (id, order_id FK, organization_id, provider, provider_payment_id, idempotency_key UNIQUE,
+          method CHECK IN ('PIX','CARD'), status CHECK IN ('PENDING','APPROVED','REJECTED','CANCELLED','REFUNDED','CHARGED_BACK'),
+          status_detail, amount_cents, platform_fee_cents, pix_qr_code, pix_qr_base64, pix_expires_at,
+          raw_payload JSONB, approved_at, UNIQUE(provider, provider_payment_id))
 refunds (id, payment_id FK, order_id, amount_cents, reason, provider_refund_id, status, created_by)
 ```
 

@@ -8,10 +8,12 @@ import { FormError } from "@/components/form/form-error"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { getEvent, publishEvent } from "@/lib/api/events"
+import { getPaymentAccount } from "@/lib/api/payments"
 import { getCatalog } from "@/lib/api/tickets"
 import {
   EVENT_STATUS_LABELS,
   type EventDetail,
+  type PaymentAccountStatus,
   type TicketCatalog,
 } from "@/lib/api/types"
 import { formatCents } from "@/lib/money"
@@ -67,7 +69,11 @@ function quotaItem(event: EventDetail, catalog: TicketCatalog): Item[] {
   ]
 }
 
-function checklist(event: EventDetail, catalog: TicketCatalog): Item[] {
+function checklist(
+  event: EventDetail,
+  catalog: TicketCatalog,
+  account: PaymentAccountStatus,
+): Item[] {
   const hasInfo = !!(event.startsAt && event.endsAt && event.venueName)
   return [
     {
@@ -88,6 +94,15 @@ function checklist(event: EventDetail, catalog: TicketCatalog): Item[] {
     },
     ticketsItem(event, catalog),
     ...quotaItem(event, catalog),
+    {
+      label: "Recebimentos",
+      detail: account.connected
+        ? "Conta do Mercado Pago conectada"
+        : "Conecte a conta que recebe as vendas",
+      ok: account.connected,
+      href: "/painel/organizacao/recebimentos",
+      blocking: true,
+    },
   ]
 }
 
@@ -107,13 +122,17 @@ export function ReviewStep({
     queryKey: ["tickets", organizationId, eventId],
     queryFn: () => getCatalog(organizationId, eventId),
   })
+  const account = useQuery({
+    queryKey: ["payment-account", organizationId],
+    queryFn: () => getPaymentAccount(organizationId),
+  })
   const publish = useMutation({
     mutationFn: () => publishEvent(organizationId, eventId),
     onSuccess: (saved) =>
       queryClient.setQueryData(["event", organizationId, eventId], saved),
   })
 
-  if (event.isPending || catalog.isPending) {
+  if (event.isPending || catalog.isPending || account.isPending) {
     return (
       <div aria-busy="true" className="grid gap-3">
         <Skeleton className="h-16 w-full" />
@@ -124,9 +143,10 @@ export function ReviewStep({
   }
   if (event.isError) return <FormError message={event.error.message} />
   if (catalog.isError) return <FormError message={catalog.error.message} />
+  if (account.isError) return <FormError message={account.error.message} />
 
   const data = event.data
-  const items = checklist(data, catalog.data)
+  const items = checklist(data, catalog.data, account.data)
   const ready = items.every((item) => item.ok || !item.blocking)
   const published = data.status === "PUBLISHED"
 

@@ -61,7 +61,9 @@ GET  /public/events/{slug}/availability    # tipos e lotes visíveis; status já
 POST /public/events/{slug}/quote          # subtotal, taxa e total da seleção, sem reservar
 POST /public/orders                       # cria pedido + reserva; header Idempotency-Key obrigatório (ADR-007)
 GET  /public/orders/{id}                  # status e resumo; header X-Order-Key = a mesma chave
-POST /public/orders/{id}/payment          # PIX ou cartão
+POST /public/orders/{id}/payment          # PIX ou cartão (X-Order-Key); GET devolve o último pagamento
+POST /public/orders/{id}/payment/simulate-approval   # só com o gateway simulado (desenvolvimento)
+POST /webhooks/mercadopago                # x-signature + consulta ao gateway (ADR-011)
 GET  /public/tickets/{token}               # ingresso pelo token do QR (sem cache, Referrer-Policy: no-referrer)
 POST /public/magic-links                  # "meus ingressos"
 POST /public/invitations/preview          # dados do convite para a tela de aceite (token no corpo)
@@ -79,6 +81,7 @@ GET  /auth/google/callback · POST /auth/magic-link/consume · GET /auth/me
 ```
 GET|POST /orgs                               · GET /orgs/{orgId}       # GET /orgs = organizações do usuário logado
 PATCH /orgs/{orgId} (nome, Instagram, WhatsApp) · POST /orgs/{orgId}/logo/upload-url · PUT /orgs/{orgId}/logo   # dono e admin
+GET|DELETE /orgs/{orgId}/payment-account · POST .../connect · POST .../callback   # OAuth do gateway (dono e admin)
 GET|POST /orgs/{orgId}/members               · POST /orgs/{orgId}/payment-account/connect
 POST /invitations/accept                     # aceitar convite (logado com o e-mail convidado)
 GET|POST /orgs/{orgId}/events                · GET|PATCH /orgs/{orgId}/events/{id}

@@ -50,6 +50,7 @@ public final class TestShop {
 
 		String pista = batch(producer, path, "Pista", false, 3000, pistaCapacity);
 		String meia = batch(producer, path, "Meia", true, 1500, 50);
+		TestPayments.connect(producer, org);
 		producer.post(path + "/publish", "{}").andExpect(status().isOk());
 		return new Shop(producer, org, eventId, path, slug, pista, meia);
 	}

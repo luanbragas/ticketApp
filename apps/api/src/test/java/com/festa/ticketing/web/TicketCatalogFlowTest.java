@@ -336,6 +336,7 @@ class TicketCatalogFlowTest {
 		producer.put(producer.event + "/media/flyer", "{\"key\":\"orgs/" + producer.org + "/events/" + producer.eventId
 				+ "/flyer/" + UUID.randomUUID() + ".jpg\",\"width\":918,\"height\":1600}")
 			.andExpect(status().isOk());
+		com.festa.TestPayments.connect(producer.browser, producer.org);
 	}
 
 	private Producer producer() throws Exception {

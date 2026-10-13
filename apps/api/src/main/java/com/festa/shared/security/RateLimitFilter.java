@@ -47,6 +47,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
 			new Rule("POST", "/api/v1/auth/magic-link/consume", 10, Duration.ofMinutes(1)),
 			new Rule("POST", "/api/v1/public/orders", 60, Duration.ofMinutes(1)),
 			new Rule("POST", "/api/v1/public/events/*/quote", 120, Duration.ofMinutes(1)),
+			new Rule("POST", "/api/v1/public/orders/*/payment", 30, Duration.ofMinutes(1)),
 			new Rule("POST", "/api/v1/webhooks/**", 600, Duration.ofMinutes(1)));
 
 	/** Teto de IPs lembrados: o mais antigo sai (memória limitada mesmo sob ataque de muitos IPs). */

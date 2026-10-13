@@ -106,6 +106,7 @@ class PublicEventFlowTest {
 				"{\"key\":\"orgs/" + org + "/events/" + id + "/flyer/" + UUID.randomUUID() + ".jpg\",\"width\":918,\"height\":1600}")
 			.andExpect(status().isOk());
 		TestTickets.addPista(setup.browser, setup.eventPath);
+		com.festa.TestPayments.connect(setup.browser, org);
 		setup.browser.post(setup.eventPath + "/publish", "{}").andExpect(status().isOk());
 		return setup;
 	}

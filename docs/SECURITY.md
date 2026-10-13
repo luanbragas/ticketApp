@@ -38,7 +38,7 @@
 - Confirmação **somente** via webhook com assinatura válida + consulta à API do gateway.
 - Idempotência: `orders.idempotency_key` na criação; `payments.provider_payment_id UNIQUE` no webhook.
 - Valores sempre recalculados no backend. O frontend nunca envia preço ou total.
-- Tokens OAuth do produtor criptografados em repouso.
+- Tokens OAuth do produtor criptografados em repouso (`payment_accounts`), `state` do OAuth de uso único com 10 min, preso à organização e a quem iniciou.
 
 ## QR Code
 
@@ -83,7 +83,7 @@ Gravar em `audit_logs`: reembolso, cortesia, desfazer check-in, alteração de p
 ## Checklist antes do piloto
 
 - [x] Teste de isolamento entre organizações em todos os endpoints do painel (`OrganizationIsolationSweepTest` percorre todas as rotas `/orgs/{orgId}/...` registradas; rota nova entra sozinha)
-- [ ] Webhook rejeita assinatura inválida e processa repetidos sem duplicar
+- [x] Webhook rejeita assinatura inválida e processa repetidos sem duplicar (`PaymentFlowTest`, `WebhookSignatureTest`; validar com o Mercado Pago real)
 - [x] Rate limit ativo nos endpoints listados (cupom quando existir)
 - [x] Nenhum segredo no repositório (gitleaks no CI; exceção só para as chaves de dev do `application-local.yml`)
 - [ ] Dependências sem vulnerabilidade crítica (Dependabot configurado; falta rodar `pnpm audit` e OWASP dependency-check antes do piloto)

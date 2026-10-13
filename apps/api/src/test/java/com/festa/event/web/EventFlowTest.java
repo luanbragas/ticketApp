@@ -110,7 +110,8 @@ class EventFlowTest {
 		ana.browser.post(event(ana, event) + "/publish", "{}")
 			.andExpect(status().isUnprocessableContent())
 			.andExpect(jsonPath("$.type").value("https://festa.com/errors/event-not-ready"))
-			.andExpect(jsonPath("$.missing", contains("startsAt", "endsAt", "venueName", "flyer", "tickets")));
+			.andExpect(jsonPath("$.missing", org.hamcrest.Matchers.containsInAnyOrder("startsAt", "endsAt", "venueName",
+					"flyer", "tickets", "paymentAccount")));
 	}
 
 	@Test
@@ -126,6 +127,7 @@ class EventFlowTest {
 			.andExpect(jsonPath("$.flyer.url").value(endsWith(key)))
 			.andExpect(jsonPath("$.flyer.height").value(1600));
 		TestTickets.addPista(ana.browser, event(ana, event));
+		com.festa.TestPayments.connect(ana.browser, ana.org);
 
 		ana.browser.post(event(ana, event) + "/publish", "{}")
 			.andExpect(status().isOk())

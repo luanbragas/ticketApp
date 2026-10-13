@@ -11,6 +11,8 @@ import { HALF_PRICE_REASONS, type PublicOrder } from "@/lib/api/types"
 import { formatCents } from "@/lib/money"
 import { orderKey } from "@/lib/order-keys"
 
+import { PaymentPanel } from "./payment-panel"
+
 /** Pedido recém-criado: reserva com contador. O pagamento (PIX e cartão) entra aqui no M5. */
 export function OrderView({ orderId }: { orderId: string }) {
   const [key, setKey] = useState<string | null | undefined>(undefined)
@@ -23,7 +25,7 @@ export function OrderView({ orderId }: { orderId: string }) {
     queryFn: () => getOrder(orderId, key!),
     enabled: !!key,
     refetchInterval: (query) =>
-      query.state.data?.status === "PENDING_PAYMENT" ? 10_000 : false,
+      query.state.data?.status === "PENDING_PAYMENT" ? 5_000 : false,
   })
 
   if (key === undefined || (key && order.isPending)) {
@@ -44,10 +46,16 @@ export function OrderView({ orderId }: { orderId: string }) {
     )
   }
   if (order.isError) return <FormError message={order.error.message} />
-  return <Details order={order.data!} />
+  return <Details order={order.data!} orderKey={key} />
 }
 
-function Details({ order }: { order: PublicOrder }) {
+function Details({
+  order,
+  orderKey,
+}: {
+  order: PublicOrder
+  orderKey: string
+}) {
   const remaining = useCountdown(order.expiresAt)
   const expired =
     order.status === "EXPIRED" ||
@@ -158,26 +166,11 @@ function Details({ order }: { order: PublicOrder }) {
       </section>
 
       {order.status === "PENDING_PAYMENT" && !expired && (
-        <section aria-labelledby="pagamento" className="grid gap-2">
-          <h2
-            id="pagamento"
-            className="border-b border-foreground pb-2 font-display text-3xl leading-none font-black uppercase"
-          >
-            Pagamento
-          </h2>
-          <div
-            aria-disabled="true"
-            className="flex h-14 items-center justify-between bg-secondary px-5 text-muted-foreground"
-          >
-            <span className="font-display text-2xl font-black uppercase">
-              Pagar com PIX
-            </span>
-            <span className="text-sm font-extrabold">em breve</span>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Pedido no nome de {order.buyer.name} ({order.buyer.email}).
-          </p>
-        </section>
+        <PaymentPanel
+          orderId={order.id}
+          orderKey={orderKey}
+          totalCents={order.totalCents}
+        />
       )}
     </div>
   )
