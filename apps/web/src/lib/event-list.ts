@@ -28,13 +28,10 @@ export function eventLine(event: EventSummary): string {
   return event.venueName ? `${when} · ${event.venueName}` : when
 }
 
-/** Para onde a linha leva: rascunho continua de onde parou; o resto abre a revisão. */
+/** Para onde a linha leva: rascunho continua de onde parou; publicado abre o painel do evento. */
 export function eventHref(event: EventSummary): string {
-  if (event.status === "DRAFT" && !event.startsAt) {
-    return `/painel/eventos/${event.id}/informacoes`
-  }
-  if (event.status === "DRAFT" && !event.flyerUrl) {
-    return `/painel/eventos/${event.id}/aparencia`
-  }
+  if (event.status !== "DRAFT") return `/painel/eventos/${event.id}`
+  if (!event.startsAt) return `/painel/eventos/${event.id}/informacoes`
+  if (!event.flyerUrl) return `/painel/eventos/${event.id}/aparencia`
   return `/painel/eventos/${event.id}/revisar`
 }

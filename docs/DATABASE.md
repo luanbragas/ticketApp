@@ -100,11 +100,12 @@ promoter_sales (order_id PK, promoter_id FK, (event_id, organization_id) FK, tic
 
 ### checkin
 ```sql
-checkin_gates (id, event_id FK, organization_id, name)
-checkins (id, ticket_id FK, event_id, organization_id, gate_id NULL, operator_user_id,
-          checked_in_at, source CHECK IN ('ONLINE','OFFLINE'), device_id, undone_at NULL, undone_by NULL)
--- índice único parcial: um check-in ativo por ingresso
-CREATE UNIQUE INDEX ux_checkins_active ON checkins(ticket_id) WHERE undone_at IS NULL;
+checkins (id, ticket_id FK, (event_id, organization_id) FK, operator_user_id FK,
+          checked_in_at, source CHECK IN ('ONLINE','OFFLINE'), device_id, duplicate BOOLEAN,
+          undone_at NULL, undone_by NULL)
+-- índice único parcial: um check-in valendo por ingresso; duplicados vão para o relatório (ADR-010)
+CREATE UNIQUE INDEX ux_checkins_active ON checkins(ticket_id) WHERE undone_at IS NULL AND NOT duplicate;
+-- checkin_gates (portarias nomeadas) entra quando houver festa com mais de uma entrada
 ```
 
 ### compliance e infra

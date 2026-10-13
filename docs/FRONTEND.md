@@ -20,7 +20,7 @@ apps/web/src/
 │   ├── painel/
 │   │   ├── layout.tsx                # shell: menu lateral (desktop) / barra inferior (mobile)
 │   │   ├── page.tsx                  # dashboard
-│   │   ├── eventos/ (lista, novo = wizard passo 1, [id]/informacoes|aparencia|ingressos|revisar, participantes, promoters)
+│   │   ├── eventos/ (lista, novo = wizard passo 1, [id] = painel do evento, [id]/informacoes|aparencia|ingressos|revisar, participantes, promoters)
 │   │   ├── equipe/                   # membros e convites
 │   │   ├── organizacoes/nova/
 │   │   ├── financeiro/

@@ -38,7 +38,7 @@ async function Promoters({ params }: { params: Promise<{ id: string }> }) {
       {VIEWERS.includes(organization.role) ? (
         <PromotersView organizationId={organization.id} eventId={id} />
       ) : (
-        <NoPermission />
+        <NoPermission message="Promoters é para dono, administradores, gerentes e os próprios promoters." />
       )}
     </div>
   )
